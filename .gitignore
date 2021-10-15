@@ -2,3 +2,4 @@ input_data
 .idea
 dev_notebooks
 output
+meshtools/__pycache__/

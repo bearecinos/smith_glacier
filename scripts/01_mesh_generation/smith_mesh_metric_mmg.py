@@ -48,8 +48,12 @@ bedmachine = os.path.join(MAIN_PATH, config['bedmachine'])
 use_bedmachine = True
 
 # Out files
-mesh_outfile = os.path.join(MAIN_PATH,
-                            'output/01_mesh/smith_variable_ocean')
+output_path = os.path.join(MAIN_PATH,
+                            'output/01_mesh')
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
+
+mesh_outfile = os.path.join(output_path, 'smith_variable_ocean')
 
 lc_params = {'min': 500.0,
              'max': 4000.0,

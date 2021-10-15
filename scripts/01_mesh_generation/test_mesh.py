@@ -13,8 +13,10 @@ sys.path.append(MAIN_PATH)
 # Load configuration file for more order in paths
 config = ConfigObj(os.path.join(MAIN_PATH, 'config.ini'))
 
-meshname = os.path.join(MAIN_PATH,
-                            'output/01_mesh/smith_variable_ocean')
+output_path = os.path.join(MAIN_PATH,
+                            'output/01_mesh')
+
+meshname =  os.path.join(output_path, 'smith_variable_ocean')
 meshfile = os.path.join(MAIN_PATH, config['meshfile'])
 mvc_file = os.path.join(MAIN_PATH, config['mvc_file'])
 

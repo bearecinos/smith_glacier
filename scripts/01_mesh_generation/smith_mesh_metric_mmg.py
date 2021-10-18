@@ -32,7 +32,7 @@ from configobj import ConfigObj
 
 # Main directory path
 # This needs changing in bow
-MAIN_PATH = os.path.expanduser('~/smith_glacier/')
+MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
 sys.path.append(MAIN_PATH)
 
 from meshtools import meshtools as meshtools
@@ -42,9 +42,9 @@ from meshtools import meshtools as meshtools
 config = ConfigObj(os.path.join(MAIN_PATH, 'config.ini'))
 
 # In files
-velocity_netcdf = os.path.join(MAIN_PATH, config['velocity_netcdf'])
+velocity_netcdf = config['velocity_netcdf']
 #mask_h5 = fice_source_dir/"input/smith_500m_input/smith_geom.h5"
-bedmachine = os.path.join(MAIN_PATH, config['bedmachine'])
+bedmachine = config['bedmachine']
 use_bedmachine = True
 
 # Out files

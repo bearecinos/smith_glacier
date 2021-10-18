@@ -7,7 +7,7 @@ import sys
 from configobj import ConfigObj
 from dolfin import *
 
-MAIN_PATH = os.path.expanduser('~/smith_glacier/')
+MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
 sys.path.append(MAIN_PATH)
 
 # Load configuration file for more order in paths

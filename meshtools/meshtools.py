@@ -504,23 +504,23 @@ def run_mmg_adapt(mesh_fname, sol_fname, hgrad, hausd):
 
     Arguments:
 
-    mesh_fname - the filename for the input mesh. /usr/local/mmg/bin/
+    mesh_fname - the filename for the input mesh.
     sol_fname  - the filename for the solution (metric).
     hgrad      - maximum edge-length ratio of neighbouring elements (float)
     hausd      - max distance by which edges can be moved from original
     """
     assert MMG_LIB_LOC is not None
     my_env = os.environ.copy()
-    # TODO: ask Dan about how can we pass this as did not work with os.path.join
-    path_to_lib = os.path.join(MMG_LIB_LOC, 'mmg2d_03')
-    print(path_to_lib)
-    #my_env["LD_LIBRARY_PATH"] = MMG_LIB_LOC + ":" + "/usr/local/"
-    subprocess.run(["/usr/local/mmg/bin/mmg2d_O3",
+    # if current set up does not wokr try the line below with 
+    # MMG_LIB_LOC_PATH = /usr/bin/, being the absolute path location of the mmg binary
+    # in my case /home/brecinos/bin
+    # my_env["LD_LIBRARY_PATH"] = MMG_LIB_LOC_PATH + ":" + my_env["LD_LIBRARY_PATH"]
+    subprocess.run([MMG_LIB_LOC,
                     str(mesh_fname),
                     "-sol", str(sol_fname),
                     "-hgrad", str(hgrad),
                     "-hausd", str(hausd)],
-                   env=my_env)
+                   env=my_env) 
 
 def remove_medit_corners(infile):
     """Get rid of 'Corners' section of medit mesh, which meshio can't handle"""
@@ -594,6 +594,7 @@ def tags_to_file(tag_dict, outfile):
                 output.write(f"{key}: {v}\n")
 
 def delete_intermediates(name_root):
+    print(name_root)
     delete_exts = [".o.sol", ".sol", ".o.mesh", ".mesh", ".msh"]
     for d in delete_exts:
         os.remove(name_root + d)

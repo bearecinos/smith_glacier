@@ -649,3 +649,34 @@ def slice_netcdf(netcdf_df, varname, extent, x_varname='x', y_varname='y', retur
     else:
 
         return sliced_var, xx, yy
+
+def paterson(ttemp):
+    """
+    paterson and budd 1982 (??)
+    takes temperature in Celsius (not Kelvin)
+    TODO: Check units with Dan
+    """
+
+    ttrip = 273.15
+    ttc = 263.15
+
+    aa1 = 1.14e-5 / 3600.0 / 24.0 / 365.0
+    qq1 = 60.0e3
+    aa2 = 5.471e10 / 3600.0 / 24.0 / 365.0
+
+    qq2 = 139.0e3
+    rr = 8.314
+
+    ttempk = ttrip + ttemp
+
+    ff = 1.0e-9
+
+    I1 = ttempk < ttc
+    I2 = ttempk >= ttc
+
+    at = np.zeros(np.shape(ttempk))
+
+    at[I1] = aa1 * np.exp(-qq1 / rr / ttempk[I1])
+    at[I2] = aa2 * np.exp(-qq2 / rr / ttempk[I2])
+
+    return at

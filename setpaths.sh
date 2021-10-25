@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export MAIN_PATH=/home/brecinos/smith_glacier
-export INPUT_DIR=$MAIN_PATH/input
+export MAIN_PATH=/home/brecinos/scratch/smith_glacier
+export INPUT_DIR=$MAIN_PATH/input_data
 export PREPRO_STAGES=$MAIN_PATH/scripts/prepro_stages
 export RUN_CONFIG_DIR=$MAIN_PATH/scripts/run_stages
 export OUTPUT_DIR=$MAIN_PATH/output

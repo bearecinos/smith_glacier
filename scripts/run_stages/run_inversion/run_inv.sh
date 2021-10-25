@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Create run intput directory for inversion run
+# Create run_input directory for the inversion run
 input_run_inv=$INPUT_DIR/input_run_inv
 if [ ! -d $input_run_inv ]
 then

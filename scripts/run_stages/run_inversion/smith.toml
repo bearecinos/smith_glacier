@@ -2,8 +2,8 @@
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
 run_name = "smith_mied_test"
-input_dir = "../input_data/input_run_inv"
-output_dir = "../output/03_run_inv"
+input_dir = "/home/brecinos/scratch/smith_glacier/input_data/input_run_inv"
+output_dir = "/home/brecinos/scratch/smith_glacier/output/03_run_inv"
 
 
 # data_file = "ismipc_input.h5"

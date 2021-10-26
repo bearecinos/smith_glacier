@@ -13,10 +13,9 @@ fi
 # Copying data from output_prepro stages to input directory to be used for run stages
 # Mesh files
 echo "Copying prepro output files to input run dir"
-cp $OUTPUT_DIR/01_mesh/smith_variable_ocean.xdmf $input_run_inv/.
-cp $OUTPUT_DIR/01_mesh/smith_variable_ocean_ff.xdmf $input_run_inv/.
+cp /exports/csce/datastore/geos/groups/geos_iceocean/brecinos/ice_data/input/smith_variable_ocean* $input_run_inv/.
 # Gridded data files
-cp $OUTPUT_DIR/02_gridded_data/smith_bedmachine.h5 $input_run_inv/.
+cp $OUTPUT_DIR/01_mesh/smith_bedmachine.h5 $input_run_inv/.
 cp $OUTPUT_DIR/02_gridded_data/smith_smb.h5 $input_run_inv/.
 cp $OUTPUT_DIR/02_gridded_data/smith_bglen.h5 $input_run_inv/.
 cp $OUTPUT_DIR/02_gridded_data/smith_obs_vel.h5 $input_run_inv/.
@@ -31,4 +30,6 @@ else
   echo "Directory is $run_inv_output_dir already exist"
 fi
 
-#mpirun -n 12 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $RUN_CONFIG_DIR/run_inversion/smith.toml
+mpirun -n 12 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $RUN_CONFIG_DIR/run_inversion/smith.toml
+
+echo "Done!"

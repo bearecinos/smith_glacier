@@ -49,8 +49,8 @@ if filt:
 rhoi = 917.0
 rhow = 1030.0
 
-smith_bbox = {'xmin': -1607550.0,
-              'xmax': -1382500.0,
+smith_bbox = {'xmin': -1609000.0,
+              'xmax': -1381000.0,
               'ymin': -717500.0,
               'ymax': -528500.0}
 

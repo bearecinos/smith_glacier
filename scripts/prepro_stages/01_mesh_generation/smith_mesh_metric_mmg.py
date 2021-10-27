@@ -59,8 +59,8 @@ lc_params = {'min': 500.0,
              'max': 4000.0,
              'strain_scale': 30.0}
 
-mesh_extent = {'xmin': -1607500.0,
-               'xmax': -1382500.0,
+mesh_extent = {'xmin': -1608000.0,
+               'xmax': -1383000.0,
                'ymin': -717500.0,
                'ymax': -528500.0}
 

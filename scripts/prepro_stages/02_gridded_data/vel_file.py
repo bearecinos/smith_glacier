@@ -16,7 +16,7 @@ import numpy as np
 import h5py
 
 # Set path to working directory and meshtools
-MAIN_PATH = os.path.expanduser('~/smith_glacier/')
+MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
 sys.path.append(MAIN_PATH)
 from meshtools import meshtools as meshtools
 

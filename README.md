@@ -28,4 +28,4 @@ Repository structure:
 - `setpaths.sh`: Global paths to repository and repository directories.
 
 
-**Check out the repository [Wiki]() for installation and usage.**
+**Check out the repository [Wiki](https://github.com/bearecinos/smith_glacier/wiki#welcome-to-the-documentation-website-for-smith_glacier) for installation and usage.**

@@ -25,4 +25,4 @@ Repository structure:
 
     
 
-**Check out the repository [wiki]() for more information.**
+**Check out the repository [Wiki]() for installation and usage.**

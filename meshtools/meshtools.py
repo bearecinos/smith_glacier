@@ -681,30 +681,6 @@ def paterson(ttemp):
 
     return at
 
-def dropnan_values(array, get_xy=False):
-    """
-    Get rid of nan's and return
-    a variable array where there is data
-    as a list of values
-
-    :param array xarray to clean
-    :param get_xy bool if you want also coordinates
-    :return: numpy array of values shape (x, )
-    """
-    #varname = array.name
-
-    array_stack = array.stack(x=['nx', 'ny'])
-    array_nonan = array_stack[array_stack.notnull()]
-
-    df = array_nonan.to_dataframe()
-
-    if get_xy:
-        nx = df.index.get_level_values(0)
-        ny = df.index.get_level_values(1)
-        return array_nonan.data, nx, ny
-    else:
-        return array_nonan.data
-
 def check_if_arrays_have_same_shape(arrays, shape):
     """
     Returns a list of bools checking if all arrays have the same

@@ -696,3 +696,30 @@ def check_if_arrays_have_same_shape(arrays, shape):
         else:
             bools.append(False)
     return bools
+
+def crop_itslive_raster(dvel, extend):
+    """
+    Opens a tiff file from ITSLive Antarctica velocity mosaic
+    at 240 m resolution and returns a xarray.Dataset crop to the given
+    extent
+    :param
+        tiff_path: path to the data
+        extend: extend to crop the data to
+        given as a dictionary with the form:
+        e.g.
+        {'xmin': -1609000.0, 'xmax': -1381000.0,
+        'ymin': -718450.0, 'ymax': -527000.0}
+    :return
+        ds: xarray object with data
+    """
+
+    # Processing vel data
+    x_coords = dvel.x.data
+    y_coords = dvel.y.data
+
+    x_inds = np.where((x_coords >= extend["xmin"]) & (x_coords <= extend["xmax"]))[0]
+    y_inds = np.where((y_coords >= extend["ymin"]) & (y_coords <= extend["ymax"]))[0]
+
+    dv = dvel.isel(x=x_inds, y=y_inds).data
+
+    return dv

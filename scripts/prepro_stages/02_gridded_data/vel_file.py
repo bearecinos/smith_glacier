@@ -211,7 +211,7 @@ file_name = os.path.join(MAIN_PATH,
 if os.path.exists(file_name):
   os.remove(file_name)
 else:
-  print("The file does not exist")
+  print("The file does not exist and will be created below")
 
 with h5py.File(file_name, 'w') as outty:
     data = outty.create_dataset("mask_vel_comp", mask_comp.shape, dtype='f')

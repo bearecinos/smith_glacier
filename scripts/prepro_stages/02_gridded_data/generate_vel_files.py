@@ -34,7 +34,7 @@ import xarray as xr
 import salem
 
 # Define main repository path
-MAIN_PATH = os.path.expanduser('~/smith_glacier/')
+MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
 sys.path.append(MAIN_PATH)
 # Load configuration file for more order in paths
 config = ConfigObj(os.path.join(MAIN_PATH, 'config.ini'))
@@ -333,7 +333,7 @@ print(file_name)
 if os.path.exists(file_name):
   os.remove(file_name)
 else:
-  print("The file does not exist")
+  print("The file did not exist before so is being created now")
 
 with h5py.File(file_name, 'w') as outty:
     data = outty.create_dataset("mask_vel", mask_comp.shape, dtype='f')

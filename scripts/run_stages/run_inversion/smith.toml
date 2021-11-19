@@ -43,7 +43,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel.h5"
+vel_file = "smith_obs_vel_measures-comp.h5"
 
 [inversion]
 
@@ -64,6 +64,8 @@ m = 200
 verbose = true
 
 delta_lbfgs = 1.0e3
+
+use_cloud_point_velocities = false
 
 [ice_dynamics]
 

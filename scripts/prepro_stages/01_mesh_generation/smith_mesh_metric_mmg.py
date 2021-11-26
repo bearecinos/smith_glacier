@@ -30,19 +30,17 @@ import meshio
 from pathlib import Path
 from configobj import ConfigObj
 
+# Load configuration file for more order in paths
+config = ConfigObj(os.path.expanduser('~/config.ini'))
+
 # Main directory path
-# This needs changing in bow
-MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
+MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
 from meshtools import meshtools as meshtools
 
-
-# Load configuration file for more order in paths
-config = ConfigObj(os.path.join(MAIN_PATH, 'config.ini'))
-
 # In files
-velocity_netcdf = config['velocity_netcdf']
+velocity_netcdf = config['velocity_ase_series']
 #mask_h5 = fice_source_dir/"input/smith_500m_input/smith_geom.h5"
 bedmachine = config['bedmachine']
 use_bedmachine = True

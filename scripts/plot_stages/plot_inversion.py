@@ -16,6 +16,7 @@ from fenics_ice import mesh as fice_mesh
 from pathlib import Path
 import seaborn as sns
 import numpy as np
+from configobj import ConfigObj
 
 # Matplotlib imports
 from matplotlib import rcParams
@@ -35,9 +36,11 @@ cmap_params = plt.get_cmap('RdBu_r')
 tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
 
+# Load configuration file for more order in paths
+configuration = ConfigObj(os.path.expanduser('~/config.ini'))
 
 # Define main repository path
-MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
+MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
 
 # Paths to data

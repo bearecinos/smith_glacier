@@ -33,11 +33,12 @@ import argparse
 import xarray as xr
 import salem
 
-# Define main repository path
-MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
-sys.path.append(MAIN_PATH)
 # Load configuration file for more order in paths
-config = ConfigObj(os.path.join(MAIN_PATH, 'config.ini'))
+config = ConfigObj(os.path.expanduser('~/config.ini'))
+
+# Define main repository path
+MAIN_PATH = config['main_path']
+sys.path.append(MAIN_PATH)
 
 from meshtools import meshtools as meshtools
 

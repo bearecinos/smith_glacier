@@ -7,11 +7,11 @@ import sys
 from configobj import ConfigObj
 from dolfin import *
 
-MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
-sys.path.append(MAIN_PATH)
-
 # Load configuration file for more order in paths
-config = ConfigObj(os.path.join(MAIN_PATH, 'config.ini'))
+config = ConfigObj(os.path.expanduser('~/config.ini'))
+
+MAIN_PATH = config['main_path']
+sys.path.append(MAIN_PATH)
 
 output_path = os.path.join(MAIN_PATH,
                             'output/01_mesh')

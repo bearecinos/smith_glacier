@@ -12,15 +12,18 @@ import numpy as np
 from pathlib import Path
 import netCDF4
 import h5py
-from configobj import ConfigObj
 from scipy import io
 import pandas as pd
 import scipy.interpolate as interp
 import numpy.ma as ma
+from configobj import ConfigObj
+
+# Load configuration file for more order in paths
+config = ConfigObj(os.path.expanduser('~/config.ini'))
 
 # Main directory path
 # This needs changing in bow
-MAIN_PATH = os.path.expanduser('~/smith_glacier/')
+MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
 from meshtools import meshtools as meshtools

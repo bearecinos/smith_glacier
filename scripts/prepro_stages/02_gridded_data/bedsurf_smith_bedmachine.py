@@ -15,16 +15,16 @@ from scipy.ndimage import gaussian_filter
 import argparse
 from configobj import ConfigObj
 
+# Load configuration file for more order in paths
+config = ConfigObj(os.path.expanduser('~/config.ini'))
 
 # Main directory path
 # This needs changing in bow
-MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
+MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
 from meshtools import meshtools as meshtools
 
-# Load configuration file for more order in paths
-config = ConfigObj(os.path.join(MAIN_PATH, 'config.ini'))
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-sigma", type=float, default=0.0, help="Sigma value for gauss filter - zero means no filtering")

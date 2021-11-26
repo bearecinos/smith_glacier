@@ -26,6 +26,10 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import seaborn as sns
 import matplotlib.tri as tri
+from configobj import ConfigObj
+
+# Load configuration file for more order in paths
+configuration = ConfigObj(os.path.expanduser('~/config.ini'))
 
 
 rcParams['axes.labelsize'] = 18
@@ -38,7 +42,7 @@ cmap_thick = plt.cm.get_cmap('YlGnBu')
 cmap_glen=plt.get_cmap('RdBu_r')
 
 #Load main repository path
-MAIN_PATH = os.path.expanduser('~/scratch/smith_glacier/')
+MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
 
 # Paths to data

@@ -9,13 +9,6 @@ export OUTPUT_DIR=$MAIN_PATH/output
 # Paths to fenics_ice
 export RUN_DIR=$FENICS_ICE_BASE_DIR/runs/
 
-if [ ! -f ~/config.ini ]
-then
-  echo 'file not found, copying the original config.ini'
-  cp $MAIN_PATH/config.ini ~/.
-else
-  echo 'Your config.ini already exist in your home directory'
-fi
 
 echo 'Input data directory is '$INPUT_DIR
 echo 'Runs configuration directory is '$RUN_CONFIG_DIR

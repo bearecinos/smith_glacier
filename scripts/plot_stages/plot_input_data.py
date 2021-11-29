@@ -27,9 +27,14 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import seaborn as sns
 import matplotlib.tri as tri
 from configobj import ConfigObj
+import argparse
 
 # Load configuration file for more order in paths
-configuration = ConfigObj(os.path.expanduser('~/config.ini'))
+parser = argparse.ArgumentParser()
+parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+args = parser.parse_args()
+config_file = args.conf
+configuration = ConfigObj(os.path.expanduser(config_file))
 
 
 rcParams['axes.labelsize'] = 18

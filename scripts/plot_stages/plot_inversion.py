@@ -17,6 +17,7 @@ from pathlib import Path
 import seaborn as sns
 import numpy as np
 from configobj import ConfigObj
+import argparse
 
 # Matplotlib imports
 from matplotlib import rcParams
@@ -37,7 +38,11 @@ tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
 
 # Load configuration file for more order in paths
-configuration = ConfigObj(os.path.expanduser('~/config.ini'))
+parser = argparse.ArgumentParser()
+parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+args = parser.parse_args()
+config_file = args.conf
+configuration = ConfigObj(os.path.expanduser(config_file))
 
 # Define main repository path
 MAIN_PATH = configuration['main_path']

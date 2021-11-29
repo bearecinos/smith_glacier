@@ -5,10 +5,14 @@ writes out a VTK to inspect it in paraview.
 import os
 import sys
 from configobj import ConfigObj
+import argparse
 from dolfin import *
 
-# Load configuration file for more order in paths
-config = ConfigObj(os.path.expanduser('~/config.ini'))
+parser = argparse.ArgumentParser()
+parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+args = parser.parse_args()
+config_file = args.conf
+config = ConfigObj(os.path.expanduser(config_file))
 
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)

@@ -14,9 +14,14 @@ import h5py
 from scipy.ndimage import gaussian_filter
 import argparse
 from configobj import ConfigObj
+from IPython import embed
 
-# Load configuration file for more order in paths
-config = ConfigObj(os.path.expanduser('~/config.ini'))
+parser = argparse.ArgumentParser()
+parser.add_argument("-sigma", type=float, default=0.0, help="Sigma value for gauss filter - zero means no filtering")
+parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+args = parser.parse_args()
+config_file = args.conf
+config = ConfigObj(os.path.expanduser(config_file))
 
 # Main directory path
 # This needs changing in bow
@@ -26,9 +31,6 @@ sys.path.append(MAIN_PATH)
 from meshtools import meshtools as meshtools
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-sigma", type=float, default=0.0, help="Sigma value for gauss filter - zero means no filtering")
-args = parser.parse_args()
 
 gauss_sigma = args.sigma
 filt = gauss_sigma > 0.0

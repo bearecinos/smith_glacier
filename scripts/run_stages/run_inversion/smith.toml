@@ -65,7 +65,7 @@ verbose = true
 
 delta_lbfgs = 1.0e3
 
-use_cloud_point_velocities = false
+#use_cloud_point_velocities = false
 
 [ice_dynamics]
 

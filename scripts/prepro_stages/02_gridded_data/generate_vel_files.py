@@ -33,8 +33,22 @@ import argparse
 import xarray as xr
 import salem
 
-# Load configuration file for more order in paths
-config = ConfigObj(os.path.expanduser('~/config.ini'))
+parser = argparse.ArgumentParser()
+parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+parser.add_argument("-composite",
+                    type=str, default='measures',
+                    help="Data product for the composite velocities: itslive or measures")
+parser.add_argument("-add_cloud_data",
+                    action="store_true",
+                    help="If specified we add ASE 2010 velocities "
+                         "as cloud point velocities to the .h5 file")
+parser.add_argument("-add_extra_data_to_cloud",
+                    action="store_true",
+                    help="If specified we add extra data to ASE cloud point velocities")
+args = parser.parse_args()
+config_file = args.conf
+config = ConfigObj(os.path.expanduser(config_file))
+
 
 # Define main repository path
 MAIN_PATH = config['main_path']
@@ -48,19 +62,6 @@ smith_bbox = {'xmin': -1609000.0,
               'xmax': -1381000.0,
               'ymin': -718450.0,
               'ymax': -527000.0}
-
-parser = argparse.ArgumentParser()
-parser.add_argument("-composite",
-                    type=str, default='measures',
-                    help="Data product for the composite velocities: itslive or measures")
-parser.add_argument("-add_cloud_data",
-                    action="store_true",
-                    help="If specified we add ASE 2010 velocities "
-                         "as cloud point velocities to the .h5 file")
-parser.add_argument("-add_extra_data_to_cloud",
-                    action="store_true",
-                    help="If specified we add extra data to ASE cloud point velocities")
-args = parser.parse_args()
 
 
 #1) Generate first composite velocities and uncertainties

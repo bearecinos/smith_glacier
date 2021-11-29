@@ -16,10 +16,15 @@ from scipy import io
 import pandas as pd
 import scipy.interpolate as interp
 import numpy.ma as ma
+import argparse
 from configobj import ConfigObj
 
-# Load configuration file for more order in paths
-config = ConfigObj(os.path.expanduser('~/config.ini'))
+parser = argparse.ArgumentParser()
+parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+args = parser.parse_args()
+config_file = args.conf
+config = ConfigObj(os.path.expanduser(config_file))
+
 
 # Main directory path
 # This needs changing in bow
@@ -31,10 +36,11 @@ from meshtools import meshtools as meshtools
 # Read data from files
 
 # temperature and horizontal position file
-C = io.loadmat('/home/brecinos/smith_glacier/input_data/Temp_2013.mat')
-
+#C = io.loadmat('/home/brecinos/smith_glacier/input_data/Temp_2013.mat')
+C = io.loadmat(config['temp_pattyn'])
 # vertical (nondimensional) coordinate
-z = io.loadmat('/home/brecinos/smith_glacier/input_data/Zeta.mat')
+#z = io.loadmat('/home/brecinos/smith_glacier/input_data/Zeta.mat')
+z = io.loadmat(config['temp_pattyn_zeta'])
 
 # Polar stereographic coordinates
 xpat = C['X']
@@ -74,7 +80,8 @@ Bbar = np.trapz(Bglen,zeta[0,:],axis=0)
 # TODO: this need to be fixed with an extend variable so we dont need to read Joe's output
 # Probably will be best to read in bedmachine smith and try to crop the data to that domain?
 # But this can be done later ....
-file = '/home/brecinos/smith_glacier/input_data/input_run_joe/smith_bglen.h5'
+#file = '/home/brecinos/smith_glacier/input_data/input_run_joe/smith_bglen.h5'
+file = config['smith_bglen_in']
 smith_bglen = h5py.File(file, 'r')
 
 bglen = smith_bglen['bglen'][:]
@@ -142,7 +149,7 @@ GD1 = interp.griddata((x_v, y_v),
 smb = 0.38*np.ones(GD1.shape)
 
 with h5py.File(os.path.join(MAIN_PATH,
-                            'output/02_gridded_data/smith_smith_bglen'), 'w') as outty:
+                            'output/02_gridded_data/smith_bglen.h5'), 'w') as outty:
 
     data = outty.create_dataset("bglen", GD1.shape, dtype='f')
     data[:] = GD1
@@ -152,7 +159,7 @@ with h5py.File(os.path.join(MAIN_PATH,
     data[:] = y_s
 
 with h5py.File(os.path.join(MAIN_PATH,
-                            'output/02_gridded_data/smith_smb'), 'w') as outty:
+                            'output/02_gridded_data/smith_smb.h5'), 'w') as outty:
 
     data = outty.create_dataset("smith_smb", smb.shape, dtype='f')
     data[:] = smb

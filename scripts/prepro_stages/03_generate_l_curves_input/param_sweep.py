@@ -46,7 +46,7 @@ def composeName(root, suff, value):
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str,
                     default="../../../config.ini", help="pass config file")
-parser.add_argument("-path_toml_template", type=str,
+parser.add_argument("-name_toml_template", type=str,
                     default="", help="pass toml template path")
 parser.add_argument("-target_param", type=str,
                     default="delta_beta",
@@ -73,7 +73,9 @@ MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
 # Get .toml file template
-toml_name = Path(args.path_toml_template)
+template_full_path = os.path.join(os.environ['PREPRO_STAGES'],
+                                  '03_generate_l_curves_input/'+ args.name_toml_template)
+toml_name = Path(template_full_path)
 assert toml_name.exists(), f".toml file template {toml_name} not found"
 
 # target_param = ["inversion", "delta_beta"]

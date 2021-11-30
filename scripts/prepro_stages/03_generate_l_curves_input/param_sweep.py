@@ -3,9 +3,10 @@ Tool for generating TOMLs for parameter sweeps in fenics_ice
 
 Input:
 ------
-toml_name: the template/base config file
-target_param: the parameter to be swept (e.g. 'delta_beta')
-name_suff: acronym to identify this sweep in runnames etc
+-conf: repository config.ini file path
+-name_toml_template: name of the .toml template (fenics_ice configuration file)
+-target_param: the parameter to be swept (e.g. 'delta_beta')
+-name_sweep: acronym to identify this sweep in run_lcurves_inv etc
            e.g. 'db' for delta_beta
 param_min, param_max: start and end of sweep values (inclusive!)
 command_template: this helps generate a bash script which will run each

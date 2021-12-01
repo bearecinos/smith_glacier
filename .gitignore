@@ -4,4 +4,5 @@ dev_notebooks
 output
 meshtools/__pycache__/
 scripts/run_stages/run_inversion/log_smith_demo_run.txt
+scripts/run_stages/run_lcurves/tomls_*
 

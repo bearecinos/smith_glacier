@@ -100,7 +100,7 @@ if not os.path.exists(output_dir):
 if not os.path.exists(output_dir_run):
     os.makedirs(output_dir_run)
 
-command_template = "mpirun -n 12 python $RUN_CONFIG_DIR/run_lcurves/run_lcurves_inv.py $RUN_CONFIG_DIR/run_lcurves/{target_param}/{toml_fname} |& tee {log_fname}\n"
+command_template = "mpirun -n 24 python $RUN_CONFIG_DIR/run_lcurves/run_lcurves_inv.py $RUN_CONFIG_DIR/run_lcurves/{target_param}/{toml_fname} |& tee {log_fname}\n"
 script_name = f"sweep_{target_param}.sh"
 
 name_param = ["io", "run_name"]

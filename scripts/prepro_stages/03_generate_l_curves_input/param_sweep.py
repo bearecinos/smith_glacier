@@ -101,6 +101,9 @@ if not os.path.exists(output_dir_run):
     os.makedirs(output_dir_run)
 
 command_template = "mpirun -n 24 python $RUN_CONFIG_DIR/run_lcurves/run_lcurves_inv.py $RUN_CONFIG_DIR/run_lcurves/{target_param}/{toml_fname} |& tee {log_fname}\n"
+delete_vtu = "rm $OUTPUT_DIR/04_run_inv_lcurves/" + target_param + "/*.vtu\n"
+delete_pvtu = "rm $OUTPUT_DIR/04_run_inv_lcurves/" + target_param + "/*.pvtu\n"
+delete_pvd = "rm $OUTPUT_DIR/04_run_inv_lcurves/" +target_param + "/*.pvd\n"
 script_name = f"sweep_{target_param}.sh"
 
 name_param = ["io", "run_name"]
@@ -149,3 +152,6 @@ for i in range(steps):
         replace("{log_fname}", f"log_{runname}").\
         replace("{target_param}", f"tomls_{target_param}")
     script_file.write(cmd)
+script_file.write(delete_pvtu)
+script_file.write(delete_pvd)
+script_file.write(delete_vtu)

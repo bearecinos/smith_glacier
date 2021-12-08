@@ -18,6 +18,7 @@ import scipy.interpolate as interp
 import numpy.ma as ma
 import argparse
 from configobj import ConfigObj
+from IPython import embed
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
@@ -80,79 +81,61 @@ Bbar = np.trapz(Bglen,zeta[0,:],axis=0)
 # TODO: this need to be fixed with an extend variable so we dont need to read Joe's output
 # Probably will be best to read in bedmachine smith and try to crop the data to that domain?
 # But this can be done later ....
-#file = '/home/brecinos/smith_glacier/input_data/input_run_joe/smith_bglen.h5'
-file = config['smith_bglen_in']
-smith_bglen = h5py.File(file, 'r')
 
-bglen = smith_bglen['bglen'][:]
+# instead, we will take the xmin/max and ymin/max from the mesh generation, copied below
+# and expand in each direction by 50 km
 
-x_sbglen = smith_bglen['x'][:]
-y_sbglen = smith_bglen['y'][:]
+smith_bbox = {'xmin': -1609000.0,
+              'xmax': -1381000.0,
+              'ymin': -717500.0,
+              'ymax': -528500.0}
+
+
 
 ## Dealing with Frank's Patterson x and y
 x_p = np.int32(C['X'][:][0])*1000
 y_p = np.int32(C['Y'][:].T[0])*1000
 
-xmin = np.min(x_sbglen)
-xmax = np.max(x_sbglen)
-ymin = np.min(y_sbglen)
-ymax = np.max(y_sbglen)
+xmin = smith_bbox['xmin']
+xmax = smith_bbox['xmax']
+ymin = smith_bbox['ymin']
+ymax = smith_bbox['ymax']
 
-x_inds = np.where((x_p >= xmin) & (x_p <= xmax))[0]
-y_inds = np.where((y_p >= ymin) & (y_p <= ymax))[0]
+window = 5.e4
+
+x_inds = np.where((x_p >= xmin-window) & (x_p <= xmax+window))[0]
+y_inds = np.where((y_p >= ymin-window) & (y_p <= ymax+window))[0]
 
 x_s = x_p[x_inds]
 y_s = y_p[y_inds]
 
-assert x_s.all() == x_sbglen.all()
-assert y_s.all() == y_sbglen.all()
 
 B = pd.DataFrame(Bbar, index=y_p, columns=x_p)
 B = B.replace(np.inf, np.nan)
 
-sel = B.loc[y_s, x_s]
+# this will be used to derive our mask for where 
+# we penalise variation from our initial guess
+sel = B.loc[y_s, x_s].values
 
-assert sel.shape == bglen.shape
+x_r, y_r = np.meshgrid(x_s,y_s)
 
-array = ma.masked_where(bglen == 0, bglen)
+xnn = x_r[~np.isnan(sel)]
+ynn = y_r[~np.isnan(sel)]
+snn = sel[~np.isnan(sel)]
 
-xx, yy = np.meshgrid(x_sbglen, y_sbglen)
+# we do a nearest neighbor interpolation -- this is our initial guess
+gd = interp.griddata((xnn,ynn),snn,(x_r,y_r),method='nearest')
 
-x_zeros = xx[array.mask]
-y_zeros = yy[array.mask]
+smb = 0.38*np.ones(sel.shape)
 
-#get only the valid values
-x1 = xx[~array.mask]
-y1 = yy[~array.mask]
-
-sel_withzero = sel.copy()
-
-for i, j in enumerate(x_zeros):
-    print(sel_withzero.shape)
-    sel_withzero.loc[y_zeros[i], j]=0
-
-#mask invalid values
-array_two = np.ma.masked_invalid(sel_withzero)
-
-#get only the valid values
-x_v = xx[~array_two.mask]
-y_v = yy[~array_two.mask]
-
-
-newarr = array_two[~array_two.mask]
-
-GD1 = interp.griddata((x_v, y_v),
-                      newarr.ravel(),
-                      (xx, yy),
-                      method='linear')
-
-smb = 0.38*np.ones(GD1.shape)
 
 with h5py.File(os.path.join(MAIN_PATH,
                             'output/02_gridded_data/smith_bglen.h5'), 'w') as outty:
 
-    data = outty.create_dataset("bglen", GD1.shape, dtype='f')
-    data[:] = GD1
+    data = outty.create_dataset("bglen", gd.shape, dtype='f')
+    data[:] = gd
+    data = outty.create_dataset("bglenmask", gd.shape, dtype='f')
+    data[:] = sel
     data = outty.create_dataset("x", x_s.shape, dtype='f')
     data[:] = x_s
     data = outty.create_dataset("y", y_s.shape, dtype='f')

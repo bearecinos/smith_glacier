@@ -3,6 +3,7 @@ A set of tools for mesh generation, not particularly well organised.
 """
 import os
 import numpy as np
+import pandas as pd
 import h5py
 from netCDF4 import Dataset as NCDataset
 import rasterio.features
@@ -15,8 +16,16 @@ import meshio
 import subprocess
 from scipy.interpolate import RegularGridInterpolator, griddata
 import xarray as xr
+import fnmatch
+import re
 import tempfile
 import logging
+from fenics import *
+
+#Plotting imports
+from matplotlib import pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.tri as tri
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -841,3 +850,164 @@ def drop_invalid_data_from_several_arrays(x, y,
 
     assert all(element == True for element in bool_list)
     return x_nonan, y_nonan, vx_nonan, vy_nonan, vx_err_nonan, vy_err_nonan, vel_nonan
+
+def get_data_for_experiment(path, experiment_name):
+    """
+    Read .csv files for each l-curve experiment and append
+    all results in a single pandas data frame
+
+    :param path to experiment file
+    :param experiment name e.g. gamma_alpha, gamma_beta
+    :return: pandas.Dataframe with the inv J_cost function results
+    for each l-curve experiment.
+    """
+    j_paths_small = []
+    j_paths_big = []
+    dir_path = os.path.join(path, experiment_name)
+    for root, dirs, files in os.walk(dir_path):
+        dirs.sort()
+        files = [os.path.join(root, f) for f in files]
+        excludes = ['*inversion_progress*', '*1e+*', '*.xml']
+        excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
+        j_paths_small = [f for f in files if not re.match(excludes, f)]
+        excludes = ['*inversion_progress*', '*1e-*', '*.xml']
+        excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
+        j_paths_big = [f for f in files if not re.match(excludes, f)]
+
+    j_paths_small.reverse()
+    j_paths = j_paths_small + j_paths_big
+
+    ds = pd.DataFrame()
+    for file in j_paths:
+        ds = pd.concat([ds, pd.read_csv(file)], axis=0)
+
+    # reset the index
+    ds.reset_index(drop=True, inplace=True)
+    return ds
+
+def get_xml_from_exp(path, experiment_name):
+    """
+    Finds the path of an xml file with the parameter field result
+    from the inversion, estimated with a specific value
+    in the l-curve experiment (e.g. field estimated with a
+    min gamma_alpha)
+    :param path to xml file
+    :param experiment name (e.g. gamma_alpha, gamma_beta)
+    :return: xml file path
+    """
+    xml_f = []
+    dir_path = os.path.join(path, experiment_name)
+    for root, dirs, files in os.walk(dir_path):
+        dirs.sort()
+        files = [os.path.join(root, f) for f in files]
+        excludes = ['*.csv']
+        excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
+        xml_f = [f for f in files if not re.match(excludes, f)]
+    return xml_f
+
+def plot_field_in_contour_plot(x, y, t, field, field_name,
+                               ax, vmin=None, vmax=None, cmap=None, add_mesh=False):
+    """
+    Makes a matplotlib tri contour plot of any parameter field
+    in a specific axis.
+
+    :param x mesh x coordinates
+    :param y mesh y coordinates
+    :param field to plot (e.g. alpha, U, etc.)
+    :param field_name: name of the variable to plot
+    :param ax to plot things
+    :param vmin minimum value for the color scale
+    :param vmax maximum value for the color scale
+    :param cmap: color map
+    :param add_mesh: add mesh to contour plot
+    :return: {} plot in a specific axis
+    """
+
+    trim = tri.Triangulation(x, y, t)
+    ax.set_aspect('equal')
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("bottom", size="5%", pad=0.1)
+    if add_mesh:
+        ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
+    minv = vmin
+    maxv = vmax
+    levels = np.linspace(minv, maxv, 200)
+    ticks = np.linspace(minv, maxv, 3)
+    c = ax.tricontourf(x, y, t, field, levels=levels, cmap=cmap)
+    cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
+    cbar.ax.set_xlabel(field_name)
+    ax.set_xlim(min(x), max(x))
+    ax.set_ylim(min(y), max(y))
+    return {}
+
+def plot_lcurve_scatter(data_frame, var_name, ax,
+                        xlim_min=None, xlim_max=None,
+                        ylim_min=None, ylim_max=None, xytext=(float, float),
+                        rot=float):
+    """
+
+    :param data_frame: pandas.Dataframe with the results of the l-curve
+    :param var_name: parameter name varied in the l-curve
+    :param ax: matplotlib.Axes where we will plot  things
+    :param xlim_min: lower limit of the x-axis
+    :param xlim_max: upper limit of the x-axis
+    :param ylim_min: lower limit of the y-axis
+    :param ylim_max: upper limit of the y-axis
+    :param xytext: how much padding we want on the labels (+x, +y)
+    :param rot: rotation of the labels
+    :return: scatter plot of the l-curve exp.
+    """
+
+    j_ls = data_frame['J_ls'].values
+    div = data_frame['J_reg'].values / data_frame[var_name].values
+
+    ax.scatter(div, j_ls)
+    ax.plot(div, j_ls)
+    for i, lab in enumerate(data_frame[var_name]):
+        ax.annotate(lab, (div[i], j_ls[i]), xytext=xytext, textcoords='offset pixels',
+                     horizontalalignment='right',
+                     verticalalignment='bottom', rotation=rot, size=10)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_ylabel('J_ls')
+    ax.set_xlabel('J_reg/' + str(var_name))
+    ax.set_xlim(xlim_min, xlim_max)
+    ax.set_ylim(ylim_min, ylim_max)
+    return {}
+
+def compute_vertex_for_parameter_field(xml_file, param_space, dg_space, mesh_in):
+    """
+    Compute vertex values for a specific parameter
+
+    xml_file: path to the parameter xml file
+    param_space: either FunctionSpace(mesh_in, 'Lagrange',3)
+    dg_space: a FunctionSpace(mesh_in, 'DG', 0)
+    mesh_in: mesh to plot to
+    :return: vertex values for that parameter
+    """
+    # Build the space functions
+    parameter = Function(param_space, xml_file)
+    # Project each to the mesh
+    param_proj = project(parameter, dg_space)
+
+    # Return vertex values for each parameter function in the mesh
+    return param_proj.compute_vertex_values(mesh_in)
+
+def compute_vertex_for_velocity_field(xml_file, v_space, q_space, mesh_in):
+    """
+    Compute vertex values for a specific parameter
+
+    xml_file: path to the velocity output xml file
+    v_space: a VectorFunctionSpace(mesh_in,'Lagrange', 1, dim=2) or
+            a fice_mesh.get_periodic_space(params, mesh_in, dim=2)
+    q_space: a FunctionSpace(mesh_in, 'Lagrange',1)
+    mesh_in: mesh to plot to
+    :return: vertex values for that parameter
+    """
+    # Build the space functions
+    vel = Function(v_space, xml_file)
+    u, v = vel.split()
+    uv = project(sqrt(u * u + v * v), q_space)
+
+    # Return vertex values for each parameter function in the mesh
+    return uv.compute_vertex_values(mesh_in)

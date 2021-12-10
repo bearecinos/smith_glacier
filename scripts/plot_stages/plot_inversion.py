@@ -11,7 +11,7 @@ Plot inversion output
 import sys
 import os
 from fenics import *
-from fenics_ice import config
+from fenics_ice import config as conf
 from fenics_ice import mesh as fice_mesh
 from pathlib import Path
 import seaborn as sns
@@ -27,16 +27,6 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
 
-# Plot settings
-rcParams['axes.labelsize'] = 18
-rcParams['xtick.labelsize'] = 18
-rcParams['ytick.labelsize'] = 18
-color = sns.color_palette()
-cmap_vel= plt.get_cmap('viridis')
-cmap_params = plt.get_cmap('RdBu_r')
-tick_options = {'axis':'both','which':'both','bottom':False,
-    'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
-
 # Load configuration file for more order in paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
@@ -47,6 +37,16 @@ configuration = ConfigObj(os.path.expanduser(config_file))
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
+from meshtools import meshtools
+
+rcParams['axes.labelsize'] = 18
+rcParams['xtick.labelsize'] = 18
+rcParams['ytick.labelsize'] = 18
+color = sns.color_palette()
+cmap_vel= plt.get_cmap('viridis')
+cmap_params = plt.get_cmap('RdBu_r')
+tick_options = {'axis':'both','which':'both','bottom':False,
+    'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
 
 # Paths to data
 plot_path = os.path.join(MAIN_PATH, 'plots/')
@@ -60,7 +60,7 @@ toml = os.path.join(run_files, 'smith.toml')
 output_dir = os.path.join(MAIN_PATH, 'output/03_run_inv')
 
 # Read in model run parameters
-params = config.ConfigParser(toml, top_dir=Path(MAIN_PATH))
+params = conf.ConfigParser(toml, top_dir=Path(MAIN_PATH))
 
 #Read and get mesh information
 mesh_in = fice_mesh.get_mesh(params)
@@ -85,21 +85,10 @@ uv_comp_file = os.path.join(params.io.output_dir, params.io.run_name+'_uv_obs.xm
 alpha_init_file = os.path.join(params.io.output_dir, params.io.run_name+'_alpha_init_guess.xml')
 alpha_file = os.path.join(params.io.output_dir, params.io.run_name+'_alpha.xml')
 
-# Define function spaces
-U = Function(V, U_file)
+# Define function spaces for alpha only and uv_comp
 alpha = Function(Qp, alpha_file)
-alpha_init = Function(Qp, alpha_init_file)
-uv_comp = Function(M, uv_comp_file)
-
-#Sort out velocity components
-u, v = U.split()
-uv = project(sqrt(u*u + v*v), Q)
-uv_diff = project(uv_comp - uv, Q)
-uv_comp_proj = project(uv_comp, Q)
-
 # 1. The inverted value of B2; It is explicitly assumed that B2 = alpha**2
 B2 = project(alpha*alpha, M)
-alpha_ini = project(alpha_init, M)
 
 # Get mesh triangulation
 x = mesh_in.coordinates()[:,0]
@@ -109,11 +98,13 @@ trim = tri.Triangulation(x, y, t)
 
 # Compute vertex values for each parameter function
 # in the mesh
-v = uv.compute_vertex_values(mesh_in)
-v_comp = uv_comp_proj.compute_vertex_values(mesh_in)
-
+v = meshtools.compute_vertex_for_velocity_field(U_file, V, Q, mesh_in)
+v_alphaini = meshtools.compute_vertex_for_parameter_field(alpha_init_file, Qp, M, mesh_in)
 v_alpha = B2.compute_vertex_values(mesh_in)
-v_alphaini = alpha_ini.compute_vertex_values(mesh_in)
+
+uv_comp = Function(M, uv_comp_file)
+uv_comp_proj = project(uv_comp, Q)
+v_comp = uv_comp_proj.compute_vertex_values(mesh_in)
 
 # Now plotting
 g = 1.5
@@ -137,7 +128,6 @@ ax0.set_title("Model ice velocity (U)", fontsize=18)
 at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
-
 ax1 = plt.subplot(spec[1])
 ax1.set_aspect('equal')
 ax1.tick_params(**tick_options)
@@ -149,7 +139,6 @@ cbar.ax.set_xlabel('[$m^{-1}$ yr]')
 ax1.set_title("Velocity observations (MEaSUREs v2.0)", fontsize=18)
 at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
-
 
 ax2 = plt.subplot(spec[2])
 ax2.set_aspect('equal')

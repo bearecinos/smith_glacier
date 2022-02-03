@@ -18,7 +18,6 @@ import scipy.interpolate as interp
 import numpy.ma as ma
 import argparse
 from configobj import ConfigObj
-from IPython import embed
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")

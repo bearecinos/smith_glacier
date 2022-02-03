@@ -10,10 +10,8 @@ else
   echo "Directory is $input_run_inv already exist"
 fi
 
-# Copying data from output_prepro stages to input directory to be used for run stages
-# Mesh files
 echo "Copying prepro output files to input run dir"
-#cp /exports/csce/datastore/geos/groups/geos_iceocean/brecinos/ice_data/input/smith_variable_ocean* $input_run_inv/.
+# Mesh files
 cp $OUTPUT_DIR/01_mesh/smith_variable_ocean* $input_run_inv/.
 # Gridded data files
 cp $OUTPUT_DIR/02_gridded_data/smith_bedmachine.h5 $input_run_inv/.

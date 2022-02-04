@@ -26,6 +26,6 @@ then
 else
   echo "Directory $run_inv_output_dir exist, we can run everything now"
   echo $(date -u) "Run started"
-  #mpirun -n 12 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $RUN_CONFIG_DIR/run_forward/smith.toml
+  mpirun -n 24 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $RUN_CONFIG_DIR/run_inversion/smith.toml
   echo $(date -u) "Done!"
 fi

@@ -5,4 +5,5 @@ output
 meshtools/__pycache__/
 scripts/run_stages/run_inversion/log_smith_demo_run.txt
 scripts/run_stages/run_lcurves/tomls_*
-
+scripts/run_stages/run_inversion/log_smith_inversion_run.txt
+scripts/run_stages/run_inversion/log_*

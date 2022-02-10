@@ -1011,3 +1011,16 @@ def compute_vertex_for_velocity_field(xml_file, v_space, q_space, mesh_in):
 
     # Return vertex values for each parameter function in the mesh
     return uv.compute_vertex_values(mesh_in)
+
+def compute_vertex_for_dQ_components(dQ, mesh, hd5_fpath=str, n_sens=int):
+
+    hdf5data = HDF5File(MPI.comm_world, hd5_fpath, 'r')
+    hdf5data.read(dQ, f'dQdalphaXbeta/vector_{n_sens}')
+
+    dQ_alpha, dQ_beta = dQ.split(deepcopy=True)
+
+    # Vector to plot
+    va = dQ_alpha.compute_vertex_values(mesh)
+    vb = dQ_beta.compute_vertex_values(mesh)
+
+    return va, vb

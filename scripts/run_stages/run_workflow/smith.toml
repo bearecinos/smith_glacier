@@ -14,7 +14,7 @@ bglenmask_data_file = "smith_bglen.h5"
 bglen_field_name = "bglen"
 bglenmask_field_name = "bglenmask"
 
-log_level = "critical" #This is default
+log_level = "info" #This is default
 
 [constants]
 

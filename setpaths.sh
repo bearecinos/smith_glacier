@@ -3,7 +3,7 @@
 export MAIN_PATH=/scratch/local/brecinos/smith_glacier
 export INPUT_DIR=$MAIN_PATH/input_data
 export PREPRO_STAGES=$MAIN_PATH/scripts/prepro_stages
-export RUN_CONFIG_DIR=$MAIN_PATH/scripts/run_stages
+export RUN_CONFIG_DIR=$MAIN_PATH/scripts/run_experiments
 export OUTPUT_DIR=$MAIN_PATH/output
 
 # Paths to fenics_ice

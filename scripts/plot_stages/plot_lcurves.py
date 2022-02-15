@@ -54,7 +54,7 @@ gamma_beta = meshtools.get_data_for_experiment(path_output, exp_names[1])
 delta_beta_gnd = meshtools.get_data_for_experiment(path_output, exp_names[2])
 
 run_files = os.path.join(MAIN_PATH,
-                         'scripts/run_stages/run_inversion')
+                         'scripts/run_experiments/run_workflow')
 
 toml = os.path.join(run_files, 'smith.toml')
 

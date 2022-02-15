@@ -55,7 +55,7 @@ if not os.path.exists(plot_path):
 
 # Define directory where the .toml file is stored and
 # where we have our run output directory
-run_files = os.path.join(MAIN_PATH, 'scripts/run_stages/run_inversion')
+run_files = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_workflow')
 toml = os.path.join(run_files, 'smith.toml')
 output_dir = os.path.join(MAIN_PATH, 'output/03_run_inv')
 

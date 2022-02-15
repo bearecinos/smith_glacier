@@ -53,7 +53,7 @@ if not os.path.exists(plot_path):
     os.makedirs(plot_path)
 
 # Get the right toml
-run_files = os.path.join(MAIN_PATH, 'scripts/run_stages/run_forward')
+run_files = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_workflow')
 toml = os.path.join(run_files, 'smith.toml')
 
 # Read in model run parameters

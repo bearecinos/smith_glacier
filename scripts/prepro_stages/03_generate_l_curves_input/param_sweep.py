@@ -87,7 +87,7 @@ name_suff = args.name_sweep
 param_min = args.min
 param_max = args.max
 
-runs_directory = os.path.join(MAIN_PATH, 'scripts/run_stages/run_lcurves')
+runs_directory = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_lcurves')
 tomls_f = os.path.join(runs_directory, 'tomls_'+target_param)
 output_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves')
 output_dir_run = os.path.join(output_dir, target_param)

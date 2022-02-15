@@ -9,12 +9,14 @@ for Fenics_ice
 
 @authors: Fenics_ice contributors
 """
+import sys
 import os
 import salem
 import h5py
 import numpy as np
 from fenics import *
-from fenics_ice import config, inout
+from fenics_ice import inout
+from fenics_ice import config as conf
 from pathlib import Path
 from fenics_ice import mesh as fice_mesh
 
@@ -36,7 +38,6 @@ args = parser.parse_args()
 config_file = args.conf
 configuration = ConfigObj(os.path.expanduser(config_file))
 
-
 rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 18
 rcParams['ytick.labelsize'] = 18
@@ -55,10 +56,10 @@ plot_path = os.path.join(MAIN_PATH, 'plots/')
 if not os.path.exists(plot_path):
     os.makedirs(plot_path)
 
-run_files = os.path.join(MAIN_PATH, 'scripts/run_stages/run_inversion')
+run_files = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_workflow')
 toml = os.path.join(run_files, 'smith.toml')
 
-params = config.ConfigParser(toml, top_dir=Path(MAIN_PATH))
+params = conf.ConfigParser(toml, top_dir=Path(MAIN_PATH))
 
 #Reading mesh
 mesh_in = fice_mesh.get_mesh(params)
@@ -90,13 +91,14 @@ y_bm = bedmachine_smith['y'][:]
 xgbm, ygbm = np.meshgrid(x_bm, y_bm)
 
 #Read velocity for inversion
-out = inout.read_vel_obs(params, model=None)
-uv_obs_pts = out[0]
-u_obs = out[1]
-v_obs = out[2]
+path_to_vel = Path(os.path.join(params.io.input_dir,params.obs.vel_file))
+out = inout.read_vel_obs(path_to_vel, model=None)
 
-u_std = out[3]
-v_std = out[4]
+uv_obs_pts = out['uv_obs_pts']
+u_obs = out['u_obs']
+v_obs = out['v_obs']
+u_std = out['u_std']
+v_std = out['v_std']
 x_vel, y_vel = np.split(uv_obs_pts, [-1], axis=1)
 vel_obs = np.sqrt(u_obs**2 + v_obs**2)
 
@@ -111,18 +113,20 @@ bglen = b_glen['bglen'][:]
 x_bg, y_bg = np.meshgrid(b_glen['x'][:], b_glen['y'][:])
 
 # Now plotting
-# Now plotting
 g = 1.2
 
 tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
+
+tick_options_mesh = {'axis':'both','which':'both','bottom':True,
+    'top':False,'left':True,'right':False,'labelleft':True, 'labelbottom':True}
 
 fig1 = plt.figure(figsize=(10*g, 14*g))#, constrained_layout=True)
 spec = gridspec.GridSpec(3, 2, wspace=0.01, hspace=0.2)
 
 ax0 = plt.subplot(spec[0])
 ax0.set_aspect('equal')
-ax0.tick_params(**tick_options)
+ax0.tick_params(**tick_options_mesh)
 ax0.set_xlim(min(x), max(x))
 ax0.set_ylim(min(y), max(y))
 ax0.triplot(x, y, trim.triangles, '-', color='k', lw=0.2)

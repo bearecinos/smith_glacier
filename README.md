@@ -22,7 +22,7 @@ Repository structure:
 - `meshtools`: A set of tools for mesh and input data generation.
 - `scripts`: Python and bash scripts to run each data processing stage.
    - `prepro_stages`: Python scripts to generate the input data for the model runs cropped to the study region.
-   - `run_stages`: Bash scritps and `.toml` configuration files for each run stage of fenics_ice.
+   - `run_experiments`: Bash scritps and `.toml` configuration files for each run stage of fenics_ice.
 
 - `config.init`: Configuration file for paths to input and output data.
 - `setpaths.sh`: Global paths to repository and repository directories.

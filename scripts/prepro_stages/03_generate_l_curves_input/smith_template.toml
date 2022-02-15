@@ -16,6 +16,7 @@ bglen_field_name = "bglen"
 bglenmask_field_name = "bglenmask"
 
 log_level = "ERROR" #This is default
+output_var_format = "xml"
 
 [constants]
 

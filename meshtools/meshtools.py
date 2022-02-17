@@ -867,10 +867,10 @@ def get_data_for_experiment(path, experiment_name):
     for root, dirs, files in os.walk(dir_path):
         dirs.sort()
         files = [os.path.join(root, f) for f in files]
-        excludes = ['*inversion_progress*', '*1e+*', '*.xml']
+        excludes = ['*inversion_progress*', '*1e+*', '*.xml', '*.h5', '*.xdmf']
         excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
         j_paths_small = [f for f in files if not re.match(excludes, f)]
-        excludes = ['*inversion_progress*', '*1e-*', '*.xml']
+        excludes = ['*inversion_progress*', '*1e-*', '*.xml', '*.h5', '*.xdmf']
         excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
         j_paths_big = [f for f in files if not re.match(excludes, f)]
 
@@ -885,7 +885,7 @@ def get_data_for_experiment(path, experiment_name):
     ds.reset_index(drop=True, inplace=True)
     return ds
 
-def get_xml_from_exp(path, experiment_name):
+def get_xml_from_exp(path=str, experiment_name=str, var_name=str, var_value=str):
     """
     Finds the path of an xml file with the parameter field result
     from the inversion, estimated with a specific value
@@ -900,10 +900,10 @@ def get_xml_from_exp(path, experiment_name):
     for root, dirs, files in os.walk(dir_path):
         dirs.sort()
         files = [os.path.join(root, f) for f in files]
-        excludes = ['*.csv']
-        excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
-        xml_f = [f for f in files if not re.match(excludes, f)]
-    return xml_f
+        includes = ['*' + var_value + '_' + var_name + '.xml']
+        includes = r'|'.join([fnmatch.translate(x) for x in includes]) or r'$.'
+        xml_f = [f for f in files if re.match(includes, f)]
+    return xml_f[0]
 
 def plot_field_in_contour_plot(x, y, t, field, field_name,
                                ax, vmin=None, vmax=None, cmap=None, add_mesh=False):
@@ -1020,7 +1020,7 @@ def compute_vertex_for_dQ_components(dQ, mesh, hd5_fpath=str, n_sens=int):
     dQ_alpha, dQ_beta = dQ.split(deepcopy=True)
 
     # Vector to plot
-    va = dQ_alpha.compute_vertex_values(mesh)
+    va = dQ_alpha.compute_vertex_values(mesh) # TODO: x mass matrix
     vb = dQ_beta.compute_vertex_values(mesh)
 
     return va, vb

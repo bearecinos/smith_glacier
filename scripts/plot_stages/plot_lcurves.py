@@ -48,7 +48,6 @@ from meshtools import meshtools
 path_output = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves')
 
 exp_names = ['gamma_alpha', 'gamma_beta', 'delta_beta_gnd']
-
 gamma_alpha = meshtools.get_data_for_experiment(path_output, exp_names[0])
 gamma_beta = meshtools.get_data_for_experiment(path_output, exp_names[1])
 delta_beta_gnd = meshtools.get_data_for_experiment(path_output, exp_names[2])
@@ -75,63 +74,52 @@ else:
     Qp = fice_mesh.get_periodic_space(params, mesh_in, dim=1)
     V =  fice_mesh.get_periodic_space(params, mesh_in, dim=2)
 
-gamma_alpha_xml = meshtools.get_xml_from_exp(path_output, exp_names[0])
-gamma_beta_xml = meshtools.get_xml_from_exp(path_output, exp_names[1])
-delta_beta_gnd_xml = meshtools.get_xml_from_exp(path_output, exp_names[2])
+alpha_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'alpha', '1e-04')
+alpha_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'alpha', '1e+04')
+
+beta_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'beta', '1e-04')
+beta_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'beta', '1e+04')
+
+betagnd_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'beta', '1e-07')
+betagnd_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'beta', '1e+01')
 
 print('Check if these are the right files for some of the extreme values')
-print(delta_beta_gnd_xml)
+assert os.path.exists(betagnd_min_xml)
+assert os.path.exists(betagnd_max_xml)
+print(betagnd_min_xml)
+print(betagnd_max_xml)
 
-# Read alpha extremes output for gamma_alpha exp
-alpha_min_xml = gamma_alpha_xml[2]
-alpha_max_xml = gamma_alpha_xml[0]
+U_alpha_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'U', '1e-04')
+U_alpha_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'U', '1e+04')
 
-U_alpha_min_xml = gamma_alpha_xml[-1]
-U_alpha_max_xml = gamma_alpha_xml[1]
+U_beta_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'U', '1e-04')
+U_beta_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'U', '1e+04')
 
-# Read beta extremes output for gamma_beta exp
-beta_min_xml = gamma_beta_xml[3]
-beta_max_xml = gamma_beta_xml[0]
+U_betagnd_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'U', '1e-07')
+U_betagnd_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'U', '1e+01')
 
-U_beta_min_xml = gamma_beta_xml[-1]
-U_beta_max_xml = gamma_beta_xml[2]
-
-# Read beta extremes output for delta_beta_gnd exp
-betagnd_min_xml = delta_beta_gnd_xml[3]
-betagnd_max_xml = delta_beta_gnd_xml[0]
-
-U_betagnd_min_xml = delta_beta_gnd_xml[-1]
-U_betagnd_max_xml = delta_beta_gnd_xml[2]
+print('Check if these are the right files for some of the extreme values')
+assert os.path.exists(U_betagnd_min_xml)
+assert os.path.exists(U_betagnd_max_xml)
+print(U_betagnd_min_xml)
+print(U_betagnd_max_xml)
 
 # Compute vertex values for each parameter function
 # in the mesh
 v_alpha_min = meshtools.compute_vertex_for_parameter_field(alpha_min_xml,
-                                                           param_space=Qp,
-                                                           dg_space=M,
-                                                           mesh_in=mesh_in)
-
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
 v_alpha_max = meshtools.compute_vertex_for_parameter_field(alpha_max_xml,
-                                                           param_space=Qp,
-                                                           dg_space=M,
-                                                           mesh_in=mesh_in)
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
 
 v_beta_min = meshtools.compute_vertex_for_parameter_field(beta_min_xml,
-                                                          param_space=Qp,
-                                                          dg_space=M,
-                                                          mesh_in=mesh_in)
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
 v_beta_max = meshtools.compute_vertex_for_parameter_field(beta_max_xml,
-                                                           param_space=Qp,
-                                                          dg_space=M,
-                                                          mesh_in=mesh_in)
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
 
 v_bgnd_min = meshtools.compute_vertex_for_parameter_field(betagnd_min_xml,
-                                                          param_space=Qp,
-                                                          dg_space=M,
-                                                          mesh_in=mesh_in)
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
 v_bgnd_max = meshtools.compute_vertex_for_parameter_field(betagnd_max_xml,
-                                                          param_space=Qp,
-                                                          dg_space=M,
-                                                          mesh_in=mesh_in)
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
 
 # Getting velocity vertex for extreme values of parameters
 v_U_alpha_min = meshtools.compute_vertex_for_velocity_field(U_alpha_min_xml, v_space=V,
@@ -186,7 +174,6 @@ meshtools.plot_field_in_contour_plot(x, y, t, v_alpha_max, 'alpha',
 ax1.set_title("gamma-alpha = "+ str(np.max(gamma_alpha['gamma_alpha'])), fontsize=14)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
 ax1.add_artist(at)
-
 
 ax2 = plt.subplot(spec[2])
 ax2.tick_params(**tick_options_lc)
@@ -249,7 +236,7 @@ ax8.add_artist(at)
 
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'l-curves_alpha_beta.png'), bbox_inches='tight')
-
+#
 #Now plotting velocities.. this will be long!
 cmap_params = plt.get_cmap('viridis')
 

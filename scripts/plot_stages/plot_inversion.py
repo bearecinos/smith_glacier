@@ -45,6 +45,7 @@ rcParams['ytick.labelsize'] = 18
 color = sns.color_palette()
 cmap_vel= plt.get_cmap('viridis')
 cmap_params = plt.get_cmap('RdBu_r')
+cmap_params_inv = plt.get_cmap('magma_r')
 tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
 
@@ -169,7 +170,7 @@ minv = 0
 maxv = np.max(v_alpha)
 levels = np.linspace(minv,maxv,200)
 ticks = np.linspace(minv,maxv,3)
-c = ax3.tricontourf(x, y, t, v_alpha, levels = levels, cmap=cmap_params)
+c = ax3.tricontourf(x, y, t, v_alpha, levels = levels, cmap=cmap_params_inv)
 cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
 cbar.ax.set_xlabel('$B^{2}$')
 ax3.set_xlim(min(x), max(x))

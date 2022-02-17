@@ -86,7 +86,7 @@ hdffile = os.path.join(outdir, params.io.run_name+'_dQ_ts.h5')
 valpha_first, vbeta_first = meshtools.compute_vertex_for_dQ_components(dQ,
                                                                        mesh_in,
                                                                        hdffile,
-                                                                       n_sens[1])
+                                                                       n_sens[5])
 valpha_last, vbeta_last = meshtools.compute_vertex_for_dQ_components(dQ,
                                                                      mesh_in,
                                                                      hdffile,
@@ -120,7 +120,7 @@ c = ax0.tricontourf(x, y, t, valpha_first, levels = levelsa, cmap=plt.get_cmap('
 ax0.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
 cbar = plt.colorbar(c, cax=cax, ticks=ticksa, orientation="horizontal")
 cbar.ax.set_xlabel('dQ_alpha')
-n_text = AnchoredText('n_sens = '+ str(n_sens[1]), prop=dict(size=14), frameon=True, loc='lower left')
+n_text = AnchoredText('n_sens = '+ str(n_sens[5]), prop=dict(size=14), frameon=True, loc='lower left')
 ax0.add_artist(n_text)
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
 ax0.add_artist(at)
@@ -135,7 +135,7 @@ c = ax1.tricontourf(x, y, t, vbeta_first, levels = levelsb, cmap=plt.get_cmap('R
 ax1.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
 cbar = plt.colorbar(c, cax=cax, ticks=ticksb, orientation="horizontal")
 cbar.ax.set_xlabel('dQ_beta')
-n_text = AnchoredText('n_sens = '+ str(n_sens[1]), prop=dict(size=14), frameon=True, loc='lower left')
+n_text = AnchoredText('n_sens = '+ str(n_sens[5]), prop=dict(size=14), frameon=True, loc='lower left')
 ax1.add_artist(n_text)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
 ax1.add_artist(at)

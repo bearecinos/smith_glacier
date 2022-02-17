@@ -113,16 +113,16 @@ bglen = b_glen['bglen'][:]
 x_bg, y_bg = np.meshgrid(b_glen['x'][:], b_glen['y'][:])
 
 # Now plotting
-g = 1.2
+g = 1.5
 
 tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
 
-tick_options_mesh = {'axis':'both','which':'both','bottom':True,
-    'top':False,'left':True,'right':False,'labelleft':True, 'labelbottom':True}
+tick_options_mesh = {'axis':'both','which':'both','bottom':False,
+    'top':True,'left':True,'right':False,'labelleft':True, 'labeltop':True, 'labelbottom':False}
 
 fig1 = plt.figure(figsize=(10*g, 14*g))#, constrained_layout=True)
-spec = gridspec.GridSpec(3, 2, wspace=0.01, hspace=0.2)
+spec = gridspec.GridSpec(3, 2, wspace=0.01, hspace=0.3)
 
 ax0 = plt.subplot(spec[0])
 ax0.set_aspect('equal')
@@ -143,7 +143,7 @@ maxv = 3000
 levels = np.linspace(minv,maxv,200)
 ticks = np.linspace(minv,maxv,3)
 divider = make_axes_locatable(ax1)
-cax = divider.append_axes("bottom", size="5%", pad=0.1)
+cax = divider.append_axes("bottom", size="5%", pad=0.2)
 c = ax1.contourf(xgbm, ygbm, bed, levels = levels, cmap=cmap_topo)
 cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
 cbar.ax.set_xlabel('bed altitude [m above s.l.]')
@@ -160,7 +160,7 @@ maxv = 3000
 levels = np.linspace(minv,maxv,200)
 ticks = np.linspace(minv,maxv,3)
 divider = make_axes_locatable(ax2)
-cax = divider.append_axes("bottom", size="5%", pad=0.1)
+cax = divider.append_axes("bottom", size="5%", pad=0.2)
 c = ax2.contourf(xgbm, ygbm, thick, levels = levels, cmap=cmap_thick)
 cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
 cbar.ax.set_xlabel('Ice thickness [m]')
@@ -177,7 +177,7 @@ maxv = 3000
 levels = np.linspace(minv,maxv,200)
 ticks = np.linspace(minv,maxv,3)
 divider = make_axes_locatable(ax3)
-cax = divider.append_axes("bottom", size="5%", pad=0.1)
+cax = divider.append_axes("bottom", size="5%", pad=0.2)
 c = ax3.contourf(xgbm, ygbm, surf_ice, levels = levels, cmap=cmap_topo)
 cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
 cbar.ax.set_xlabel('Ice surface elevation [m above s.l.]')
@@ -188,7 +188,7 @@ ax4 = plt.subplot(spec[4])
 ax4.set_aspect('equal')
 ax4.tick_params(**tick_options)
 divider = make_axes_locatable(ax4)
-cax = divider.append_axes("bottom", size="5%", pad=0.1)
+cax = divider.append_axes("bottom", size="5%", pad=0.2)
 minv = 0
 maxv = 2000
 levels = np.linspace(minv,maxv,200)
@@ -203,9 +203,11 @@ ax5 = plt.subplot(spec[5])
 ax5.set_aspect('equal')
 ax5.tick_params(**tick_options)
 divider = make_axes_locatable(ax5)
-cax = divider.append_axes("bottom", size="5%", pad=0.1)
+cax = divider.append_axes("bottom", size="5%", pad=0.2)
 minv = np.min(bglen)
 maxv = np.max(bglen)
+print(maxv)
+print(minv)
 ticks = np.linspace(minv,maxv,3)
 levels = np.linspace(minv,maxv,200)
 c = ax5.contourf(x_bg, y_bg, bglen, levels = levels, cmap=cmap_glen)
@@ -215,4 +217,4 @@ at = AnchoredText('f', prop=dict(size=18), frameon=True, loc='upper left')
 ax5.add_artist(at)
 
 plt.tight_layout()
-plt.savefig(os.path.join(plot_path, 'input_data.pdf'), bbox_inches='tight')
+plt.savefig(os.path.join(plot_path, 'input_data.png'), bbox_inches='tight')

@@ -1012,15 +1012,34 @@ def compute_vertex_for_velocity_field(xml_file, v_space, q_space, mesh_in):
     # Return vertex values for each parameter function in the mesh
     return uv.compute_vertex_values(mesh_in)
 
-def compute_vertex_for_dQ_components(dQ, mesh, hd5_fpath=str, n_sens=int):
+def compute_vertex_for_dQ_components(Q, dQ, mesh, hd5_fpath=str, n_sens=int, mult_mmatrix=False):
 
     hdf5data = HDF5File(MPI.comm_world, hd5_fpath, 'r')
     hdf5data.read(dQ, f'dQdalphaXbeta/vector_{n_sens}')
 
-    dQ_alpha, dQ_beta = dQ.split(deepcopy=True)
+    dx = Measure('dx', domain=mesh)
+    Qp_test, Qp_trial = TestFunction(Q), TrialFunction(Q)
+
+    # Mass matrix solver
+    M_mat = assemble(inner(Qp_trial, Qp_test) * dx)
+
+    from dolfin import KrylovSolver
+    M_solver = KrylovSolver(M_mat.copy(), "cg", "sor")  # DOLFIN KrylovSolver object
+    M_solver.parameters.update({"relative_tolerance": 1.0e-14,
+                                "absolute_tolerance": 1.0e-32})
+
+    from tlm_adjoint.interface import function_new
+    this_action = function_new(dQ, name=f"M_inv_action")
+
+    M_solver.solve(this_action.vector(), dQ.vector())
+
+    if mult_mmatrix:
+        dQ_alpha, dQ_beta = this_action.split(deepcopy=True)
+    else:
+        dQ_alpha, dQ_beta = dQ.split(deepcopy=True)
 
     # Vector to plot
-    va = dQ_alpha.compute_vertex_values(mesh) # TODO: x mass matrix
+    va = dQ_alpha.compute_vertex_values(mesh)
     vb = dQ_beta.compute_vertex_values(mesh)
 
     return va, vb

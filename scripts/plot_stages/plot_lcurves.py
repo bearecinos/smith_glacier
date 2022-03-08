@@ -147,7 +147,8 @@ t = mesh_in.cells()
 trim = tri.Triangulation(x, y, t)
 
 #Now plotting .. this will be long!
-cmap_params = plt.get_cmap('RdBu_r')
+import seaborn as sns
+cmap_params = sns.color_palette("RdBu_r", as_cmap=True)
 
 g = 1.2
 tick_options_lc = {'axis':'both','which':'both','bottom':True,

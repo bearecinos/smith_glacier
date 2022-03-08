@@ -28,9 +28,9 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import seaborn as sns
 
 import matplotlib.tri as tri
-rcParams['axes.labelsize'] = 14
-rcParams['xtick.labelsize'] = 14
-rcParams['ytick.labelsize'] = 14
+rcParams['axes.labelsize'] = 18
+rcParams['xtick.labelsize'] = 18
+rcParams['ytick.labelsize'] = 18
 
 # Load configuration file for more order in paths
 parser = argparse.ArgumentParser()
@@ -88,42 +88,38 @@ print(t_zero)
 t_last = np.round(t_sens[n_sens[-1]])
 print(t_last)
 
-
-
-
 # Now lets read the output
 hdffile = os.path.join(outdir, params.io.run_name+'_dQ_ts.h5')
 
-valpha_first, vbeta_first = meshtools.compute_vertex_for_dQ_components(Q,
-                                                                       dQ,
+valpha_first, vbeta_first = meshtools.compute_vertex_for_dV_components(dQ,
                                                                        mesh_in,
                                                                        hdffile,
+                                                                       'dQdalphaXbeta',
                                                                        n_zero,
                                                                        mult_mmatrix=True)
-valpha_last, vbeta_last = meshtools.compute_vertex_for_dQ_components(Q,
-                                                                     dQ,
+valpha_last, vbeta_last = meshtools.compute_vertex_for_dV_components(dQ,
                                                                      mesh_in,
                                                                      hdffile,
+                                                                     'dQdalphaXbeta',
                                                                      n_last,
                                                                      mult_mmatrix=True)
-#This stay fix as they are the best color levels
-numlev = 40
-minva = -0.5
-maxva = 0.5
 
-minvb = -100
-maxvb = 100
+print(type(valpha_first))
 
-levelsa = np.linspace(minva,maxva,200)
-ticksa = np.linspace(minva,maxva,3)
+valpha_first_std = meshtools.standarise_data_array(valpha_first)
+vbeta_first_std = meshtools.standarise_data_array(vbeta_first)
+valpha_last_std = meshtools.standarise_data_array(valpha_last)
+vbeta_last_std = meshtools.standarise_data_array(vbeta_last)
 
-levelsb = np.linspace(minvb,maxvb,200)
-ticksb = np.linspace(minvb,maxvb,3)
+levelsaf, ticksaf = meshtools.make_colorbar_scale(valpha_first_std, 0.10)
+levelsbf, ticksbf = meshtools.make_colorbar_scale(vbeta_first_std, 0.10)
+levelsal, ticksal = meshtools.make_colorbar_scale(valpha_last_std, 0.10)
+levelsbl, ticksbl = meshtools.make_colorbar_scale(vbeta_last_std, 0.10)
 
 tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False, 'labeltop':False}
 
-g = 1.2
+g = 1.0
 
 fig1 = plt.figure(figsize=(12*g, 10*g))#, constrained_layout=True)
 spec = gridspec.GridSpec(2, 2, wspace=0.05, hspace=0.25)
@@ -133,13 +129,13 @@ ax0.set_aspect('equal')
 ax0.tick_params(**tick_options)
 divider = make_axes_locatable(ax0)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax0.tricontourf(x, y, t, valpha_first, levels = levelsa, cmap=plt.get_cmap('RdBu'))
+c = ax0.tricontourf(x, y, t, valpha_first_std, levels=levelsaf, cmap=plt.get_cmap('RdBu')) # levels = levelsa
 ax0.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksa, orientation="horizontal")
-cbar.ax.set_xlabel('dQ_alpha')
-n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
+cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal") #ticks=ticksa
+cbar.ax.set_xlabel(r'$\frac{dQ}{d\alpha}$')
+n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=16), frameon=True, loc='upper right')
 ax0.add_artist(n_text)
-at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('a', prop=dict(size=16), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
 
@@ -148,13 +144,13 @@ ax1.set_aspect('equal')
 ax1.tick_params(**tick_options)
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax1.tricontourf(x, y, t, vbeta_first, levels = levelsb, cmap=plt.get_cmap('RdBu'))
+c = ax1.tricontourf(x, y, t, vbeta_first_std, levels=levelsbf, cmap=plt.get_cmap('RdBu')) #levels = levelsb,
 ax1.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksb, orientation="horizontal")
-cbar.ax.set_xlabel('dQ_beta')
-n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
+cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal") # ticks=ticksb,
+cbar.ax.set_xlabel(r'$\frac{dQ}{d\beta}$')
+n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=16), frameon=True, loc='upper right')
 ax1.add_artist(n_text)
-at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('b', prop=dict(size=16), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
 
@@ -163,13 +159,13 @@ ax2.set_aspect('equal')
 ax2.tick_params(**tick_options)
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax2.tricontourf(x, y, t, valpha_last, levels = levelsa, cmap=plt.get_cmap('RdBu'))
+c = ax2.tricontourf(x, y, t, valpha_last_std, levels=levelsaf, cmap=plt.get_cmap('RdBu')) #  levels = levelsa,
 ax2.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksa, orientation="horizontal")
-cbar.ax.set_xlabel('dQ_alpha')
-n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
+cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal") #ticks=ticksa
+cbar.ax.set_xlabel(r'$\frac{dQ}{d\alpha}$')
+n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=16), frameon=True, loc='upper right')
 ax2.add_artist(n_text)
-at = AnchoredText('c', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('c', prop=dict(size=16), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
 ax3 = plt.subplot(spec[3])
@@ -177,16 +173,16 @@ ax3.set_aspect('equal')
 ax3.tick_params(**tick_options)
 divider = make_axes_locatable(ax3)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax3.tricontourf(x, y, t, vbeta_last, levels = levelsb, cmap=plt.get_cmap('RdBu'))
+c = ax3.tricontourf(x, y, t, vbeta_last_std, levels=levelsbf, cmap=plt.get_cmap('RdBu')) # levels = levelsb,
 ax3.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksb, orientation="horizontal")
-cbar.ax.set_xlabel('dQ_beta')
-n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
+cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal") #ticks=ticksb,
+cbar.ax.set_xlabel(r'$\frac{dQ}{d\beta}$')
+n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=16), frameon=True, loc='upper right')
 ax3.add_artist(n_text)
-at = AnchoredText('d', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('d', prop=dict(size=16), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 plt.tight_layout()
-plt.savefig(os.path.join(plot_path, 'dq_ts_output_'+
+plt.savefig(os.path.join(plot_path, 'dq_ts_output_vaf'+
                          str(n_zero)+'_'+str(n_last)+'.png'),
             bbox_inches='tight')

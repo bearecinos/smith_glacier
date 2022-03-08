@@ -927,13 +927,13 @@ def plot_field_in_contour_plot(x, y, t, field, field_name,
     ax.set_aspect('equal')
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("bottom", size="5%", pad=0.1)
-    if add_mesh:
-        ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
     minv = vmin
     maxv = vmax
     levels = np.linspace(minv, maxv, 200)
     ticks = np.linspace(minv, maxv, 3)
     c = ax.tricontourf(x, y, t, field, levels=levels, cmap=cmap)
+    if add_mesh:
+        ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
     cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
     cbar.ax.set_xlabel(field_name)
     ax.set_xlim(min(x), max(x))
@@ -1012,12 +1012,36 @@ def compute_vertex_for_velocity_field(xml_file, v_space, q_space, mesh_in):
     # Return vertex values for each parameter function in the mesh
     return uv.compute_vertex_values(mesh_in)
 
-def compute_vertex_for_dQ_components(Q, dQ, mesh, hd5_fpath=str, n_sens=int, mult_mmatrix=False):
+def compute_vertex_for_dV_components(dV,
+                                     mesh,
+                                     hd5_fpath=str,
+                                     var_name=str,
+                                     n_item=int,
+                                     mult_mmatrix=False):
+    """
+    Compute vertex values for a specific parameter and
+    split them into the different components of the dual
+    space (alpha and beta)
+
+    :param Q: Function Space
+    :param dV: Function
+    :param mesh: finite element mesh already in fenics ice format
+    :param hd5_fpath: path to .h5 file to read
+    :param var_name: name of the variable to read
+    :param n_item: number of item either n_sens or number of eigenvectors
+    :param mult_mmatrix: do we want to multiply by the mass matrix
+    default False, so No.
+    :return: va, vb vertex values of each vector component
+    """
 
     hdf5data = HDF5File(MPI.comm_world, hd5_fpath, 'r')
-    hdf5data.read(dQ, f'dQdalphaXbeta/vector_{n_sens}')
+
+    name_field = var_name + '/vector_'
+
+    hdf5data.read(dV, f'{name_field}{n_item}')
 
     dx = Measure('dx', domain=mesh)
+    Q = dV.function_space()
     Qp_test, Qp_trial = TestFunction(Q), TrialFunction(Q)
 
     # Mass matrix solver
@@ -1029,17 +1053,97 @@ def compute_vertex_for_dQ_components(Q, dQ, mesh, hd5_fpath=str, n_sens=int, mul
                                 "absolute_tolerance": 1.0e-32})
 
     from tlm_adjoint.interface import function_new
-    this_action = function_new(dQ, name=f"M_inv_action")
+    this_action = function_new(dV, name=f"M_inv_action")
 
-    M_solver.solve(this_action.vector(), dQ.vector())
+    M_solver.solve(this_action.vector(), dV.vector())
 
     if mult_mmatrix:
-        dQ_alpha, dQ_beta = this_action.split(deepcopy=True)
+        dV_alpha, dV_beta = this_action.split(deepcopy=True)
     else:
-        dQ_alpha, dQ_beta = dQ.split(deepcopy=True)
+        dV_alpha, dV_beta = dV.split(deepcopy=True)
 
     # Vector to plot
-    va = dQ_alpha.compute_vertex_values(mesh)
-    vb = dQ_beta.compute_vertex_values(mesh)
+    va = dV_alpha.compute_vertex_values(mesh)
+    vb = dV_beta.compute_vertex_values(mesh)
 
     return va, vb
+
+def plot_field_in_tricontourf(data_array,
+                              mesh,
+                              ax,
+                              varname=str,
+                              num_eigen=int,
+                              ticks=None,
+                              levels=None,
+                              add_text=True):
+    """
+
+    :param data_array: field to plot (e.g. eigenvector)
+    :param varname: field component to plot (e.g. eigenvector alpha)
+    :param num_eigen: vector number to plot
+    :param mesh: mesh to take out coordinates information
+    :param ax: axes number to plot the data
+    :param ticks: ticks on colorbar
+    :param levels: levels
+    :return: {} plot
+    """
+    import seaborn as sns
+    cmap = sns.color_palette("RdBu", as_cmap=True)
+
+    # Get mesh stuff
+    x = mesh.coordinates()[:, 0]
+    y = mesh.coordinates()[:, 1]
+    t = mesh.cells()
+    trim = tri.Triangulation(x, y, t)
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("bottom", size="5%", pad=0.1)
+    c = ax.tricontourf(x, y, t, data_array, levels=levels, cmap=cmap)
+    #ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
+    cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
+    cbar.ax.set_xlabel('dE '+f'{varname}')
+    if add_text:
+        n_text = AnchoredText('eigenvector = ' + str(num_eigen),
+                              prop=dict(size=12), frameon=True, loc='upper right')
+        ax.add_artist(n_text)
+
+    return {}
+
+def normalise_data_array(array):
+    """
+
+    :param array: numpy array to normalize
+    :return: array values between -1 and 1
+    """
+    first_n = (array - np.amin(array)) / (np.amax(array) - np.amin(array))
+    first_norm = 2 * first_n - 1
+    return first_norm
+
+def standarise_data_array(array):
+    """
+
+    :param array: numpy array to standarised
+    :return: array standarised
+    """
+    A = (array - np.mean(array)) / np.std(array)
+    return A
+
+def centre_data_array(array):
+    """
+
+    :param array: numpy array to standarised
+    :return: array standarised
+    """
+    A = array - np.mean(array)
+    return A
+
+def make_colorbar_scale(array, percnt):
+    """
+
+    :param array:
+    :return: levels and ticks
+    """
+    fifty = np.quantile(array, percnt)
+    level = np.linspace(fifty, fifty*-1, 100)
+    ticks = [min(level), np.median(level), max(level)]
+    return level, ticks

@@ -14,6 +14,7 @@ import os
 import salem
 import h5py
 import numpy as np
+import pandas as pd
 from fenics import *
 from fenics_ice import inout
 from fenics_ice import config as conf
@@ -110,7 +111,24 @@ b_glen_file = os.path.join(params.io.input_dir, params.io.bglen_data_file)
 b_glen = h5py.File(b_glen_file, 'r')
 
 bglen = b_glen['bglen'][:]
+bglen_mask = b_glen['bglenmask'][:]
 x_bg, y_bg = np.meshgrid(b_glen['x'][:], b_glen['y'][:])
+
+shp = bglen.shape
+r,c = np.indices(shp)
+
+df = pd.DataFrame(np.c_[r.ravel(), c.ravel(), bglen.ravel('F'),
+                        bglen_mask.ravel('F')],
+                  columns=((['x','y','val','mask'])))
+df.loc[df["mask"] == 0, "val"] = 0
+
+x_df = np.unique(df.x.values)
+y_df = np.unique(df.y.values)
+
+bglen_new = df.val.values
+x_bg, y_bg = np.meshgrid(x, y)
+
+bglen_r = bglen_new.reshape((len(x_df), len(y_df)), order='F')
 
 # Now plotting
 g = 1.5
@@ -204,13 +222,14 @@ ax5.set_aspect('equal')
 ax5.tick_params(**tick_options)
 divider = make_axes_locatable(ax5)
 cax = divider.append_axes("bottom", size="5%", pad=0.2)
-minv = np.min(bglen)
+minv = 0
 maxv = np.max(bglen)
 print(maxv)
 print(minv)
 ticks = np.linspace(minv,maxv,3)
 levels = np.linspace(minv,maxv,200)
-c = ax5.contourf(x_bg, y_bg, bglen, levels = levels, cmap=cmap_glen)
+#ax5.contourf(x_bg, y_bg, bglen_mask, levels = levels, cmap=cmap_glen)
+c = ax5.imshow(bglen_r, vmin=minv, vmax=maxv, cmap=cmap_glen)
 cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
 cbar.ax.set_xlabel('A creep parameter [Pa $yr^{1/3}$]')
 at = AnchoredText('f', prop=dict(size=18), frameon=True, loc='upper left')

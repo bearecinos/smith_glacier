@@ -126,7 +126,7 @@ eigenvalue_thresh = 1.0e-1
 
 [errorprop]
 
-qoi = 'h2' #or 'vaf'
+qoi = 'vaf'
 
 [invsigma]
 

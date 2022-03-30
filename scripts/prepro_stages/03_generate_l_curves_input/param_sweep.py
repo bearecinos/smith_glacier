@@ -22,26 +22,10 @@ import os
 import toml
 import numpy as np
 from pathlib import Path
-from functools import reduce
-import operator
 import argparse
 from configobj import ConfigObj
 from decimal import Decimal
-import copy
 import re
-from IPython import embed
-
-def getTomlItem(dictionary, key_list):
-    return reduce(operator.getitem, key_list, dictionary)
-
-def setTomlItem(dictionary, key_list, value):
-    param = reduce(operator.getitem, key_list[:-1], dictionary)
-    param[key_list[-1]] = value
-
-def composeName(root, suff, value):
-    assert isinstance(value, float)
-    value_str = "%1.0e" % value
-    return "_".join((root, suff, value_str))
 
 # Argument passer
 parser = argparse.ArgumentParser()
@@ -73,6 +57,8 @@ config = ConfigObj(os.path.expanduser(config_file))
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
+from ficetools import utils_funcs
+
 # Get .toml file template
 template_full_path = os.path.join(os.environ['PREPRO_STAGES'],
                                   '03_generate_l_curves_input/'+ args.name_toml_template)
@@ -100,7 +86,8 @@ if not os.path.exists(output_dir):
 if not os.path.exists(output_dir_run):
     os.makedirs(output_dir_run)
 
-command_template = "mpirun -n 24 python $RUN_CONFIG_DIR/run_lcurves/run_lcurves_inv.py $RUN_CONFIG_DIR/run_lcurves/{target_param}/{toml_fname} |& tee {log_fname}\n"
+command_template = "mpirun -n 24 python $RUN_CONFIG_DIR/run_lcurves/run_lcurves_inv.py " \
+                   "$RUN_CONFIG_DIR/run_lcurves/{target_param}/{toml_fname} |& tee {log_fname}\n"
 delete_vtu = "rm $OUTPUT_DIR/04_run_inv_lcurves/" + target_param + "/*.vtu\n"
 delete_pvtu = "rm $OUTPUT_DIR/04_run_inv_lcurves/" + target_param + "/*.pvtu\n"
 delete_pvd = "rm $OUTPUT_DIR/04_run_inv_lcurves/" +target_param + "/*.pvd\n"
@@ -121,13 +108,15 @@ param_range = np.geomspace(param_min, param_max, steps, dtype=np.float64).tolist
 print('will sweep over', param_range)
 
 template = toml.load(toml_name)
-template_name = getTomlItem(template, name_param)
+template_name = utils_funcs.getTomlItem(template, name_param)
 script_file = open(os.path.join(tomls_f,script_name), 'w')
 
 for i in range(steps):
 
-    runname = composeName(template_name, name_suff, param_range[i])
-    filename = Path(tomls_f,composeName(toml_name.stem, name_suff, param_range[i])).with_suffix(".toml")
+    runname = utils_funcs.composeName(template_name, name_suff, param_range[i])
+    filename = Path(tomls_f, utils_funcs.composeName(toml_name.stem,
+                                                     name_suff,
+                                                     param_range[i])).with_suffix(".toml")
 
     with open(toml_name, 'r') as inny:
         lines = inny.readlines()

@@ -54,7 +54,7 @@ config = ConfigObj(os.path.expanduser(config_file))
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
-from meshtools import meshtools as meshtools
+from ficetools import velocity as vel_tools
 
 # Define the Smith Glacier extent to crop all velocity data to this region
 # IMPORTANT .. verify that the extent is always bigger than the mesh!
@@ -108,11 +108,11 @@ if args.composite == 'itslive':
     vx_err.data[non_valid_e] = 0.0
     vx_err.data[non_valid_e] = 0.0
 
-    vx_s, x_s, y_s = meshtools.crop_velocity_data_to_extend(vx, smith_bbox,
+    vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
                                                               return_coords=True)
-    vy_s = meshtools.crop_velocity_data_to_extend(vy, smith_bbox)
-    vx_err_s = meshtools.crop_velocity_data_to_extend(vx_err, smith_bbox)
-    vy_err_s = meshtools.crop_velocity_data_to_extend(vy_err, smith_bbox)
+    vy_s = vel_tools.crop_velocity_data_to_extend(vy, smith_bbox)
+    vx_err_s = vel_tools.crop_velocity_data_to_extend(vx_err, smith_bbox)
+    vy_err_s = vel_tools.crop_velocity_data_to_extend(vy_err, smith_bbox)
 
     print('Lets check all has the same shape')
     print(vx_s.shape, vy_s.shape)
@@ -147,18 +147,18 @@ else:
     std_vy = dm.STDY
 
     # Crop velocity data to the Smith Glacier extend
-    vx_s, x_s, y_s = meshtools.crop_velocity_data_to_extend(vx, smith_bbox,
+    vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
                                                              return_coords=True)
-    vy_s = meshtools.crop_velocity_data_to_extend(vy, smith_bbox)
-    std_vx_s = meshtools.crop_velocity_data_to_extend(std_vx, smith_bbox)
-    std_vy_s = meshtools.crop_velocity_data_to_extend(std_vy, smith_bbox)
+    vy_s = vel_tools.crop_velocity_data_to_extend(vy, smith_bbox)
+    std_vx_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox)
+    std_vy_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox)
 
     # Mask arrays and interpolate nan with nearest neighbor
     x_grid, y_grid = np.meshgrid(x_s, y_s)
-    vx_int = meshtools.interpolate_missing_data(vx_s, x_grid, y_grid)
-    vy_int = meshtools.interpolate_missing_data(vy_s, x_grid, y_grid)
-    stdvx_int = meshtools.interpolate_missing_data(std_vx_s, x_grid, y_grid)
-    stdvy_int = meshtools.interpolate_missing_data(std_vy_s, x_grid, y_grid)
+    vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
+    vy_int = vel_tools.interpolate_missing_data(vy_s, x_grid, y_grid)
+    stdvx_int = vel_tools.interpolate_missing_data(std_vx_s, x_grid, y_grid)
+    stdvy_int = vel_tools.interpolate_missing_data(std_vy_s, x_grid, y_grid)
 
     # Ravel all arrays so they can be stored with
     # a tuple shape (values, )
@@ -224,18 +224,18 @@ if args.add_cloud_data:
     vel_ase_obs = vel_ase_obs.assign_coords({"x": x_ase, "y": y_ase})
 
     # Crop velocity data to the Smith Glacier extend
-    vx_slice, xind_ase, yind_ase = meshtools.crop_velocity_data_to_extend(vx_ase,
+    vx_slice, xind_ase, yind_ase = vel_tools.crop_velocity_data_to_extend(vx_ase,
                                                                           smith_bbox,
                                                                           return_xarray=True,
                                                                           return_indexes=True)
-    vy_slice = meshtools.crop_velocity_data_to_extend(vy_ase, smith_bbox, return_xarray=True)
-    err_y_slice = meshtools.crop_velocity_data_to_extend(err_y, smith_bbox, return_xarray=True)
-    err_x_slice = meshtools.crop_velocity_data_to_extend(err_x, smith_bbox, return_xarray=True)
+    vy_slice = vel_tools.crop_velocity_data_to_extend(vy_ase, smith_bbox, return_xarray=True)
+    err_y_slice = vel_tools.crop_velocity_data_to_extend(err_y, smith_bbox, return_xarray=True)
+    err_x_slice = vel_tools.crop_velocity_data_to_extend(err_x, smith_bbox, return_xarray=True)
 
     x_slice = x_ase[xind_ase]
     y_slice = y_ase[yind_ase]
 
-    vel_obs_slice = meshtools.crop_velocity_data_to_extend(vel_ase_obs, smith_bbox,
+    vel_obs_slice = vel_tools.crop_velocity_data_to_extend(vel_ase_obs, smith_bbox,
                                                            return_xarray=True)
 
     # 3) We get rid of outliers in the data
@@ -257,7 +257,7 @@ if args.add_cloud_data:
         path_itslive_2011 = os.path.join(MAIN_PATH,
                                  config['itslive_2011'])
 
-        output_itslive = meshtools.open_and_crop_itslive_data(path_itslive_2011,
+        output_itslive = vel_tools.open_and_crop_itslive_data(path_itslive_2011,
                                                               extend=smith_bbox,
                                                               x_to_int=x_slice,
                                                               y_to_int=y_slice)
@@ -301,7 +301,7 @@ if args.add_cloud_data:
     print('Number of nans after adding new data')
     print(np.count_nonzero(vel_ma.mask))
 
-    output_cloud = meshtools.drop_invalid_data_from_several_arrays(x_slice,
+    output_cloud = vel_tools.drop_invalid_data_from_several_arrays(x_slice,
                                                                    y_slice,
                                                                    vxf_ase,
                                                                    vyf_ase,

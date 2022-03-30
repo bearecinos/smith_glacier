@@ -8,7 +8,6 @@ and a set of Eigen vectors
 
 @authors: Fenics_ice contributors
 """
-import sys
 import numpy as np
 import os
 import argparse
@@ -24,14 +23,9 @@ from dolfin import *
 
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
-import matplotlib.ticker as ticker
 from matplotlib import rcParams
-import seaborn as sns
 from matplotlib.offsetbox import AnchoredText
 import matplotlib.gridspec as gridspec
-from matplotlib.colorbar import Colorbar
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-
 
 rcParams['axes.labelsize'] = 14
 rcParams['xtick.labelsize'] = 14
@@ -51,7 +45,7 @@ configuration = ConfigObj(os.path.expanduser(config_file))
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
-from meshtools import meshtools
+from ficetools import utils_funcs, graphics
 
 # Paths to data
 plot_path = os.path.join(MAIN_PATH, 'plots/')
@@ -121,16 +115,16 @@ eigen_v_beta = defaultdict(list)
 nametosum = 'eigen_vector'
 
 for e in num_eigen:
-    valpha, vbeta = meshtools.compute_vertex_for_dV_components(dE,
+    valpha, vbeta = utils_funcs.compute_vertex_for_dV_components(dE,
                                                                mesh_in,
                                                                hd5_fpath=hdffile,
                                                                var_name=var_name,
                                                                n_item=e,
                                                                mult_mmatrix=False)
 
-    valpha_nom = meshtools.normalise_data_array(valpha)
+    valpha_nom = utils_funcs.normalise_data_array(valpha)
     print(min(valpha_nom), max(valpha_nom))
-    vbeta_nom = meshtools.normalise_data_array(vbeta)
+    vbeta_nom = utils_funcs.normalise_data_array(vbeta)
     print(min(vbeta_nom), max(vbeta_nom))
 
     eigen_v_alpha[f'{nametosum}{e}'].append(valpha_nom)
@@ -155,7 +149,7 @@ spec = gridspec.GridSpec(4, 2, wspace=0.15, hspace=0.15)
 ax0 = plt.subplot(spec[0])
 ax0.set_aspect('equal')
 ax0.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[0]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[0]}'][0],
                                     mesh_in,
                                     ax=ax0,
                                     varname='alpha',
@@ -168,7 +162,7 @@ ax0.add_artist(at)
 ax1 = plt.subplot(spec[1])
 ax1.set_aspect('equal')
 ax1.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[0]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[0]}'][0],
                                     mesh_in,
                                     ax=ax1,
                                     varname='beta',
@@ -181,7 +175,7 @@ ax1.add_artist(at)
 ax2 = plt.subplot(spec[2])
 ax2.set_aspect('equal')
 ax2.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[1]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[1]}'][0],
                                     mesh_in,
                                     ax=ax2,
                                     varname='alpha',
@@ -194,7 +188,7 @@ ax2.add_artist(at)
 ax3 = plt.subplot(spec[3])
 ax3.set_aspect('equal')
 ax3.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[1]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[1]}'][0],
                                     mesh_in,
                                     ax=ax3,
                                     varname='beta',
@@ -208,7 +202,7 @@ ax3.add_artist(at)
 ax4 = plt.subplot(spec[4])
 ax4.set_aspect('equal')
 ax4.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[2]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[2]}'][0],
                                     mesh_in,
                                     ax=ax4,
                                     varname='alpha',
@@ -221,7 +215,7 @@ ax4.add_artist(at)
 ax5 = plt.subplot(spec[5])
 ax5.set_aspect('equal')
 ax5.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[2]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[2]}'][0],
                                     mesh_in,
                                     ax=ax5,
                                     varname='beta',
@@ -235,7 +229,7 @@ ax5.add_artist(at)
 ax6 = plt.subplot(spec[6])
 ax6.set_aspect('equal')
 ax6.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[3]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[3]}'][0],
                                     mesh_in,
                                     ax=ax6,
                                     varname='alpha',
@@ -248,7 +242,7 @@ ax6.add_artist(at)
 ax7 = plt.subplot(spec[7])
 ax7.set_aspect('equal')
 ax7.tick_params(**tick_options)
-meshtools.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[3]}'][0],
+graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[3]}'][0],
                                     mesh_in,
                                     ax=ax7,
                                     varname='beta',

@@ -2,20 +2,14 @@
 Reads data from Frank Pattyn's Temp.mat and Z.mat files, computes B_bar and writes
 an output in .h5 format in the same grid as smith_glacier_bedmachine.h5.
 Stores the output in fenics_ice ready format.
-
-TODO: adjust paths so it uses config.ini and check if the order of the final
-array is correct !! also calcuate smb constant field
 """
 import os
 import sys
 import numpy as np
-from pathlib import Path
-import netCDF4
 import h5py
 from scipy import io
 import pandas as pd
 import scipy.interpolate as interp
-import numpy.ma as ma
 import argparse
 from configobj import ConfigObj
 
@@ -31,15 +25,12 @@ config = ConfigObj(os.path.expanduser(config_file))
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
-from meshtools import meshtools as meshtools
+from ficetools import utils_funcs as utils
 
 # Read data from files
 
 # temperature and horizontal position file
-#C = io.loadmat('/home/brecinos/smith_glacier/input_data/Temp_2013.mat')
 C = io.loadmat(config['temp_pattyn'])
-# vertical (nondimensional) coordinate
-#z = io.loadmat('/home/brecinos/smith_glacier/input_data/Zeta.mat')
 z = io.loadmat(config['temp_pattyn_zeta'])
 
 # Polar stereographic coordinates
@@ -47,13 +38,15 @@ xpat = C['X']
 ypat = C['Y']
 
 zeta = z['zeta']
-# Zeta is Terrain following coordinate. When zeta=0, this is the surface. when zeta=1, this is the bottom.
+# Zeta is Terrain following coordinate. When zeta=0,
+# this is the surface. when zeta=1, this is the bottom.
 # when zeta=0.25, this is 25 % of the ice thickness from the surface.
 # also zeta spacing is IRREGULAR (see below)
 
 #temperature CONVERTED TO C
 T = C['temp507'] - 273.15
-# rearrange dimensions to be in line with python convention -- 1st axis is vertical
+# rearrange dimensions to be in line with
+# python convention -- 1st axis is vertical
 T = np.transpose(T,(2,0,1))
 
 print(np.shape(T))
@@ -61,7 +54,7 @@ print(np.shape(zeta))
 print(zeta)
 
 # Get 3D Aglen
-A = meshtools.paterson(T) * 365. * 24. * 3600.
+A = utils.paterson(T) * 365. * 24. * 3600.
 
 # Get 3D Bglen -- will have warnings but this should only be for NaN
 Bglen = A**(-1/3)
@@ -76,21 +69,10 @@ print(np.shape(Bglen))
 # BUT CANNOT USE np.mean() because of irregular coordinates.
 Bbar = np.trapz(Bglen,zeta[0,:],axis=0)
 
-# We open Joe's file to get the domain we need!
-# TODO: this need to be fixed with an extend variable so we dont need to read Joe's output
-# Probably will be best to read in bedmachine smith and try to crop the data to that domain?
-# But this can be done later ....
-#file = '/home/brecinos/smith_glacier/input_data/input_run_joe/smith_bglen.h5'
-#file = config['smith_bglen_in']
-#smith_bglen = h5py.File(file, 'r')
-
-
 smith_bbox = {'xmin': -1609000.0,
               'xmax': -1381000.0,
               'ymin': -717500.0,
               'ymax': -528500.0}
-
-
 
 ## Dealing with Frank's Patterson x and y
 x_p = np.int32(C['X'][:][0])*1000
@@ -128,16 +110,6 @@ gd = interp.griddata((xnn,ynn),snn,(x_r,y_r),method='nearest')
 
 
 smb = 0.38*np.ones(sel.shape)
-
-#with h5py.File(os.path.join(MAIN_PATH,
-#                            'output/02_gridded_data/smith_bglen_for_prior.h5'), 'w') as outty:
-#
-#    data = outty.create_dataset("bglen", sel.shape, dtype='f')
-#    data[:] = sel
-#    data = outty.create_dataset("x", x_s.shape, dtype='f')
-#    data[:] = x_s
-#    data = outty.create_dataset("y", y_s.shape, dtype='f')
-#    data[:] = y_s
 
 with h5py.File(os.path.join(MAIN_PATH,
                             'output/02_gridded_data/smith_bglen.h5'), 'w') as outty:

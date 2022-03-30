@@ -27,10 +27,8 @@ import numpy as np
 from netCDF4 import Dataset as NCDataset
 import gmsh
 import meshio
-from pathlib import Path
 from configobj import ConfigObj
 import argparse
-from IPython import embed
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
@@ -42,7 +40,7 @@ config = ConfigObj(os.path.expanduser(config_file))
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
-from meshtools import meshtools as meshtools
+from ficetools import mesh as meshtools
 
 # In files
 velocity_netcdf = config['velocity_ase_series']

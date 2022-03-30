@@ -14,7 +14,6 @@ import h5py
 from scipy.ndimage import gaussian_filter
 import argparse
 from configobj import ConfigObj
-from IPython import embed
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-sigma", type=float, default=0.0, help="Sigma value for gauss filter - zero means no filtering")
@@ -28,9 +27,7 @@ config = ConfigObj(os.path.expanduser(config_file))
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
-from meshtools import meshtools as meshtools
-
-
+from ficetools import mesh as meshtools
 
 gauss_sigma = args.sigma
 filt = gauss_sigma > 0.0

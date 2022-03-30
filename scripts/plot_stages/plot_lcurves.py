@@ -43,14 +43,14 @@ plot_path = os.path.join(MAIN_PATH, 'plots/')
 if not os.path.exists(plot_path):
     os.makedirs(plot_path)
 
-from meshtools import meshtools
+from ficetools import graphics, utils_funcs
 
 path_output = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves')
 
 exp_names = ['gamma_alpha', 'gamma_beta', 'delta_beta_gnd']
-gamma_alpha = meshtools.get_data_for_experiment(path_output, exp_names[0])
-gamma_beta = meshtools.get_data_for_experiment(path_output, exp_names[1])
-delta_beta_gnd = meshtools.get_data_for_experiment(path_output, exp_names[2])
+gamma_alpha = utils_funcs.get_data_for_experiment(path_output, exp_names[0])
+gamma_beta = utils_funcs.get_data_for_experiment(path_output, exp_names[1])
+delta_beta_gnd = utils_funcs.get_data_for_experiment(path_output, exp_names[2])
 
 run_files = os.path.join(MAIN_PATH,
                          'scripts/run_experiments/run_workflow')
@@ -74,14 +74,14 @@ else:
     Qp = fice_mesh.get_periodic_space(params, mesh_in, dim=1)
     V =  fice_mesh.get_periodic_space(params, mesh_in, dim=2)
 
-alpha_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'alpha', '1e-04')
-alpha_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'alpha', '1e+04')
+alpha_min_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[0], 'alpha', '1e-04')
+alpha_max_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[0], 'alpha', '1e+04')
 
-beta_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'beta', '1e-04')
-beta_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'beta', '1e+04')
+beta_min_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[1], 'beta', '1e-04')
+beta_max_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[1], 'beta', '1e+04')
 
-betagnd_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'beta', '1e-07')
-betagnd_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'beta', '1e+01')
+betagnd_min_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[2], 'beta', '1e-07')
+betagnd_max_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[2], 'beta', '1e+01')
 
 print('Check if these are the right files for some of the extreme values')
 assert os.path.exists(betagnd_min_xml)
@@ -89,14 +89,14 @@ assert os.path.exists(betagnd_max_xml)
 print(betagnd_min_xml)
 print(betagnd_max_xml)
 
-U_alpha_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'U', '1e-04')
-U_alpha_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[0], 'U', '1e+04')
+U_alpha_min_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[0], 'U', '1e-04')
+U_alpha_max_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[0], 'U', '1e+04')
 
-U_beta_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'U', '1e-04')
-U_beta_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[1], 'U', '1e+04')
+U_beta_min_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[1], 'U', '1e-04')
+U_beta_max_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[1], 'U', '1e+04')
 
-U_betagnd_min_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'U', '1e-07')
-U_betagnd_max_xml = meshtools.get_xml_from_exp(path_output, exp_names[2], 'U', '1e+01')
+U_betagnd_min_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[2], 'U', '1e-07')
+U_betagnd_max_xml = utils_funcs.get_xml_from_exp(path_output, exp_names[2], 'U', '1e+01')
 
 print('Check if these are the right files for some of the extreme values')
 assert os.path.exists(U_betagnd_min_xml)
@@ -106,38 +106,38 @@ print(U_betagnd_max_xml)
 
 # Compute vertex values for each parameter function
 # in the mesh
-v_alpha_min = meshtools.compute_vertex_for_parameter_field(alpha_min_xml,
+v_alpha_min = utils_funcs.compute_vertex_for_parameter_field(alpha_min_xml,
                                                            param_space=Qp, dg_space=M, mesh_in=mesh_in)
-v_alpha_max = meshtools.compute_vertex_for_parameter_field(alpha_max_xml,
-                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
-
-v_beta_min = meshtools.compute_vertex_for_parameter_field(beta_min_xml,
-                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
-v_beta_max = meshtools.compute_vertex_for_parameter_field(beta_max_xml,
+v_alpha_max = utils_funcs.compute_vertex_for_parameter_field(alpha_max_xml,
                                                            param_space=Qp, dg_space=M, mesh_in=mesh_in)
 
-v_bgnd_min = meshtools.compute_vertex_for_parameter_field(betagnd_min_xml,
+v_beta_min = utils_funcs.compute_vertex_for_parameter_field(beta_min_xml,
                                                            param_space=Qp, dg_space=M, mesh_in=mesh_in)
-v_bgnd_max = meshtools.compute_vertex_for_parameter_field(betagnd_max_xml,
+v_beta_max = utils_funcs.compute_vertex_for_parameter_field(beta_max_xml,
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
+
+v_bgnd_min = utils_funcs.compute_vertex_for_parameter_field(betagnd_min_xml,
+                                                           param_space=Qp, dg_space=M, mesh_in=mesh_in)
+v_bgnd_max = utils_funcs.compute_vertex_for_parameter_field(betagnd_max_xml,
                                                            param_space=Qp, dg_space=M, mesh_in=mesh_in)
 
 # Getting velocity vertex for extreme values of parameters
-v_U_alpha_min = meshtools.compute_vertex_for_velocity_field(U_alpha_min_xml, v_space=V,
+v_U_alpha_min = utils_funcs.compute_vertex_for_velocity_field(U_alpha_min_xml, v_space=V,
                                                            q_space=Q, mesh_in=mesh_in)
 
-v_U_alpha_max = meshtools.compute_vertex_for_velocity_field(U_alpha_max_xml, v_space=V,
+v_U_alpha_max = utils_funcs.compute_vertex_for_velocity_field(U_alpha_max_xml, v_space=V,
                                                            q_space=Q, mesh_in=mesh_in)
 
-v_U_beta_min = meshtools.compute_vertex_for_velocity_field(U_beta_min_xml, v_space=V,
+v_U_beta_min = utils_funcs.compute_vertex_for_velocity_field(U_beta_min_xml, v_space=V,
                                                            q_space=Q, mesh_in=mesh_in)
 
-v_U_beta_max = meshtools.compute_vertex_for_velocity_field(U_beta_max_xml, v_space=V,
+v_U_beta_max = utils_funcs.compute_vertex_for_velocity_field(U_beta_max_xml, v_space=V,
                                                            q_space=Q, mesh_in=mesh_in)
 
-v_U_bgnd_min = meshtools.compute_vertex_for_velocity_field(U_betagnd_min_xml, v_space=V,
+v_U_bgnd_min = utils_funcs.compute_vertex_for_velocity_field(U_betagnd_min_xml, v_space=V,
                                                            q_space=Q, mesh_in=mesh_in)
 
-v_U_bgnd_max = meshtools.compute_vertex_for_velocity_field(U_betagnd_max_xml, v_space=V,
+v_U_bgnd_max = utils_funcs.compute_vertex_for_velocity_field(U_betagnd_max_xml, v_space=V,
                                                            q_space=Q, mesh_in=mesh_in)
 
 # Get mesh triangulation
@@ -162,7 +162,7 @@ spec = gridspec.GridSpec(3, 3, hspace=0.3, wspace=0.2)#, hspace=0.05)
 
 ax0 = plt.subplot(spec[0])
 ax0.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_alpha_min, 'alpha',
+graphics.plot_field_in_contour_plot(x, y, t, v_alpha_min, 'alpha',
                                ax=ax0, vmin=-70, vmax=70, cmap=cmap_params, add_mesh=True)
 ax0.set_title("gamma-alpha = "+ str(np.min(gamma_alpha['gamma_alpha'])), fontsize=14)
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
@@ -170,7 +170,7 @@ ax0.add_artist(at)
 
 ax1 = plt.subplot(spec[1])
 ax1.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_alpha_max, 'alpha',
+graphics.plot_field_in_contour_plot(x, y, t, v_alpha_max, 'alpha',
                                ax=ax1, vmin=-70, vmax=70, cmap=cmap_params, add_mesh=True)
 ax1.set_title("gamma-alpha = "+ str(np.max(gamma_alpha['gamma_alpha'])), fontsize=14)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
@@ -178,7 +178,7 @@ ax1.add_artist(at)
 
 ax2 = plt.subplot(spec[2])
 ax2.tick_params(**tick_options_lc)
-meshtools.plot_lcurve_scatter(gamma_alpha, 'gamma_alpha', ax=ax2,
+graphics.plot_lcurve_scatter(gamma_alpha, 'gamma_alpha', ax=ax2,
                               xlim_min=None, xlim_max=10e12, ylim_min=None,
                               ylim_max=8e6, xytext=(40,5), rot=40)
 ax2.set_title("gamma-alpha $\it{L-curve}$", fontsize=14)
@@ -187,7 +187,7 @@ ax2.add_artist(at)
 
 ax3 = plt.subplot(spec[3])
 ax3.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_beta_min, 'beta',
+graphics.plot_field_in_contour_plot(x, y, t, v_beta_min, 'beta',
                                      ax=ax3, vmin=-30, vmax=1000, cmap=cmap_params, add_mesh=True)
 ax3.set_title("gamma-beta = " + str(np.min(gamma_beta['gamma_beta'])), fontsize=14)
 at = AnchoredText('d', prop=dict(size=14), frameon=True, loc='upper left')
@@ -195,7 +195,7 @@ ax3.add_artist(at)
 
 ax4 = plt.subplot(spec[4])
 ax4.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_beta_max, 'beta',
+graphics.plot_field_in_contour_plot(x, y, t, v_beta_max, 'beta',
                                      ax=ax4, vmin=-30, vmax=1000, cmap=cmap_params, add_mesh=True)
 ax4.set_title("gamma-beta = " + str(np.max(gamma_beta['gamma_beta'])), fontsize=14)
 at = AnchoredText('e', prop=dict(size=14), frameon=True, loc='upper left')
@@ -203,7 +203,7 @@ ax4.add_artist(at)
 
 ax5 = plt.subplot(spec[5])
 ax5.tick_params(**tick_options_lc)
-meshtools.plot_lcurve_scatter(gamma_beta, 'gamma_beta', ax=ax5,
+graphics.plot_lcurve_scatter(gamma_beta, 'gamma_beta', ax=ax5,
                               xlim_min=-10, xlim_max=10e11, ylim_min=None,
                               ylim_max=5e6, xytext=(35,15), rot=0)
 ax5.set_title("gamma-beta $\it{L-curve}$", fontsize=14)
@@ -212,7 +212,7 @@ ax5.add_artist(at)
 
 ax6 = plt.subplot(spec[6])
 ax6.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_bgnd_min, 'beta',
+graphics.plot_field_in_contour_plot(x, y, t, v_bgnd_min, 'beta',
                                      ax=ax6, vmin=-30, vmax=1000, cmap=cmap_params, add_mesh=True)
 ax6.set_title("delta-beta-gnd = " + str(np.min(delta_beta_gnd['delta_beta_gnd'])), fontsize=14)
 at = AnchoredText('h', prop=dict(size=14), frameon=True, loc='upper left')
@@ -220,7 +220,7 @@ ax6.add_artist(at)
 
 ax7 = plt.subplot(spec[7])
 ax7.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_bgnd_max, 'beta',
+graphics.plot_field_in_contour_plot(x, y, t, v_bgnd_max, 'beta',
                                      ax=ax7, vmin=-30, vmax=1000, cmap=cmap_params, add_mesh=True)
 ax7.set_title("delta-beta-gnd = " + str(np.max(delta_beta_gnd['delta_beta_gnd'])), fontsize=14)
 at = AnchoredText('i', prop=dict(size=14), frameon=True, loc='upper left')
@@ -228,7 +228,7 @@ ax7.add_artist(at)
 
 ax8 = plt.subplot(spec[8])
 ax8.tick_params(**tick_options_lc)
-meshtools.plot_lcurve_scatter(delta_beta_gnd, 'delta_beta_gnd', ax=ax8,
+graphics.plot_lcurve_scatter(delta_beta_gnd, 'delta_beta_gnd', ax=ax8,
                               xlim_min=None, xlim_max=10e12, ylim_min=None,
                               ylim_max=5e6, xytext=(35,15), rot=35)
 ax8.set_title("delta-beta-gnd $\it{L-curve}$", fontsize=14)
@@ -253,7 +253,7 @@ spec = gridspec.GridSpec(3, 3, hspace=0.3, wspace=0.2)#, hspace=0.05)
 
 ax0 = plt.subplot(spec[0])
 ax0.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_U_alpha_min, 'U [m/yr]',
+graphics.plot_field_in_contour_plot(x, y, t, v_U_alpha_min, 'U [m/yr]',
                                ax=ax0, vmin=0, vmax=2000, cmap=cmap_params)
 ax0.set_title("gamma-alpha = "+str(np.min(gamma_alpha['gamma_alpha'])), fontsize=14)
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
@@ -261,7 +261,7 @@ ax0.add_artist(at)
 
 ax1 = plt.subplot(spec[1])
 ax1.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_U_alpha_max, 'U [m/yr]',
+graphics.plot_field_in_contour_plot(x, y, t, v_U_alpha_max, 'U [m/yr]',
                                ax=ax1, vmin=0, vmax=2000, cmap=cmap_params)
 ax1.set_title("gamma-alpha = "+ str(np.max(gamma_alpha['gamma_alpha'])), fontsize=14)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
@@ -270,7 +270,7 @@ ax1.add_artist(at)
 
 ax2 = plt.subplot(spec[2])
 ax2.tick_params(**tick_options_lc)
-meshtools.plot_lcurve_scatter(gamma_alpha, 'gamma_alpha', ax=ax2,
+graphics.plot_lcurve_scatter(gamma_alpha, 'gamma_alpha', ax=ax2,
                               xlim_min=None, xlim_max=10e12, ylim_min=None,
                               ylim_max=8e6, xytext=(40,5), rot=40)
 ax2.set_title("gamma-alpha $\it{L-curve}$", fontsize=14)
@@ -279,7 +279,7 @@ ax2.add_artist(at)
 
 ax3 = plt.subplot(spec[3])
 ax3.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_U_beta_min, 'U [m/yr]',
+graphics.plot_field_in_contour_plot(x, y, t, v_U_beta_min, 'U [m/yr]',
                                ax=ax3, vmin=0, vmax=2000, cmap=cmap_params)
 ax3.set_title("gamma-beta = " + str(np.min(gamma_beta['gamma_beta'])), fontsize=14)
 at = AnchoredText('d', prop=dict(size=14), frameon=True, loc='upper left')
@@ -287,7 +287,7 @@ ax3.add_artist(at)
 
 ax4 = plt.subplot(spec[4])
 ax4.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_U_beta_max, 'U [m/yr]',
+graphics.plot_field_in_contour_plot(x, y, t, v_U_beta_max, 'U [m/yr]',
                                ax=ax4, vmin=0, vmax=2000, cmap=cmap_params)
 ax4.set_title("gamma-beta = " + str(np.max(gamma_beta['gamma_beta'])), fontsize=14)
 at = AnchoredText('e', prop=dict(size=14), frameon=True, loc='upper left')
@@ -295,7 +295,7 @@ ax4.add_artist(at)
 
 ax5 = plt.subplot(spec[5])
 ax5.tick_params(**tick_options_lc)
-meshtools.plot_lcurve_scatter(gamma_beta, 'gamma_beta', ax=ax5,
+graphics.plot_lcurve_scatter(gamma_beta, 'gamma_beta', ax=ax5,
                               xlim_min=-10, xlim_max=10e11, ylim_min=None,
                               ylim_max=5e6, xytext=(35,15), rot=0)
 ax5.set_title("gamma-beta $\it{L-curve}$", fontsize=14)
@@ -304,7 +304,7 @@ ax5.add_artist(at)
 
 ax6 = plt.subplot(spec[6])
 ax6.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_U_bgnd_min, 'U [m/yr]',
+graphics.plot_field_in_contour_plot(x, y, t, v_U_bgnd_min, 'U [m/yr]',
                                ax=ax6, vmin=0, vmax=2000, cmap=cmap_params)
 ax6.set_title("delta-beta-gnd = "+ str(np.min(delta_beta_gnd['delta_beta_gnd'])), fontsize=14)
 at = AnchoredText('h', prop=dict(size=14), frameon=True, loc='upper left')
@@ -312,7 +312,7 @@ ax6.add_artist(at)
 
 ax7 = plt.subplot(spec[7])
 ax7.tick_params(**tick_options_mesh)
-meshtools.plot_field_in_contour_plot(x, y, t, v_U_bgnd_max, 'U [m/yr]',
+graphics.plot_field_in_contour_plot(x, y, t, v_U_bgnd_max, 'U [m/yr]',
                                ax=ax7, vmin=0, vmax=2000, cmap=cmap_params)
 ax7.set_title("delta-beta-gnd = " + str(np.max(delta_beta_gnd['delta_beta_gnd'])), fontsize=14)
 at = AnchoredText('i', prop=dict(size=14), frameon=True, loc='upper left')
@@ -320,7 +320,7 @@ ax7.add_artist(at)
 
 ax8 = plt.subplot(spec[8])
 ax8.tick_params(**tick_options_lc)
-meshtools.plot_lcurve_scatter(delta_beta_gnd, 'delta_beta_gnd', ax=ax8,
+graphics.plot_lcurve_scatter(delta_beta_gnd, 'delta_beta_gnd', ax=ax8,
                               xlim_min=None, xlim_max=10e12, ylim_min=None,
                               ylim_max=5e6, xytext=(35,15), rot=35)
 ax8.set_title("delta-beta-gnd $\it{L-curve}$", fontsize=14)

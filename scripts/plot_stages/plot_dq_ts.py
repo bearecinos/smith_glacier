@@ -44,7 +44,7 @@ configuration = ConfigObj(os.path.expanduser(config_file))
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
-from meshtools import meshtools
+from ficetools import graphics, utils_funcs
 
 # Paths to data
 plot_path = os.path.join(MAIN_PATH, 'plots/')
@@ -91,13 +91,13 @@ print(t_last)
 # Now lets read the output
 hdffile = os.path.join(outdir, params.io.run_name+'_dQ_ts.h5')
 
-valpha_first, vbeta_first = meshtools.compute_vertex_for_dV_components(dQ,
+valpha_first, vbeta_first = utils_funcs.compute_vertex_for_dV_components(dQ,
                                                                        mesh_in,
                                                                        hdffile,
                                                                        'dQdalphaXbeta',
                                                                        n_zero,
                                                                        mult_mmatrix=True)
-valpha_last, vbeta_last = meshtools.compute_vertex_for_dV_components(dQ,
+valpha_last, vbeta_last = utils_funcs.compute_vertex_for_dV_components(dQ,
                                                                      mesh_in,
                                                                      hdffile,
                                                                      'dQdalphaXbeta',
@@ -106,15 +106,15 @@ valpha_last, vbeta_last = meshtools.compute_vertex_for_dV_components(dQ,
 
 print(type(valpha_first))
 
-valpha_first_std = meshtools.standarise_data_array(valpha_first)
-vbeta_first_std = meshtools.standarise_data_array(vbeta_first)
-valpha_last_std = meshtools.standarise_data_array(valpha_last)
-vbeta_last_std = meshtools.standarise_data_array(vbeta_last)
+valpha_first_std = utils_funcs.standarise_data_array(valpha_first)
+vbeta_first_std = utils_funcs.standarise_data_array(vbeta_first)
+valpha_last_std = utils_funcs.standarise_data_array(valpha_last)
+vbeta_last_std = utils_funcs.standarise_data_array(vbeta_last)
 
-levelsaf, ticksaf = meshtools.make_colorbar_scale(valpha_first_std, 0.10)
-levelsbf, ticksbf = meshtools.make_colorbar_scale(vbeta_first_std, 0.10)
-levelsal, ticksal = meshtools.make_colorbar_scale(valpha_last_std, 0.10)
-levelsbl, ticksbl = meshtools.make_colorbar_scale(vbeta_last_std, 0.10)
+levelsaf, ticksaf = graphics.make_colorbar_scale(valpha_first_std, 0.10)
+levelsbf, ticksbf = graphics.make_colorbar_scale(vbeta_first_std, 0.10)
+levelsal, ticksal = graphics.make_colorbar_scale(valpha_last_std, 0.10)
+levelsbl, ticksbl = graphics.make_colorbar_scale(vbeta_last_std, 0.10)
 
 tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False, 'labeltop':False}

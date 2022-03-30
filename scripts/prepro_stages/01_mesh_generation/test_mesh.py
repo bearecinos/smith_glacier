@@ -6,7 +6,7 @@ import os
 import sys
 from configobj import ConfigObj
 import argparse
-from dolfin import *
+from ficetools.backend import MPI, Mesh, MeshFunction, MeshValueCollection, XDMFFile, File
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")

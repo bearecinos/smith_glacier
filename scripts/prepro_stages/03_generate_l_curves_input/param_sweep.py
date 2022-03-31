@@ -75,30 +75,26 @@ param_max = args.max
 
 runs_directory = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_lcurves')
 tomls_f = os.path.join(runs_directory, 'tomls_'+target_param)
-output_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves')
-output_dir_run = os.path.join(output_dir, target_param)
+output_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves/output')
+diag_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves/diagnostics')
 
 # Paths to data
 if not os.path.exists(tomls_f):
     os.makedirs(tomls_f)
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
-if not os.path.exists(output_dir_run):
-    os.makedirs(output_dir_run)
+if not os.path.exists(diag_dir):
+    os.makedirs(diag_dir)
 
 command_template = "mpirun -n 24 python $RUN_CONFIG_DIR/run_lcurves/run_lcurves_inv.py " \
                    "$RUN_CONFIG_DIR/run_lcurves/{target_param}/{toml_fname} |& tee {log_fname}\n"
-delete_vtu = "rm $OUTPUT_DIR/04_run_inv_lcurves/" + target_param + "/*.vtu\n"
-delete_pvtu = "rm $OUTPUT_DIR/04_run_inv_lcurves/" + target_param + "/*.pvtu\n"
-delete_pvd = "rm $OUTPUT_DIR/04_run_inv_lcurves/" +target_param + "/*.pvd\n"
+
 script_name = f"sweep_{target_param}.sh"
 
-name_param = ["io", "run_name"]
+name_param = ["inversion", "phase_suffix"]
 # Regexes
-run_name_re = re.compile('^(run_name = \"*).*(\")')
+phase_suffix = re.compile(rf"^(phase_suffix = ).*")
 param_re = re.compile(rf"^({target_param} = ).*")
-out_dir_re = re.compile('^(output_dir = \"*).*(\")')
-
 
 # Compute round steps if possible
 steps = int(np.log10(param_max) - np.log10(param_min)) + 1
@@ -113,7 +109,7 @@ script_file = open(os.path.join(tomls_f,script_name), 'w')
 
 for i in range(steps):
 
-    runname = utils_funcs.composeName(template_name, name_suff, param_range[i])
+    phase_suffix_name = utils_funcs.composeName(template_name, name_suff, param_range[i])
     filename = Path(tomls_f, utils_funcs.composeName(toml_name.stem,
                                                      name_suff,
                                                      param_range[i])).with_suffix(".toml")
@@ -123,24 +119,20 @@ for i in range(steps):
 
         with open(filename, 'w') as outy:
             for line in lines:
-                if run_name_re.match(line):
-                    new_line = run_name_re.sub(f"\\1{runname}\\2", line)
+                if phase_suffix.match(line):
+                    new_line = phase_suffix.match(line).group(1) + '\''f"{target_param}_" + "{:.1E}".format(Decimal(param_range[i]))+ '\'' + "\n"
                     print(new_line)
                 elif param_re.match(line):
                     #new_line = param_re.match(line).group(1) + "%e\n" % param_range[i]
                     new_line = param_re.match(line).group(1) + "{:.1E}".format(Decimal(param_range[i])) + "\n"
                     print(new_line)
-                elif out_dir_re.match(line):
-                    new_line = out_dir_re.sub(f"\\1{output_dir_run}\\2", line)
                 else:
                     new_line = line
                 outy.write(new_line)
 
     # append to shell script
     cmd = command_template.replace("{toml_fname}", filename.name).\
-        replace("{log_fname}", f"log_{runname}").\
+        replace("{log_fname}", f"log_{phase_suffix_name}").\
         replace("{target_param}", f"tomls_{target_param}")
     script_file.write(cmd)
-script_file.write(delete_pvtu)
-script_file.write(delete_pvd)
-script_file.write(delete_vtu)
+

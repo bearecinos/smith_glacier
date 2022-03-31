@@ -3,8 +3,10 @@
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
 run_name = "smith_lcurve_test"
 input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/04_run_inv_lcurves"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/04_run_inv_lcurves/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/04_run_inv_lcurves/diagnostics"
 
+write_diagnostics = true
 
 # data_file = "ismipc_input.h5"
 thick_data_file = "smith_bedmachine.h5"
@@ -15,7 +17,8 @@ bglenmask_data_file = "smith_bglen.h5"
 bglen_field_name = "bglen"
 bglenmask_field_name = "bglenmask"
 
-log_level = "ERROR" #This is default
+log_level = "error" #This is default
+
 output_var_format = "xml"
 
 [constants]
@@ -68,6 +71,8 @@ verbose = true
 
 delta_lbfgs = 1.0e3
 
+phase_suffix = '_'
+
 
 [ice_dynamics]
 
@@ -115,6 +120,9 @@ total_steps = 960
 #dt = 0.033333333
 num_sens = 15 #TODO rename
 
+save_frequency = 0
+
+
 [eigendec]
 
 num_eig = 15000
@@ -127,9 +135,13 @@ eigenvalue_thresh = 1.0e-1
 
 [errorprop]
 
-qoi = 'h2' #or 'vaf'
+qoi = 'vaf'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
+
+[melt]
+
+use_melt_parameterisation = false

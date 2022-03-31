@@ -10,9 +10,17 @@ thick_data_file = "smith_bedmachine.h5"
 bed_data_file = "smith_bedmachine.h5"
 smb_data_file = "smith_smb.h5"
 bglen_data_file = "smith_bglen.h5"
+
+melt_depth_therm_data_file = "melt_depth_params.h5"
+melt_max_data_file = "melt_depth_params.h5"
+
 bglenmask_data_file = "smith_bglen.h5"
 bglen_field_name = "bglen"
 bglenmask_field_name = "bglenmask"
+
+melt_depth_therm_field_name = "melt_depth_therm"
+melt_max_field_name = "melt_max"
+
 
 log_level = "info" #This is default
 
@@ -132,3 +140,8 @@ qoi = 'vaf'
 
 patch_downscale = 0.1
 # npatches = 100
+
+[melt]
+
+use_melt_parameterisation = false
+

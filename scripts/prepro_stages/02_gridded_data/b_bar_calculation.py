@@ -30,6 +30,10 @@ config = ConfigObj(os.path.expanduser(config_file))
 # This needs changing in bow
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
+output_path = os.path.join(MAIN_PATH,
+                            'output/02_gridded_data')
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
 
 from meshtools import meshtools as meshtools
 
@@ -139,8 +143,8 @@ smb = 0.38*np.ones(sel.shape)
 #    data = outty.create_dataset("y", y_s.shape, dtype='f')
 #    data[:] = y_s
 
-with h5py.File(os.path.join(MAIN_PATH,
-                            'output/02_gridded_data/smith_bglen.h5'), 'w') as outty:
+with h5py.File(os.path.join(output_path,
+                            'smith_bglen.h5'), 'w') as outty:
 
     data = outty.create_dataset("bglen", gd.shape, dtype='f')
     data[:] = gd
@@ -151,8 +155,8 @@ with h5py.File(os.path.join(MAIN_PATH,
     data = outty.create_dataset("y", y_s.shape, dtype='f')
     data[:] = y_s
 
-with h5py.File(os.path.join(MAIN_PATH,
-                            'output/02_gridded_data/smith_smb.h5'), 'w') as outty:
+with h5py.File(os.path.join(output_path,
+                            'smith_smb.h5'), 'w') as outty:
 
     data = outty.create_dataset("smith_smb", smb.shape, dtype='f')
     data[:] = smb

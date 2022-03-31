@@ -6,7 +6,6 @@ import os
 import sys
 from configobj import ConfigObj
 import argparse
-from ficetools.backend import MPI, Mesh, MeshFunction, MeshValueCollection, XDMFFile, File
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
@@ -16,6 +15,8 @@ config = ConfigObj(os.path.expanduser(config_file))
 
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
+
+from ficetools.backend import MPI, Mesh, MeshFunction, MeshValueCollection, XDMFFile, File
 
 output_path = os.path.join(MAIN_PATH,
                             'output/01_mesh')

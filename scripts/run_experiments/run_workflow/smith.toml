@@ -3,7 +3,10 @@
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
 run_name = "smith_mied_test"
 input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/diagnostics"
+
+write_diagnostics = false
 
 # data_file = "ismipc_input.h5"
 thick_data_file = "smith_bedmachine.h5"
@@ -12,7 +15,7 @@ smb_data_file = "smith_smb.h5"
 bglen_data_file = "smith_bglen.h5"
 
 melt_depth_therm_data_file = "melt_depth_params.h5"
-melt_max_data_file = "melt_depth_params.h5"
+melt_max_data_file = "smith_melt_depth_params.h5"
 
 bglenmask_data_file = "smith_bglen.h5"
 bglen_field_name = "bglen"
@@ -121,6 +124,9 @@ run_length = 40.0
 total_steps = 960
 #dt = 0.033333333
 num_sens = 15 #TODO rename
+
+save_frequency = 0
+
 
 [eigendec]
 

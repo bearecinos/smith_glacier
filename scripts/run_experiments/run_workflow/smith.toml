@@ -6,7 +6,7 @@ input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
 output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/output"
 diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/diagnostics"
 
-write_diagnostics = false
+write_diagnostics = true
 
 # data_file = "ismipc_input.h5"
 thick_data_file = "smith_bedmachine.h5"
@@ -14,15 +14,15 @@ bed_data_file = "smith_bedmachine.h5"
 smb_data_file = "smith_smb.h5"
 bglen_data_file = "smith_bglen.h5"
 
-melt_depth_therm_data_file = "smith_melt_depth_params.h5"
-melt_max_data_file = "smith_melt_depth_params.h5"
+#melt_depth_therm_data_file = ""
+#melt_max_data_file = ""
 
 bglenmask_data_file = "smith_bglen.h5"
 bglen_field_name = "bglen"
 bglenmask_field_name = "bglenmask"
 
-melt_depth_therm_field_name = "melt_depth_therm"
-melt_max_field_name = "melt_max"
+#melt_depth_therm_field_name = "melt_depth_therm"
+#melt_max_field_name = "melt_max"
 
 
 log_level = "info" #This is default
@@ -149,5 +149,5 @@ patch_downscale = 0.1
 
 [melt]
 
-use_melt_parameterisation = false
+use_melt_parameterisation = true
 

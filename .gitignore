@@ -2,7 +2,8 @@ input_data
 .idea
 dev_notebooks
 output
-meshtools/__pycache__/
+ficetools/__pycache__/
+meshtools
 scripts/run_experiments/run_workflow/log_smith_demo_run.txt
 scripts/run_experiments/run_lcurves/tomls_*
 scripts/run_experiments/run_workflow/log_smith_inversion_run.txt

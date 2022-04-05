@@ -37,7 +37,7 @@ configuration = ConfigObj(os.path.expanduser(config_file))
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
-from meshtools import meshtools
+from ficetools import utils_funcs, graphics
 
 rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 18
@@ -99,8 +99,8 @@ trim = tri.Triangulation(x, y, t)
 
 # Compute vertex values for each parameter function
 # in the mesh
-v = meshtools.compute_vertex_for_velocity_field(U_file, V, Q, mesh_in)
-v_alphaini = meshtools.compute_vertex_for_parameter_field(alpha_init_file, Qp, M, mesh_in)
+v = utils_funcs.compute_vertex_for_velocity_field(U_file, V, Q, mesh_in)
+v_alphaini = utils_funcs.compute_vertex_for_parameter_field(alpha_init_file, Qp, M, mesh_in)
 v_alpha = B2.compute_vertex_values(mesh_in)
 
 uv_comp = Function(M, uv_comp_file)

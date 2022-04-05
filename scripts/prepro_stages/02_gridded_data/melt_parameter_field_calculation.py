@@ -6,16 +6,10 @@ of Dotson ice shelf (and possible new shelf) to set differing melt parameters he
 import os
 import sys
 import numpy as np
-from pathlib import Path
-import netCDF4
 import h5py
 from scipy import io
-import pandas as pd
-import scipy.interpolate as interp
-import numpy.ma as ma
 import argparse
 from configobj import ConfigObj
-from scipy.interpolate import NearestNDInterpolator
 from matplotlib.path import Path
 
 parser = argparse.ArgumentParser()
@@ -41,8 +35,6 @@ output_path = os.path.join(MAIN_PATH,
 if not os.path.exists(output_path):
     os.makedirs(output_path)
 
-
-from meshtools import meshtools as meshtools
 
 # grid on which to find mask
 
@@ -85,8 +77,7 @@ melt_max_field[grid==2] = melt_max_2
 
 
 with h5py.File(os.path.join(output_path,
-                            'melt_depth_params.h5'), 'w') as outty:
-
+                            'smith_melt_depth_params.h5'), 'w') as outty:
     data = outty.create_dataset("melt_depth_therm", melt_depth_therm_field.shape, dtype='f')
     data[:] = melt_depth_therm_field
     data = outty.create_dataset("melt_max", melt_max_field.shape, dtype='f')

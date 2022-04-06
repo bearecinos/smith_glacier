@@ -155,19 +155,19 @@ else:
 
     # Mask arrays and interpolate nan with nearest neighbor
     x_grid, y_grid = np.meshgrid(x_s, y_s)
-    vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
-    vy_int = vel_tools.interpolate_missing_data(vy_s, x_grid, y_grid)
-    stdvx_int = vel_tools.interpolate_missing_data(std_vx_s, x_grid, y_grid)
-    stdvy_int = vel_tools.interpolate_missing_data(std_vy_s, x_grid, y_grid)
+    # vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
+    # vy_int = vel_tools.interpolate_missing_data(vy_s, x_grid, y_grid)
+    # stdvx_int = vel_tools.interpolate_missing_data(std_vx_s, x_grid, y_grid)
+    # stdvy_int = vel_tools.interpolate_missing_data(std_vy_s, x_grid, y_grid)
 
     # Ravel all arrays so they can be stored with
     # a tuple shape (values, )
     x_comp = x_grid.ravel()
     y_comp = y_grid.ravel()
-    vx_comp = vx_int
-    vy_comp = vy_int
-    errx_comp = stdvx_int
-    erry_comp = stdvy_int
+    vx_comp = vx_s.ravel()
+    vy_comp = vy_s.ravel()
+    errx_comp = std_vx_s.ravel()
+    erry_comp = std_vy_s.ravel()
 
 x_cloud = None
 y_cloud = None

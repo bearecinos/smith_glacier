@@ -17,8 +17,8 @@ cp $OUTPUT_DIR/01_mesh/smith_variable_ocean* $input_run_inv/.
 cp $OUTPUT_DIR/02_gridded_data/smith_bedmachine.h5 $input_run_inv/.
 cp $OUTPUT_DIR/02_gridded_data/smith_smb.h5 $input_run_inv/.
 cp $OUTPUT_DIR/02_gridded_data/smith_bglen.h5 $input_run_inv/.
-cp $OUTPUT_DIR/02_gridded_data/smith_obs_vel_measures-comp.h5 $input_run_inv/.
-#cp $OUTPUT_DIR/02_gridded_data/smith_melt_depth_params.h5 $input_run_inv/.
+cp $OUTPUT_DIR/02_gridded_data/smith_obs_vel_measures-comp_cloud.h5 $input_run_inv/.
+cp $OUTPUT_DIR/02_gridded_data/smith_melt_depth_params.h5 $input_run_inv/.
 
 # Create output directory for inversion output
 export run_inv_output_dir=$OUTPUT_DIR/03_run_inv

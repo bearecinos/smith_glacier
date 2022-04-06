@@ -132,7 +132,7 @@ for i in range(steps):
 
     # append to shell script
     cmd = command_template.replace("{toml_fname}", filename.name).\
-        replace("{log_fname}", f"log_{phase_suffix_name}").\
+        replace("{log_fname}", f"log{phase_suffix_name}").\
         replace("{target_param}", f"tomls_{target_param}")
     script_file.write(cmd)
 

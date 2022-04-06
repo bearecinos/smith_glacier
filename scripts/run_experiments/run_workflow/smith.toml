@@ -14,15 +14,15 @@ bed_data_file = "smith_bedmachine.h5"
 smb_data_file = "smith_smb.h5"
 bglen_data_file = "smith_bglen.h5"
 
-#melt_depth_therm_data_file = ""
-#melt_max_data_file = ""
+melt_depth_therm_data_file = "smith_melt_depth_params.h5"
+melt_max_data_file = "smith_melt_depth_params.h5"
 
 bglenmask_data_file = "smith_bglen.h5"
 bglen_field_name = "bglen"
 bglenmask_field_name = "bglenmask"
 
-#melt_depth_therm_field_name = "melt_depth_therm"
-#melt_max_field_name = "melt_max"
+melt_depth_therm_field_name = "melt_depth_therm"
+melt_max_field_name = "melt_max"
 
 
 log_level = "info" #This is default
@@ -55,7 +55,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_measures-comp.h5"
+vel_file = "smith_obs_vel_measures-comp_cloud.h5"
 
 [inversion]
 
@@ -77,7 +77,10 @@ verbose = true
 
 delta_lbfgs = 1.0e3
 
-#use_cloud_point_velocities = false
+initial_guess_alpha_method = 'constant'
+initial_guess_alpha = 15.0
+
+use_cloud_point_velocities = true
 
 [ice_dynamics]
 

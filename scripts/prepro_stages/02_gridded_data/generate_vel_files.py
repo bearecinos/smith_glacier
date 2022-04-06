@@ -173,24 +173,48 @@ if args.composite == 'itslive':
         vx_err_s = vel_tools.crop_velocity_data_to_extend(vx_err, smith_bbox)
         vy_err_s = vel_tools.crop_velocity_data_to_extend(vy_err, smith_bbox)
 
-        print('Lets check all has the same shape')
-        print(vx_s.shape, vy_s.shape)
-        print(vx_err_s.shape, vy_err_s.shape)
-        print(y_s.shape)
-        print(x_s.shape)
-
+        # Mask arrays and interpolate nan with nearest neighbor
         x_grid, y_grid = np.meshgrid(x_s, y_s)
+
+        # array to mask ... a dot product of component and std
+        mask_array = vx_s * vx_err_s
+
+        array_ma = np.ma.masked_invalid(mask_array)
+
+        # get only the valid values
+        x_nona = x_grid[~array_ma.mask].ravel()
+        y_nona = y_grid[~array_ma.mask].ravel()
+        vx_nona = vx_s[~array_ma.mask].ravel()
+        vy_nona = vy_s[~array_ma.mask].ravel()
+        stdvx_nona = vx_err_s[~array_ma.mask].ravel()
+        stdvy_nona = vy_err_s[~array_ma.mask].ravel()
 
         # Ravel all arrays so they can be stored with
         # a tuple shape (values, )
-        x_cloud = x_grid.ravel()
-        y_cloud = y_grid.ravel()
+        x_cloud = x_nona
+        y_cloud = y_nona
+        vx_cloud = vx_nona
+        vy_cloud = vy_nona
+        vx_err_cloud = stdvx_nona
+        vy_err_cloud = stdvy_nona
 
-        vx_cloud = vx_s.ravel()
-        vy_cloud = vy_s.ravel()
+        # Sanity checks!
+        assert np.count_nonzero(np.isnan(vx_nona)) == 0
+        assert np.count_nonzero(np.isnan(vy_nona)) == 0
+        assert np.count_nonzero(np.isnan(vx_err_cloud)) == 0
+        assert np.count_nonzero(np.isnan(vy_err_cloud)) == 0
 
-        vx_err_cloud = vx_err_s.ravel()
-        vy_err_cloud = vy_err_s.ravel()
+        all_data = [x_cloud, y_cloud,
+                    vx_cloud, vy_cloud,
+                    vx_err_cloud, vy_err_cloud]
+
+        shape_after = x_cloud.shape
+
+        bool_list = vel_tools.check_if_arrays_have_same_shape(all_data,
+                                                              shape_after)
+
+        assert all(element == True for element in bool_list)
+
 
 else:
     print('The velocity product for the composite solution will be MEaSUREs')
@@ -259,14 +283,44 @@ else:
         # Mask arrays and interpolate nan with nearest neighbor
         x_grid, y_grid = np.meshgrid(x_s, y_s)
 
+        #array to mask ... a dot product of component and std
+        mask_array = vx_s*std_vx_s
+
+        array_ma = np.ma.masked_invalid(mask_array)
+
+        # get only the valid values
+        x_nona = x_grid[~array_ma.mask].ravel()
+        y_nona = y_grid[~array_ma.mask].ravel()
+        vx_nona = vx_s[~array_ma.mask].ravel()
+        vy_nona = vy_s[~array_ma.mask].ravel()
+        stdvx_nona = std_vx_s[~array_ma.mask].ravel()
+        stdvy_nona = std_vy_s[~array_ma.mask].ravel()
+
         # Ravel all arrays so they can be stored with
         # a tuple shape (values, )
-        x_cloud = x_grid.ravel()
-        y_cloud = y_grid.ravel()
-        vx_cloud = vx_s.ravel()
-        vy_cloud = vy_s.ravel()
-        vx_err_cloud = std_vx_s.ravel()
-        vy_err_cloud = std_vy_s.ravel()
+        x_cloud = x_nona
+        y_cloud = y_nona
+        vx_cloud = vx_nona
+        vy_cloud = vy_nona
+        vx_err_cloud = stdvx_nona
+        vy_err_cloud = stdvy_nona
+
+        #Sanity checks!
+        assert np.count_nonzero(np.isnan(vx_nona)) == 0
+        assert np.count_nonzero(np.isnan(vy_nona)) == 0
+        assert np.count_nonzero(np.isnan(vx_err_cloud)) == 0
+        assert np.count_nonzero(np.isnan(vy_err_cloud)) == 0
+
+        all_data = [x_cloud, y_cloud,
+                    vx_cloud, vy_cloud,
+                    vx_err_cloud, vy_err_cloud]
+
+        shape_after = x_cloud.shape
+
+        bool_list = vel_tools.check_if_arrays_have_same_shape(all_data,
+                                                              shape_after)
+
+        assert all(element == True for element in bool_list)
 
 mask_comp = np.array(vx_comp, dtype=bool)
 print(mask_comp.shape)

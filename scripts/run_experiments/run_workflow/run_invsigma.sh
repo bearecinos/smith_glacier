@@ -27,6 +27,6 @@ then
 else
   echo "Directory $run_inv_output_dir exist, we can run everything now"
   echo $(date -u) "Run started"
-  mpirun -n 24 python $FENICS_ICE_BASE_DIR/runs/run_invsigma.py $RUN_CONFIG_DIR/run_workflow/smith.toml
+  mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_invsigma.py $RUN_CONFIG_DIR/run_workflow/$2
   echo $(date -u) "Done!"
 fi

@@ -32,7 +32,7 @@ fi
 
 echo $(date -u) "Run started"
 
-mpirun -n 24 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $RUN_CONFIG_DIR/run_workflow/smith.toml
+mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $RUN_CONFIG_DIR/run_workflow/$2
 
 echo $(date -u) "Done!"
 

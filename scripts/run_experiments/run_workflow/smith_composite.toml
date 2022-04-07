@@ -132,7 +132,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 0
 
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_comp_'
 
 [eigendec]
 
@@ -144,18 +144,18 @@ misfit_only = true
 precondition_by = "prior" #prior by default
 eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_comp_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_comp_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_comp_'
 
 [melt]
 

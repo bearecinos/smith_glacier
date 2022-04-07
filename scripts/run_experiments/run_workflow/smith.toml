@@ -82,6 +82,8 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
+phase_suffix = '_inv_with_cloud_'
+
 [ice_dynamics]
 
 sliding_law = 'budd' #weertman, linear
@@ -130,6 +132,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 0
 
+phase_suffix = '_inv_with_cloud_'
 
 [eigendec]
 
@@ -141,14 +144,18 @@ misfit_only = true
 precondition_by = "prior" #prior by default
 eigenvalue_thresh = 1.0e-1
 
+phase_suffix = '_inv_with_cloud_'
+
 [errorprop]
 
 qoi = 'vaf'
+phase_suffix = '_inv_with_cloud_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
+phase_suffix = '_inv_with_cloud_'
 
 [melt]
 

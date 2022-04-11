@@ -31,7 +31,6 @@ import numpy as np
 import h5py
 import argparse
 import xarray as xr
-import salem
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
@@ -80,41 +79,19 @@ if args.composite == 'itslive':
 
     print(paths_itslive)
 
-    # Opening files with salem slower than rasterio
-    # but they end up more organised in xr.DataArrays
-    dvx = salem.open_xr_dataset(paths_itslive[0])
-    dvx_err = salem.open_xr_dataset(paths_itslive[1])
-    dvy = salem.open_xr_dataset(paths_itslive[2])
-    dvy_err = salem.open_xr_dataset(paths_itslive[3])
+    dv = xr.open_dataset(paths_itslive[0])
 
-    vx = dvx.data
-    vy = dvy.data
-    vx_err = dvx_err.data
-    vy_err = dvy_err.data
-
-    nodata = -32767.0
-
-    non_valid = (vx == nodata) | (vy == nodata)
-    non_valid_e = (vx_err == nodata) | (vy_err == nodata)
-
-    # We set invalid data (nans) to zero
-    # After plotting the data we saw that nan's
-    # were only found in the ocean where fenics_ice
-    # does nothing...
-    vx.data[non_valid] = 0.0
-    vy.data[non_valid] = 0.0
-    vx_err.data[non_valid_e] = 0.0
-    vx_err.data[non_valid_e] = 0.0
+    vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv)
 
     vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
                                                             return_coords=True)
     vy_s = vel_tools.crop_velocity_data_to_extend(vy, smith_bbox)
-    vx_err_s = vel_tools.crop_velocity_data_to_extend(vx_err, smith_bbox)
-    vy_err_s = vel_tools.crop_velocity_data_to_extend(vy_err, smith_bbox)
+    vx_std_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox)
+    vy_std_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox)
 
     print('Lets check all has the same shape')
     print(vx_s.shape, vy_s.shape)
-    print(vx_err_s.shape, vy_err_s.shape)
+    print(vx_std_s.shape, vy_std_s.shape)
     print(y_s.shape)
     print(x_s.shape)
 
@@ -128,8 +105,8 @@ if args.composite == 'itslive':
     vx_comp = vx_s.ravel()
     vy_comp = vy_s.ravel()
 
-    errx_comp = vx_err_s.ravel()
-    erry_comp = vy_err_s.ravel()
+    errx_comp = vx_std_s.ravel()
+    erry_comp = vy_std_s.ravel()
 
     x_cloud = None
     y_cloud = None
@@ -140,38 +117,19 @@ if args.composite == 'itslive':
 
     if args.add_cloud_data:
         print('The velocity product for the cloud '
-              'point data its ITSlive 2010')
+              'point data its ITSlive 2014')
         # Opening files with salem slower than rasterio
         # but they end up more organised in xr.DataArrays
-        dvx = salem.open_xr_dataset(paths_itslive[4])
-        dvx_err = salem.open_xr_dataset(paths_itslive[5])
-        dvy = salem.open_xr_dataset(paths_itslive[6])
-        dvy_err = salem.open_xr_dataset(paths_itslive[7])
 
-        vx = dvx.data
-        vy = dvy.data
-        vx_err = dvx_err.data
-        vy_err = dvy_err.data
+        dv = xr.open_dataset(paths_itslive[4])
 
-        nodata = -32767.0
-
-        non_valid = (vx == nodata) | (vy == nodata)
-        non_valid_e = (vx_err == nodata) | (vy_err == nodata)
-
-        # We set invalid data (nans) to zero
-        # After plotting the data we saw that nan's
-        # were only found in the ocean where fenics_ice
-        # does nothing...
-        vx.data[non_valid] = 0.0
-        vy.data[non_valid] = 0.0
-        vx_err.data[non_valid_e] = 0.0
-        vx_err.data[non_valid_e] = 0.0
+        vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv)
 
         vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
                                                                 return_coords=True)
         vy_s = vel_tools.crop_velocity_data_to_extend(vy, smith_bbox)
-        vx_err_s = vel_tools.crop_velocity_data_to_extend(vx_err, smith_bbox)
-        vy_err_s = vel_tools.crop_velocity_data_to_extend(vy_err, smith_bbox)
+        vx_err_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox)
+        vy_err_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox)
 
         # Mask arrays and interpolate nan with nearest neighbor
         x_grid, y_grid = np.meshgrid(x_s, y_s)

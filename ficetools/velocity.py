@@ -11,6 +11,45 @@ from scipy.interpolate import griddata
 # Module logger
 log = logging.getLogger(__name__)
 
+def process_itslive_netcdf(dv):
+    """
+    Open and process velocity netcdf
+
+    :param dv: xarray dataset
+    :return: vx, vy, std_vx, std_vx
+    """
+
+    # We do this in case we need to plot them at some point
+    dv.attrs['pyproj_srs'] = dv.Polar_Stereographic.spatial_proj4
+    for v in dv.variables:
+        dv[v].attrs['pyproj_srs'] = dv.attrs['pyproj_srs']
+
+    vx = dv.vx
+    vy = dv.vy
+    vx_err = dv.vx_err
+    vy_err = dv.vy_err
+    count = dv['count']
+
+    nodata = -32767.0
+
+    non_valid = (vx == nodata) | (vy == nodata)
+    non_valid_e = (vx_err == nodata) | (vy_err == nodata)
+
+    # We set invalid data (nans) to zero
+    # After plotting the data we saw that nan's
+    # were only found in the ocean where fenics_ice
+    # does nothing...
+    vx.data[non_valid] = 0.0
+    vy.data[non_valid] = 0.0
+    vx_err.data[non_valid_e] = 0.0
+    vy_err.data[non_valid_e] = 0.0
+    count.data[non_valid_e] = 0.0
+
+    std_vx = (count ** (1 / 2)) * vx_err
+    std_vy = (count ** (1 / 2)) * vy_err
+
+    return vx, vy, std_vx, std_vy
+
 def crop_velocity_data_to_extend(dvel, extend,
                                  return_coords=False,
                                  return_indexes=False,
@@ -171,3 +210,74 @@ def drop_invalid_data_from_several_arrays(x, y,
 
     assert all(element == True for element in bool_list)
     return x_nonan, y_nonan, vx_nonan, vy_nonan, vx_err_nonan, vy_err_nonan, vel_nonan
+
+def compute_coarsen(data, resolution):
+    """ Create a new xarray data set from Itslive
+     with a lower resolution
+
+        Parameters
+        ----------
+        data: original DataFrame from Itslive
+        resolution: desired resolution as int
+
+        Returns
+        --------
+        ds: new dataframe with a lower resolution
+    """
+
+    data_res = float(abs(data.x[0] - data.x[1]))
+
+    # Just take one var data
+    vx = data.vx
+    vx_attrs = data.vx.attrs
+    vy = data.vy
+    vy_attrs = data.vy.attrs
+
+    vx_err = data.vx_err
+    vx_err_attrs = data.vx_err.attrs
+    vy_err = data.vy_err
+    vy_err_attrs = data.vy_err.attrs
+
+    count = data['count']
+    count_attrs = data['count'].attrs
+
+    # Average the data array in a coarse resolution
+    # A window for avg. needs to be supplied e.g 2.0/res = 40
+    vx_c = vx.coarsen({'y': int(resolution / data_res),
+                       'x': int(resolution / data_res)}).mean()
+
+    vy_c = vy.coarsen({'y': int(resolution / data_res),
+                       'x': int(resolution / data_res)}).mean()
+
+    vx_err_c = vx_err.coarsen({'y': int(resolution / data_res),
+                       'x': int(resolution / data_res)}).mean()
+
+    vy_err_c = vy_err.coarsen({'y': int(resolution / data_res),
+                               'x': int(resolution / data_res)}).mean()
+
+    count_c = count.coarsen({'y': int(resolution / data_res),
+                               'x': int(resolution / data_res)}).mean()
+
+    #  Creating a new data set
+    ds = xr.Dataset({'vx': (['y', 'x'], vx_c.data),
+                     'vy': (['y', 'x'], vy_c.data),
+                     'vx_err': (['y', 'x'], vx_err_c.data),
+                     'vy_err': (['y', 'x'], vy_err_c.data),
+                     'count': (['y', 'x'], count_c.data)
+                     },
+                    coords={'y': (['y'], vx_c.y.values),
+                            'x': (['x'], vx_c.x.values)}
+                    )
+
+    ds['vx'].attrs = vx_attrs
+    ds['vy'].attrs = vy_attrs
+    ds['vx_err'].attrs = vx_err_attrs
+    ds['vy_err'].attrs = vy_err_attrs
+    ds['count'].attrs = count_attrs
+
+
+    dic = data.attrs
+
+    ds.attrs = dic
+
+    return ds

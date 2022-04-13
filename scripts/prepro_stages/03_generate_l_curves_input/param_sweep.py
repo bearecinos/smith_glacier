@@ -120,7 +120,7 @@ for i in range(steps):
         with open(filename, 'w') as outy:
             for line in lines:
                 if phase_suffix.match(line):
-                    new_line = phase_suffix.match(line).group(1) + '\''f"{target_param}_" + "{:.1E}".format(Decimal(param_range[i]))+ '\'' + "\n"
+                    new_line = phase_suffix.match(line).group(1) + '\''f"{target_param}_" + "{:.0E}".format(Decimal(param_range[i]))+ '\'' + "\n"
                     print(new_line)
                 elif param_re.match(line):
                     #new_line = param_re.match(line).group(1) + "%e\n" % param_range[i]

@@ -4,6 +4,8 @@ from fenics_ice
 """
 import numpy as np
 import logging
+import salem
+import pyproj
 
 #Plotting imports
 from matplotlib import pyplot as plt
@@ -15,7 +17,8 @@ from matplotlib.offsetbox import AnchoredText
 log = logging.getLogger(__name__)
 
 def plot_field_in_contour_plot(x, y, t, field, field_name,
-                               ax, vmin=None, vmax=None, cmap=None, add_mesh=False):
+                               ax, vmin=None, vmax=None, levels=None, ticks=None,
+                               cmap=None, add_mesh=False):
     """
     Makes a matplotlib tri contour plot of any parameter field
     in a specific axis.
@@ -38,8 +41,9 @@ def plot_field_in_contour_plot(x, y, t, field, field_name,
     cax = divider.append_axes("bottom", size="5%", pad=0.1)
     minv = vmin
     maxv = vmax
-    levels = np.linspace(minv, maxv, 200)
-    ticks = np.linspace(minv, maxv, 3)
+    if levels is None:
+        levels = np.linspace(minv, maxv, 200)
+        ticks = np.linspace(minv, maxv, 3)
     c = ax.tricontourf(x, y, t, field, levels=levels, cmap=cmap)
     if add_mesh:
         ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
@@ -135,3 +139,111 @@ def make_colorbar_scale(array, percnt):
     level = np.linspace(fifty, fifty*-1, 100)
     ticks = [min(level), np.median(level), max(level)]
     return level, ticks
+
+def read_fenics_ice_mesh(mesh_in, retur_trim=False):
+    """
+
+    :param mesh_in: Fenics_ice mesh output
+    :return: x, y, and t
+    """
+    x = mesh_in.coordinates()[:, 0]
+    y = mesh_in.coordinates()[:, 1]
+    t = mesh_in.cells()
+
+    if retur_trim:
+        trim = tri.Triangulation(x, y, t)
+        return x, y, t, trim
+    return x, y, t
+
+def define_salem_grid(dataset):
+    """
+    Define a Salem grid according to a velocity xarray
+    grid
+    :param dataset: xarray data set
+    :return: salem.Grid as g
+    """
+
+    proj = pyproj.Proj('EPSG:3413')
+
+    y = dataset.y
+    x = dataset.x
+
+    dy = abs(y[0] - y[1])
+    dx = abs(x[0] - x[1])
+
+    # Pixel corner
+    origin_y = y[0] + dy * 0.5
+    origin_x = x[0] - dx * 0.5
+
+    g = salem.Grid(nxny=(len(x), len(y)), dxdy=(dx, -1*dy),
+                   x0y0=(origin_x, origin_y), proj=proj)
+
+    return g
+
+def get_projection_grid_labels(smap):
+    """
+    Print stereographic projection lables
+    :param smap:
+    :return: lon_lables, lat_lables
+    """
+
+    # Change XY into interval coordinates, and back after rounding
+    xx, yy = smap.grid.pixcorner_ll_coordinates
+    _xx = xx / 1.0
+    _yy = yy / 0.5
+
+    mm_x = [np.ceil(np.min(_xx)), np.floor(np.max(_xx))]
+    mm_y = [np.ceil(np.min(_yy)), np.floor(np.max(_yy))]
+
+    smap.xtick_levs = (mm_x[0] + np.arange(mm_x[1] - mm_x[0] + 1)) * \
+                      1.0
+    smap.ytick_levs = (mm_y[0] + np.arange(mm_y[1] - mm_y[0] + 1)) * \
+                      0.5
+
+    lon_lables = smap.xtick_levs
+    lat_lables = smap.ytick_levs
+
+    # The labels (quite ugly)
+    smap.xtick_pos = []
+    smap.xtick_val = []
+    smap.ytick_pos = []
+    smap.ytick_val = []
+
+    _xx = xx[0 if smap.origin == 'lower' else -1, :]
+    _xi = np.arange(smap.grid.nx + 1)
+
+    for xl in lon_lables:
+        if (xl > _xx[-1]) or (xl < _xx[0]):
+            continue
+        smap.xtick_pos.append(np.interp(xl, _xx, _xi))
+        label = ('{:.' + '1' + 'f}').format(xl)
+        label += 'W' if (xl < 0) else 'E'
+        if xl == 0:
+            label = '0'
+        smap.xtick_val.append(label)
+
+    _yy = np.sort(yy[:, 0])
+    _yi = np.arange(smap.grid.ny + 1)
+
+    if smap.origin == 'upper':
+        _yi = _yi[::-1]
+
+    for yl in lat_lables:
+        #((yl > _yy[-1]) or (yl < _yy[0]))
+        if (yl > _yy[-1]) or (yl < _yy[0]):
+            continue
+        smap.ytick_pos.append(np.interp(yl, _yy, _yi))
+        label = ('{:.' + '1' + 'f}').format(yl)
+        label += 'S' if (yl > 0) else 'N'
+        if yl == 0:
+            label = 'Eq.'
+        smap.ytick_val.append(label)
+
+    return smap.xtick_pos, smap.xtick_val, smap.ytick_pos, smap.ytick_val
+
+def set_levels_ticks_for_colorbar(vmin, vmax):
+
+    levels = np.linspace(vmin, vmax, 200)
+    ticks = np.linspace(vmin, vmax, 3)
+
+    return levels, ticks

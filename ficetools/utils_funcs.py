@@ -87,33 +87,45 @@ def composeName(root, suff, value):
     value_str = "%1.0e" % value
     return "_".join((root, suff, value_str))
 
+def composeFileName(suff, value):
+    assert isinstance(value, float)
+    value_str = "%.E" % value
+    mantissa, exp = value_str.split('E')
+    new = mantissa + 'E' + exp[0] + exp[2:]
+    new_name = suff + '_' + new
+    return new_name
 
-def get_data_for_experiment(path, experiment_name):
+def get_path_for_experiment(path, experiment_name):
     """
     Read .csv files for each l-curve experiment and append
     all results in a single pandas data frame
 
     :param path to experiment file
     :param experiment name e.g. gamma_alpha, gamma_beta
-    :return: pandas.Dataframe with the inv J_cost function results
+    :return: path strings with the inv J_cost function results
     for each l-curve experiment.
     """
-    j_paths_small = []
-    j_paths_big = []
+    j_paths = []
     dir_path = os.path.join(path, experiment_name)
+
     for root, dirs, files in os.walk(dir_path):
         dirs.sort()
         files = [os.path.join(root, f) for f in files]
-        excludes = ['*inversion_progress*', '*1e+*', '*.xml', '*.h5', '*.xdmf']
+        excludes = ['*inversion_progress*', '*.xml', '*.h5', '*.xdmf']
         excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
-        j_paths_small = [f for f in files if not re.match(excludes, f)]
-        excludes = ['*inversion_progress*', '*1e-*', '*.xml', '*.h5', '*.xdmf']
-        excludes = r'|'.join([fnmatch.translate(x) for x in excludes]) or r'$.'
-        j_paths_big = [f for f in files if not re.match(excludes, f)]
+        j_paths = [f for f in files if not re.match(excludes, f)]
 
-    j_paths_small.reverse()
-    j_paths = j_paths_small + j_paths_big
+    return j_paths[0]
 
+def get_data_for_experiment(j_paths):
+    """
+    Read .csv files for each l-curve experiment and append
+    all results in a single pandas data frame
+
+    :param path to experiment files
+    :return: pandas.Dataframe with the inv J_cost function results
+    for each l-curve experiment.
+    """
     ds = pd.DataFrame()
     for file in j_paths:
         ds = pd.concat([ds, pd.read_csv(file)], axis=0)

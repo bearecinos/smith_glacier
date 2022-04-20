@@ -244,19 +244,19 @@ def compute_coarsen(data, resolution):
     # Average the data array in a coarse resolution
     # A window for avg. needs to be supplied e.g 2.0/res = 40
     vx_c = vx.coarsen({'y': int(resolution / data_res),
-                       'x': int(resolution / data_res)}).mean()
+                       'x': int(resolution / data_res)}, boundary='pad').mean()
 
     vy_c = vy.coarsen({'y': int(resolution / data_res),
-                       'x': int(resolution / data_res)}).mean()
+                       'x': int(resolution / data_res)}, boundary='pad').mean()
 
     vx_err_c = vx_err.coarsen({'y': int(resolution / data_res),
-                       'x': int(resolution / data_res)}).mean()
+                       'x': int(resolution / data_res)}, boundary='pad').mean()
 
     vy_err_c = vy_err.coarsen({'y': int(resolution / data_res),
-                               'x': int(resolution / data_res)}).mean()
+                               'x': int(resolution / data_res)}, boundary='pad').mean()
 
     count_c = count.coarsen({'y': int(resolution / data_res),
-                               'x': int(resolution / data_res)}).mean()
+                               'x': int(resolution / data_res)}, boundary='pad').mean()
 
     #  Creating a new data set
     ds = xr.Dataset({'vx': (['y', 'x'], vx_c.data),
@@ -279,5 +279,54 @@ def compute_coarsen(data, resolution):
     dic = data.attrs
 
     ds.attrs = dic
+
+    return ds
+
+def interp_to_measures_grid(dv, dm):
+
+    new_x = dm.x.values
+    new_y = dm.y.values
+
+    array_ma = np.ma.masked_invalid(dm.VX.values)
+
+    res = abs(dm.x[0] - dm.x[1])
+
+    # Just take one var data
+    vx = dv.vx
+    vx_attrs = dv.vx.attrs
+    vy = dv.vy
+    vy_attrs = dv.vy.attrs
+
+    vx_err = dv.vx_err
+    vx_err_attrs = dv.vx_err.attrs
+    vy_err = dv.vy_err
+    vy_err_attrs = dv.vy_err.attrs
+
+    count = dv['count']
+    count_attrs = dv['count'].attrs
+
+    vx_new = vx.interp(x=new_x, y=new_y)
+    vy_new = vy.interp(x=new_x, y=new_y)
+    vx_err_new = vx_err.interp(x=new_x, y=new_y)
+    vy_err_new = vy_err.interp(x=new_x, y=new_y)
+    count_new = count.interp(x=new_x, y=new_y)
+
+    vx_new.data[array_ma.mask] = np.NaN
+    vy_new.data[array_ma.mask] = np.NaN
+    vx_err_new.data[array_ma.mask] = np.NaN
+    vy_err_new.data[array_ma.mask] = np.NaN
+    count_new.data[array_ma.mask] = np.NaN
+
+    #  Creating a new data set
+    ds = xr.Dataset({'vx': (['y', 'x'], vx_new.data),
+                     'vy': (['y', 'x'], vy_new.data),
+                     'vx_err': (['y', 'x'], vx_err_new.data),
+                     'vy_err': (['y', 'x'], vy_err_new.data),
+                     'count': (['y', 'x'], count_new.data)
+                     },
+                    coords={'y': (['y'], vx_new.y.values),
+                            'x': (['x'], vx_new.x.values)}
+                    )
+
 
     return ds

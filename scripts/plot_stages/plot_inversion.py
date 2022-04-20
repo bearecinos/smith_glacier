@@ -30,6 +30,9 @@ import matplotlib.tri as tri
 # Load configuration file for more order in paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+parser.add_argument("-toml_path", type=str, default="../run_experiments/run_workflow/smith_cloud.toml",
+                    help="pass .toml file")
+parser.add_argument("-sub_plot_dir", type=str, default="temp", help="pass sub plot directory to store the plots")
 args = parser.parse_args()
 config_file = args.conf
 configuration = ConfigObj(os.path.expanduser(config_file))
@@ -50,18 +53,13 @@ tick_options = {'axis':'both','which':'both','bottom':False,
     'top':False,'left':False,'right':False,'labelleft':False, 'labelbottom':False}
 
 # Paths to data
-plot_path = os.path.join(MAIN_PATH, 'plots/')
+sub_plot_dir = args.sub_plot_dir
+plot_path = os.path.join(MAIN_PATH, 'plots/'+ sub_plot_dir)
 if not os.path.exists(plot_path):
     os.makedirs(plot_path)
 
-# Define directory where the .toml file is stored and
-# where we have our run output directory
-run_files = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_workflow')
-toml = os.path.join(run_files, 'smith.toml')
-output_dir = os.path.join(MAIN_PATH, 'output/03_run_inv')
-
-# Read in model run parameters
-params = conf.ConfigParser(toml, top_dir=Path(MAIN_PATH))
+tomlf = args.toml_path
+params = conf.ConfigParser(tomlf, top_dir=Path(MAIN_PATH))
 
 #Read and get mesh information
 mesh_in = fice_mesh.get_mesh(params)
@@ -81,10 +79,29 @@ else:
     V =  fice_mesh.get_periodic_space(params, mesh_in, dim=2)
 
 # Read output data to plot
-U_file = os.path.join(params.io.output_dir, params.io.run_name+'_U.xml')
-uv_comp_file = os.path.join(params.io.output_dir, params.io.run_name+'_uv_obs.xml')
-alpha_init_file = os.path.join(params.io.output_dir, params.io.run_name+'_alpha_init_guess.xml')
-alpha_file = os.path.join(params.io.output_dir, params.io.run_name+'_alpha.xml')
+diag_dir = params.io.diagnostics_dir
+phase_suffix = params.inversion.phase_suffix
+phase_name = params.inversion.phase_name
+run_name = params.io.run_name
+
+exp_outdir = Path(diag_dir) / phase_name / phase_suffix
+file_u_name = "_".join((params.io.run_name+phase_suffix, 'U.xml'))
+file_uv_obs = "_".join((params.io.run_name+phase_suffix, 'uv_obs.xml'))
+file_alpha_init = "_".join((params.io.run_name+phase_suffix, 'alpha_init_guess.xml'))
+file_beta_init = "_".join((params.io.run_name+phase_suffix, 'beta_init_guess.xml'))
+file_alpha = "_".join((params.io.run_name+phase_suffix, 'alpha.xml'))
+
+U_file = exp_outdir / file_u_name
+uv_obs_file = exp_outdir / file_uv_obs
+alpha_init_file = exp_outdir / file_alpha_init
+beta_init_file = exp_outdir / file_beta_init
+alpha_file = exp_outdir / file_alpha
+
+assert U_file.is_file(), "File not found"
+assert uv_obs_file.is_file(), "File not found"
+assert  alpha_init_file.is_file(), "File not found"
+assert beta_init_file.is_file(), "File not found"
+assert alpha_file.is_file(), "File not found"
 
 # Define function spaces for alpha only and uv_comp
 alpha = Function(Qp, alpha_file)
@@ -92,9 +109,8 @@ alpha = Function(Qp, alpha_file)
 B2 = project(alpha*alpha, M)
 
 # Get mesh triangulation
-x = mesh_in.coordinates()[:,0]
-y = mesh_in.coordinates()[:,1]
-t = mesh_in.cells()
+x, y, t = graphics.read_fenics_ice_mesh(mesh_in)
+
 trim = tri.Triangulation(x, y, t)
 
 # Compute vertex values for each parameter function
@@ -103,9 +119,9 @@ v = utils_funcs.compute_vertex_for_velocity_field(U_file, V, Q, mesh_in)
 v_alphaini = utils_funcs.compute_vertex_for_parameter_field(alpha_init_file, Qp, M, mesh_in)
 v_alpha = B2.compute_vertex_values(mesh_in)
 
-uv_comp = Function(M, uv_comp_file)
-uv_comp_proj = project(uv_comp, Q)
-v_comp = uv_comp_proj.compute_vertex_values(mesh_in)
+uv_obs = Function(M, uv_obs_file)
+uv_obs_proj = project(uv_obs, Q)
+v_obs = uv_obs_proj.compute_vertex_values(mesh_in)
 
 # Now plotting
 g = 1.5
@@ -134,7 +150,7 @@ ax1.set_aspect('equal')
 ax1.tick_params(**tick_options)
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax1.tricontourf(x, y, t, v_comp, levels = levels, cmap=cmap_vel)
+c = ax1.tricontourf(x, y, t, v_obs, levels = levels, cmap=cmap_vel)
 cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
 cbar.ax.set_xlabel('[$m^{-1}$ yr]')
 ax1.set_title("Velocity observations (MEaSUREs v2.0)", fontsize=18)

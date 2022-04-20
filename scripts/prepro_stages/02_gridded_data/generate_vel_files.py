@@ -97,16 +97,19 @@ if args.composite == 'itslive':
 
     x_grid, y_grid = np.meshgrid(x_s, y_s)
 
+    vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
+    vy_int = vel_tools.interpolate_missing_data(vy_s, x_grid, y_grid)
+    stdvx_int = vel_tools.interpolate_missing_data(vx_std_s, x_grid, y_grid)
+    stdvy_int = vel_tools.interpolate_missing_data(vy_std_s, x_grid, y_grid)
+
     # Ravel all arrays so they can be stored with
     # a tuple shape (values, )
     x_comp = x_grid.ravel()
     y_comp = y_grid.ravel()
-
-    vx_comp = vx_s.ravel()
-    vy_comp = vy_s.ravel()
-
-    errx_comp = vx_std_s.ravel()
-    erry_comp = vy_std_s.ravel()
+    vx_comp = vx_int
+    vy_comp = vy_int
+    errx_comp = stdvx_int
+    erry_comp = stdvy_int
 
     x_cloud = None
     y_cloud = None
@@ -131,7 +134,7 @@ if args.composite == 'itslive':
         vx_err_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox)
         vy_err_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox)
 
-        # Mask arrays and interpolate nan with nearest neighbor
+        # Mask arrays
         x_grid, y_grid = np.meshgrid(x_s, y_s)
 
         # array to mask ... a dot product of component and std

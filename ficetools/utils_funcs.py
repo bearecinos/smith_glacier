@@ -7,9 +7,11 @@ Useful functions to organise data, compute vertex for fenic_ice paramters,
 import logging
 import numpy as np
 import os
+import math
 import fnmatch
 import re
 import pandas as pd
+from decimal import Decimal
 from functools import reduce
 import operator
 from .backend import MPI, Mesh, XDMFFile, Function, \
@@ -278,3 +280,61 @@ def centre_data_array(array):
     """
     A = array - np.mean(array)
     return A
+
+def generate_parameter_configuration_range(cov_m,
+                                           len_m,
+                                           save_path,
+                                           target_param,
+                                           length_constant=False):
+    """
+    :param cov_m: middle point to generate a convariance range
+    :param length: middle point to generate a lenght scale range
+    :param length_constant: if True we keep this contant
+    :return: gamma, delta
+    """
+    fac = 3
+    btm = [len_m * (fac ** i) for i in range(3, -1, -1)]
+    top = [len_m / (fac ** i) for i in range(4)]
+    len_a = np.unique(np.concatenate((btm, top)))
+    p = np.sqrt(1 / (4 * math.pi * cov_m))
+    np.savetxt(os.path.join(save_path, target_param+'_length_scale_range.txt'),
+               len_a, delimiter=',', fmt='%f')
+    gamma = len_a * p
+    delta = (1 / len_a) * p
+
+    # We fix the covariance and vary the length scale
+    if length_constant:
+        # We fix the length scale and vary the covariance
+        btm = [cov_m * (fac ** i) for i in range(3, -1, -1)]
+        top = [cov_m / (fac ** i) for i in range(4)]
+        cov_a = np.unique(np.concatenate((btm, top)))
+        print('Covariance will vary from', cov_a)
+        print('Length scale will stay constant ', len_m)
+        p = np.sqrt(1 / (4 * math.pi * cov_a))
+        gamma = len_m * p
+        delta = (1 / len_m) * p
+        np.savetxt(os.path.join(save_path, target_param +'_cov_range.txt'),
+                   cov_a, delimiter=',', fmt='%f')
+
+    return gamma, delta
+
+def generate_constant_parameter_configuration(target_param=str,
+                                              cov_c=None,
+                                              len_c=None):
+    """
+
+    :param target_param: alpha of beta
+    :param cov_m: constant covariance for the parameter
+    :param len_m: constant length scale for the parameter
+    :return: gamma and delta for the parameter that will remained constant
+    """
+
+    p = np.sqrt(1 / (4 * math.pi * cov_c))
+    gamma = cov_c * p
+    delta = (1 / len_c) * p
+
+    print(f'gamma_{target_param} will be fix to ', "{:.1E}".format(Decimal(gamma)))
+    print(f'delta_{target_param} will be fix to ', "{:.1E}".format(Decimal(delta)))
+
+    return gamma, delta
+

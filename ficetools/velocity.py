@@ -11,7 +11,7 @@ from scipy.interpolate import griddata
 # Module logger
 log = logging.getLogger(__name__)
 
-def process_itslive_netcdf(dv):
+def process_itslive_netcdf(dv, error_factor=1.0):
     """
     Open and process velocity netcdf
 
@@ -45,8 +45,8 @@ def process_itslive_netcdf(dv):
     vy_err.data[non_valid_e] = 0.0
     count.data[non_valid_e] = 0.0
 
-    std_vx = (count ** (1 / 2)) * vx_err
-    std_vy = (count ** (1 / 2)) * vy_err
+    std_vx = (count ** (1 / 2)) * vx_err * error_factor
+    std_vy = (count ** (1 / 2)) * vy_err * error_factor
 
     return vx, vy, std_vx, std_vy
 

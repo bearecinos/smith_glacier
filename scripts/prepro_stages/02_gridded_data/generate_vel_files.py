@@ -31,6 +31,7 @@ import numpy as np
 import h5py
 import argparse
 import xarray as xr
+from decimal import Decimal
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
@@ -42,6 +43,10 @@ parser.add_argument("-add_cloud_data",
                     help="If this is specify a year for the data is selected "
                          "we dont interpolate nans and add the data as it is "
                          " as cloud point velocities to the .h5 file")
+parser.add_argument("-error_factor",
+                    type=float, default=1.0,
+                    help="Enlarge error in observation by a factor")
+
 args = parser.parse_args()
 config_file = args.conf
 config = ConfigObj(os.path.expanduser(config_file))
@@ -81,7 +86,7 @@ if args.composite == 'itslive':
 
     dv = xr.open_dataset(paths_itslive[0])
 
-    vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv)
+    vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv, error_factor=args.error_factor)
 
     vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
                                                             return_coords=True)
@@ -126,7 +131,7 @@ if args.composite == 'itslive':
 
         dv = xr.open_dataset(paths_itslive[4])
 
-        vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv)
+        vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv, error_factor=args.error_factor)
 
         vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
                                                                 return_coords=True)
@@ -188,8 +193,8 @@ else:
 
     vx = dm.VX
     vy = dm.VY
-    std_vx = dm.STDX
-    std_vy = dm.STDY
+    std_vx = dm.STDX * args.error_factor
+    std_vy = dm.STDY * args.error_factor
 
     # Crop velocity data to the Smith Glacier extend
     vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
@@ -231,8 +236,8 @@ else:
 
         vx = dm.VX
         vy = dm.VY
-        std_vx = dm.STDX
-        std_vy = dm.STDY
+        std_vx = dm.STDX * args.error_factor
+        std_vy = dm.STDY * args.error_factor
 
         # Crop velocity data to the Smith Glacier extend
         vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
@@ -288,9 +293,9 @@ print(mask_comp.shape)
 
 composite = args.composite + '-comp_'
 if args.add_cloud_data:
-    file_suffix = composite + 'cloud' + '.h5'
+    file_suffix = composite + 'cloud' + "{:.0E}".format(Decimal(args.error_factor)) +'.h5'
 else:
-    file_suffix = args.composite + '-comp' + '.h5'
+    file_suffix = args.composite + '-comp' + "{:.0E}".format(Decimal(args.error_factor)) + '.h5'
 
 file_name = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix)
 print(file_name)

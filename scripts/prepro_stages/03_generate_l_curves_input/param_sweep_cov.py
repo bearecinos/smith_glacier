@@ -84,8 +84,8 @@ len_m = args.len
 # Set the middle point for the different ranges
 runs_directory = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_lcurves')
 tomls_f = os.path.join(runs_directory, 'tomls_'+target_param+'_'+name_suff)
-output_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves/output')
-diag_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves/diagnostics')
+output_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves_cov/output')
+diag_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves_cov/diagnostics')
 
 # Paths to data
 if not os.path.exists(tomls_f):

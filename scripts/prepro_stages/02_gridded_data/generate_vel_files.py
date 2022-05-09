@@ -128,9 +128,9 @@ if args.composite == 'itslive':
               'point data its ITSlive 2014')
         # Opening files with salem slower than rasterio
         # but they end up more organised in xr.DataArrays
-
-        dv = xr.open_dataset(paths_itslive[4])
-
+        print(paths_itslive[3])
+        dv = xr.open_dataset(paths_itslive[3])
+	
         vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv, error_factor=args.error_factor)
 
         vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,

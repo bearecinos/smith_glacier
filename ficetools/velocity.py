@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import xarray as xr
 from scipy.interpolate import griddata
+import pandas as pd
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -16,6 +17,8 @@ def process_itslive_netcdf(dv, error_factor=1.0):
     Open and process velocity netcdf
 
     :param dv: xarray dataset
+    :param error_factor: error factor for which we
+            enhance the std in the observations. default 1.0
     :return: vx, vy, std_vx, std_vx
     """
 
@@ -50,12 +53,13 @@ def process_itslive_netcdf(dv, error_factor=1.0):
 
     return vx, vy, std_vx, std_vy
 
+
 def crop_velocity_data_to_extend(dvel, extend,
                                  return_coords=False,
                                  return_indexes=False,
                                  return_xarray=False):
     """
-    Returns a xarray.Dataset crop to the given
+    Returns a xarray.Dataset crop to the given mesh
     extent
     :param
         dvel: xarray.Dataset to crop
@@ -63,12 +67,11 @@ def crop_velocity_data_to_extend(dvel, extend,
         given as a dictionary with the form:
         e.g. {'xmin': -1609000.0, 'xmax': -1381000.0,
               'ymin': -718450.0, 'ymax': -527000.0}
-        return_coords: Bool to return x and y coordinates
-        default is False
+        return_coords: Bool to return x and y coordinates (default is False)
+        return_indexes: Bool to return indexes of the cropped array (default is False)
+        return_xarray: Bool to return the result as an xarray (default is False)
     :return
-        dv.data: numpy array with data
-        dv.x.data: x coordinates
-        dv.y.data: y coordinates
+        see function below
     """
 
     # Processing vel data
@@ -88,6 +91,7 @@ def crop_velocity_data_to_extend(dvel, extend,
         return dv.data, dv.x.data, dv.y.data
     else:
         return dv.data
+
 
 def interpolate_missing_data(array, xx, yy):
     """
@@ -116,7 +120,7 @@ def interpolate_missing_data(array, xx, yy):
 def open_and_crop_itslive_data(path_to_data, extend,
                                x_to_int, y_to_int):
     """
-    Opens and crops itslive data to the smith Glacier domain
+    Open and crop itslive data to the smith Glacier domain
     and puts them in the same grid as ASE
 
     :param path_to_data: string to itslive files
@@ -153,6 +157,7 @@ def open_and_crop_itslive_data(path_to_data, extend,
 
     return vel_obs_int, vx_int, vy_int, errx_int, erry_int
 
+
 def check_if_arrays_have_same_shape(arrays, array_shape):
     """
     Returns a list of bools checking if all arrays have the same
@@ -169,10 +174,13 @@ def check_if_arrays_have_same_shape(arrays, array_shape):
             bools.append(False)
     return bools
 
+
 def drop_invalid_data_from_several_arrays(x, y,
                                           vx, vy,
                                           vx_err, vy_err, masked_array):
     """
+    Drops nan data from multiple xarray.datasets containing velocity
+    information
 
     :param x: 1d array of coordinates to for a grid
     :param y: 1d array of coordinates to for a grid
@@ -190,39 +198,35 @@ def drop_invalid_data_from_several_arrays(x, y,
     x_nonan = x_grid[~masked_array.mask]
     y_nonan = y_grid[~masked_array.mask]
 
-    vel_nonan = masked_array.data[~masked_array.mask]
-    vy_nonan = vy[~masked_array.mask]
-    vx_nonan = vx[~masked_array.mask]
+    vy_nonan = vy.data[~masked_array.mask]
+    vx_nonan = vx.data[~masked_array.mask]
 
-    vy_err_nonan = vy_err[~masked_array.mask]
-    vx_err_nonan = vx_err[~masked_array.mask]
+    vy_err_nonan = vy_err.data[~masked_array.mask]
+    vx_err_nonan = vx_err.data[~masked_array.mask]
 
     shape_after = vy_nonan.shape
     print('Shape after nan drop mus be values,')
     print(shape_after)
 
     all_data = [x_nonan, y_nonan,
-                vel_nonan, vy_nonan, vx_nonan,
+                vy_nonan, vx_nonan,
                 vy_err_nonan, vx_err_nonan]
 
     bool_list = check_if_arrays_have_same_shape(all_data,
                                                 shape_after)
 
     assert all(element == True for element in bool_list)
-    return x_nonan, y_nonan, vx_nonan, vy_nonan, vx_err_nonan, vy_err_nonan, vel_nonan
+    return x_nonan, y_nonan, vx_nonan, vy_nonan, vx_err_nonan, vy_err_nonan
+
 
 def compute_coarsen(data, resolution):
-    """ Create a new xarray data set from Itslive
+    """
+    Create a new xarray data set from Itslive
      with a lower resolution
 
-        Parameters
-        ----------
-        data: original DataFrame from Itslive
-        resolution: desired resolution as int
-
-        Returns
-        --------
-        ds: new dataframe with a lower resolution
+    :param data: original DataFrame from Itslive
+    :param resolution: desired resolution as int
+    :return: new dataframe with a lower resolution
     """
 
     data_res = float(abs(data.x[0] - data.x[1]))
@@ -275,14 +279,22 @@ def compute_coarsen(data, resolution):
     ds['vy_err'].attrs = vy_err_attrs
     ds['count'].attrs = count_attrs
 
-
     dic = data.attrs
-
     ds.attrs = dic
 
     return ds
 
+
 def interp_to_measures_grid(dv, dm):
+    """
+    Interpolate velocity data to measures grid, for velocity
+    comparisons
+
+    :param dv: the other velocity data set (e.g. itslive)
+    :param dm: measures velocity data set
+    :return: xarray.Dataset containing the new interpolated data
+    to measures resolution
+    """
 
     new_x = dm.x.values
     new_y = dm.y.values
@@ -330,3 +342,112 @@ def interp_to_measures_grid(dv, dm):
 
 
     return ds
+
+
+def create_subsample(ds, step, return_coords=False):
+    """
+    Creates a subsample of the velocity data by hovering over the original array
+    and cropping the data every certain step, we only retain the first element
+    of that subarray.
+
+    :param ds: xarray.Dataset containing a velocity or velocity error vector
+            (eg. vx, vy, stdvx, stdvy)
+    :param step: step for subsampling (eg. every 10 grid spaces)
+    :param return_coords: if true returns coordinates for the new arrays
+    :return: v_trn: the first element of the subarray
+    """
+
+    x = ds.x.data
+    y = ds.y.data
+
+    sel = ds.data
+
+    index_x = np.arange(0, len(x), step)
+    index_y = np.arange(0, len(y), step)
+
+    # where data will get saved
+    v_trn = []
+    x_trn = []
+    y_trn = []
+
+    for i in index_y:
+        for j in index_x:
+            coord_y = y[i:i + step]
+            coord_x = x[j:j + step]
+
+            b = sel[i:i + step, j:j + step]
+
+            indy = np.arange(0, b.shape[0])
+            indx = np.arange(0, b.shape[1])
+
+            bb = b[indy[0], indx[0]]
+            v_trn = np.append(v_trn, bb)
+            y_trn = np.append(y_trn, coord_y[indy[0]])
+            x_trn = np.append(x_trn, coord_x[indx[0]])
+
+    if return_coords:
+        return v_trn, x_trn, y_trn,
+    else:
+        return v_trn
+
+
+def drop_nan_from_multiple_numpy(x, y,
+                                 vx, vy,
+                                 std_vx, std_vy):
+    """
+    Drops the np.nan points generated by the subsampling and returns tuples
+    for x, y and velocity data components.
+
+    :param x: x-coordinates
+    :param y: y-coordinates
+    :param vx: velocity x component
+    :param vy: velocity y component
+    :param std_vx: std of the x velocity component
+    :param std_vy: std of the y velocity component
+    :return: pandas.Dataframe with all the velocity components with no nan
+    """
+    arrays = {'y': y, 'x': x,
+              'vx': vx, 'vy': vy,
+              'std_vx': std_vx, 'std_vy': std_vy}
+
+    df = pd.DataFrame(data=arrays)
+    df_new = df.dropna(subset=['vx', 'vy'], how='all')
+    df_new = df_new.dropna(subset=['std_vx', 'std_vy'], how='all')
+
+    return df_new
+
+def drop_nan_from_xarray(ds, return_coords=False):
+    """
+    Drops the np.nan points generated by the subsampling and returns tuples
+    for x, y and velocity data components.
+    :param ds:
+    :param return_coords:
+    :return: numpy.ndarray with the velocity information without nan
+    if return_coords is true also returns the coordinates
+    """
+    x = ds.x.values
+    y = ds.y.values
+
+    masked_array = np.ma.masked_invalid(ds.data)
+
+    x_grid, y_grid = np.meshgrid(x, y)
+
+    x_nonan = x_grid[~masked_array.mask]
+    y_nonan = y_grid[~masked_array.mask]
+
+    ds_nonan = masked_array.data[~masked_array.mask]
+
+    shape_after = ds_nonan.shape
+
+    all_data = [x_nonan, y_nonan,
+                ds_nonan]
+
+    bool_list = check_if_arrays_have_same_shape(all_data,
+                                                shape_after)
+
+    assert all(element == True for element in bool_list)
+
+    if return_coords:
+        return x_nonan, y_nonan, ds_nonan
+    return ds_nonan
+

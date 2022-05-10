@@ -66,7 +66,8 @@ config = ConfigObj(os.path.expanduser(config_file))
 MAIN_PATH = config['main_path']
 sys.path.append(MAIN_PATH)
 
-from ficetools.utils_funcs import generate_parameter_configuration_range, getTomlItem, composeName
+from ficetools.utils_funcs import generate_constant_parameter_configuration, \
+    generate_parameter_configuration_range, getTomlItem, composeName
 
 # Get .toml file template
 template_full_path = os.path.join(os.environ['PREPRO_STAGES'],
@@ -107,16 +108,12 @@ param_re_gamma = re.compile(rf"^(gamma_{target_param} = ).*")
 param_re_delta = re.compile(rf"^(delta_{target_param} = ).*")
 param_re_delta_beta_gnd = re.compile(rf"^(delta_beta_gnd = ).*")
 
-range_gamma, range_delta = generate_parameter_configuration_range(cov_m, len_m,
+
+range_gamma, range_delta = generate_parameter_configuration_range(cov_m,
+                                                                  len_m,
                                                                   target_param=target_param,
-                                                                  save_path=runs_directory)
-# If length scale is constant we vary the covariance
-if args.len_constant:
-    range_gamma, range_delta = generate_parameter_configuration_range(cov_m,
-                                                                      len_m,
-                                                                      target_param=target_param,
-                                                                      save_path=runs_directory,
-                                                                      length_constant=args.len_constant)
+                                                                  save_path=runs_directory,
+                                                                  length_constant=args.len_constant)
 
 print(f'gamma_{target_param} will be vary from', range_gamma)
 print(f'delta_{target_param} will be vary from', range_delta)

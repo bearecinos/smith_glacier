@@ -301,6 +301,9 @@ def generate_parameter_configuration_range(cov_m,
                len_a, delimiter=',', fmt='%f')
     gamma = len_a * p
     delta = (1 / len_a) * p
+    if not length_constant:
+        print('Length scale will vary from', len_a)
+        print('Covariance will stay constant ', cov_m)
 
     # We fix the covariance and vary the length scale
     if length_constant:

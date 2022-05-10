@@ -1,7 +1,7 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_lcurve_test"
+run_name = "smith_lcurve_sub_cov"
 input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
 output_dir = "/scratch/local/brecinos/smith_glacier/output/04_run_inv_lcurves_cov/output"
 diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/04_run_inv_lcurves_cov/diagnostics"
@@ -56,7 +56,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_measures-comp_cloud.h5"
+vel_file = "smith_obs_vel_itslive-compcloud_subsampled1E+1.h5"
 
 [inversion]
 

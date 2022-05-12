@@ -51,3 +51,4 @@ echo $(date -u) "Done with error propagation"
 mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_invsigma.py $RUN_CONFIG_DIR/run_workflow/$2
 
 echo $(date -u) "We are done with the whole workflow!"
+

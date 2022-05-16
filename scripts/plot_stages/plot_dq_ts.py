@@ -10,14 +10,16 @@ Plot run_forward output, Gradient components
 import sys
 import numpy as np
 import os
+import salem
+import h5py
 import argparse
 from pathlib import Path
 from configobj import ConfigObj
 
-from fenics_ice import model, config
+from fenics import *
+from fenics_ice import config as conf
 from fenics_ice import mesh as fice_mesh
 from ufl import finiteelement
-from dolfin import *
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -35,37 +37,35 @@ rcParams['ytick.labelsize'] = 18
 # Load configuration file for more order in paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+parser.add_argument("-toml_path", type=str, default="../run_experiments/run_workflow/smith_cloud.toml",
+                    help="pass .toml file")
+parser.add_argument("-sub_plot_dir", type=str, default="temp", help="pass sub plot directory to store the plots")
 parser.add_argument('-n_sens', nargs="+", type=int, help="pass n_sens to plot (max 2)")
 args = parser.parse_args()
 config_file = args.conf
-n_sens = args.n_sens
 configuration = ConfigObj(os.path.expanduser(config_file))
+n_sens = args.n_sens
 
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
-from ficetools import graphics, utils_funcs
+from ficetools import backend, utils_funcs, graphics
 
 # Paths to data
-plot_path = os.path.join(MAIN_PATH, 'plots/')
+sub_plot_dir = args.sub_plot_dir
+plot_path = os.path.join(MAIN_PATH, 'plots/'+ sub_plot_dir)
 if not os.path.exists(plot_path):
     os.makedirs(plot_path)
 
 # Get the right toml
-run_files = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_workflow')
-toml = os.path.join(run_files, 'smith.toml')
-
-# Read in model run parameters
-params = config.ConfigParser(toml, top_dir=Path(MAIN_PATH))
-outdir = params.io.output_dir
+tomlf = args.toml_path
+params = conf.ConfigParser(tomlf, top_dir=Path(MAIN_PATH))
 
 #Read and get mesh information
 mesh_in = fice_mesh.get_mesh(params)
 
-# Get mesh stuff
-x = mesh_in.coordinates()[:,0]
-y = mesh_in.coordinates()[:,1]
-t = mesh_in.cells()
+# Get mesh triangulation
+x, y, t = graphics.read_fenics_ice_mesh(mesh_in)
 trim = tri.Triangulation(x, y, t)
 
 el = finiteelement.FiniteElement("Lagrange", mesh_in.ufl_cell(), 1)
@@ -89,22 +89,33 @@ t_last = np.round(t_sens[n_sens[-1]])
 print(t_last)
 
 # Now lets read the output
-hdffile = os.path.join(outdir, params.io.run_name+'_dQ_ts.h5')
+# Read output data to plot
+outdir = params.io.output_dir
+phase_name = params.time.phase_name
+run_name = params.io.run_name
+phase_suffix = params.time.phase_suffix
+
+fwd_outdir = Path(outdir) / phase_name / phase_suffix
+file_qts = "_".join((run_name + phase_suffix, 'dQ_ts.h5'))
+hdffile = fwd_outdir / file_qts
+
+assert hdffile.is_file(), "File not found"
 
 valpha_first, vbeta_first = utils_funcs.compute_vertex_for_dV_components(dQ,
                                                                        mesh_in,
-                                                                       hdffile,
+                                                                       str(hdffile),
                                                                        'dQdalphaXbeta',
                                                                        n_zero,
                                                                        mult_mmatrix=True)
 valpha_last, vbeta_last = utils_funcs.compute_vertex_for_dV_components(dQ,
                                                                      mesh_in,
-                                                                     hdffile,
+                                                                     str(hdffile),
                                                                      'dQdalphaXbeta',
                                                                      n_last,
                                                                      mult_mmatrix=True)
 
 print(type(valpha_first))
+
 
 valpha_first_std = utils_funcs.standarise_data_array(valpha_first)
 vbeta_first_std = utils_funcs.standarise_data_array(vbeta_first)
@@ -129,11 +140,11 @@ ax0.set_aspect('equal')
 ax0.tick_params(**tick_options)
 divider = make_axes_locatable(ax0)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax0.tricontourf(x, y, t, valpha_first_std, levels=levelsaf, cmap=plt.get_cmap('RdBu')) # levels = levelsa
+c = ax0.tricontourf(x, y, t, valpha_first_std, levels=levelsaf, cmap=plt.get_cmap('RdBu'),  extend="both") # levels = levelsa
 ax0.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal") #ticks=ticksa
+cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal", extend="both") #ticks=ticksa
 cbar.ax.set_xlabel(r'$\frac{dQ}{d\alpha}$')
-n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=16), frameon=True, loc='upper right')
+n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
 ax0.add_artist(n_text)
 at = AnchoredText('a', prop=dict(size=16), frameon=True, loc='upper left')
 ax0.add_artist(at)
@@ -144,11 +155,11 @@ ax1.set_aspect('equal')
 ax1.tick_params(**tick_options)
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax1.tricontourf(x, y, t, vbeta_first_std, levels=levelsbf, cmap=plt.get_cmap('RdBu')) #levels = levelsb,
+c = ax1.tricontourf(x, y, t, vbeta_first_std, levels=levelsbf, cmap=plt.get_cmap('RdBu'),  extend="both") #levels = levelsb,
 ax1.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal") # ticks=ticksb,
+cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal",  extend="both") # ticks=ticksb,
 cbar.ax.set_xlabel(r'$\frac{dQ}{d\beta}$')
-n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=16), frameon=True, loc='upper right')
+n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
 ax1.add_artist(n_text)
 at = AnchoredText('b', prop=dict(size=16), frameon=True, loc='upper left')
 ax1.add_artist(at)
@@ -159,11 +170,11 @@ ax2.set_aspect('equal')
 ax2.tick_params(**tick_options)
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax2.tricontourf(x, y, t, valpha_last_std, levels=levelsaf, cmap=plt.get_cmap('RdBu')) #  levels = levelsa,
+c = ax2.tricontourf(x, y, t, valpha_last_std, levels=levelsaf, cmap=plt.get_cmap('RdBu'),  extend="both") #  levels = levelsa,
 ax2.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal") #ticks=ticksa
+cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal",  extend="both") #ticks=ticksa
 cbar.ax.set_xlabel(r'$\frac{dQ}{d\alpha}$')
-n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=16), frameon=True, loc='upper right')
+n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
 ax2.add_artist(n_text)
 at = AnchoredText('c', prop=dict(size=16), frameon=True, loc='upper left')
 ax2.add_artist(at)
@@ -173,11 +184,11 @@ ax3.set_aspect('equal')
 ax3.tick_params(**tick_options)
 divider = make_axes_locatable(ax3)
 cax = divider.append_axes("bottom", size="5%", pad=0.1)
-c = ax3.tricontourf(x, y, t, vbeta_last_std, levels=levelsbf, cmap=plt.get_cmap('RdBu')) # levels = levelsb,
+c = ax3.tricontourf(x, y, t, vbeta_last_std, levels=levelsbf, cmap=plt.get_cmap('RdBu'),  extend="both") # levels = levelsb,
 ax3.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal") #ticks=ticksb,
+cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal", extend="both") #ticks=ticksb,
 cbar.ax.set_xlabel(r'$\frac{dQ}{d\beta}$')
-n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=16), frameon=True, loc='upper right')
+n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
 ax3.add_artist(n_text)
 at = AnchoredText('d', prop=dict(size=16), frameon=True, loc='upper left')
 ax3.add_artist(at)

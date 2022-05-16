@@ -8,6 +8,9 @@ and a set of Eigen vectors
 
 @authors: Fenics_ice contributors
 """
+import sys
+import salem
+import h5py
 import numpy as np
 import os
 import argparse
@@ -16,10 +19,10 @@ from configobj import ConfigObj
 import pickle
 from collections import defaultdict
 
-from fenics_ice import model, config
+from fenics import *
+from fenics_ice import config as conf
 from fenics_ice import mesh as fice_mesh
 from ufl import finiteelement
-from dolfin import *
 
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
@@ -36,35 +39,44 @@ rcParams['legend.fontsize'] = 14
 # Load configuration file for more order in paths
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
+parser.add_argument("-toml_path", type=str, default="../run_experiments/run_workflow/smith_cloud.toml",
+                    help="pass .toml file")
+parser.add_argument("-sub_plot_dir", type=str, default="temp", help="pass sub plot directory to store the plots")
 parser.add_argument('-n_eigen', nargs="+", type=int, help="pass number of eigen vectors to plot (max 4)")
 args = parser.parse_args()
 config_file = args.conf
-num_eigen = args.n_eigen
 configuration = ConfigObj(os.path.expanduser(config_file))
+num_eigen = args.n_eigen
 
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
-from ficetools import utils_funcs, graphics
+from ficetools import backend, utils_funcs, graphics
 
 # Paths to data
-plot_path = os.path.join(MAIN_PATH, 'plots/')
+sub_plot_dir = args.sub_plot_dir
+plot_path = os.path.join(MAIN_PATH, 'plots/'+ sub_plot_dir)
 if not os.path.exists(plot_path):
     os.makedirs(plot_path)
 
 # Get the right toml
-run_files = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_workflow')
-toml = os.path.join(run_files, 'smith.toml')
+tomlf = args.toml_path
+params = conf.ConfigParser(tomlf, top_dir=Path(MAIN_PATH))
 
-# Read in model run parameters
-params = config.ConfigParser(toml, top_dir=Path(MAIN_PATH))
+# Read output data to plot
 outdir = params.io.output_dir
-
+phase_name = params.eigendec.phase_name
 run_name = params.io.run_name
-lamfile = os.path.join(outdir, run_name+'_eigvals.p')
+phase_suffix = params.eigendec.phase_suffix
+
+eigen_outdir = Path(outdir) / phase_name / phase_suffix
+file_eigvals = "_".join((run_name + phase_suffix, 'eigvals.p'))
+lamfile = eigen_outdir / file_eigvals
+
+assert lamfile.is_file(), "File not found"
 
 # Read eigenvalues decay and make the plot
-with open(lamfile, 'rb') as f:
+with open(str(lamfile), 'rb') as f:
     out = pickle.load(f)
 
 lam = out[0]
@@ -86,12 +98,6 @@ plt.savefig(os.path.join(plot_path, 'eigen_decay.png'),
 #Read and get mesh information
 mesh_in = fice_mesh.get_mesh(params)
 
-# Get mesh stuff
-x = mesh_in.coordinates()[:,0]
-y = mesh_in.coordinates()[:,1]
-t = mesh_in.cells()
-trim = tri.Triangulation(x, y, t)
-
 el = finiteelement.FiniteElement("Lagrange", mesh_in.ufl_cell(), 1)
 mixedElem = el * el
 
@@ -103,8 +109,10 @@ print('Number of Eigenvectors to plot')
 print(num_eigen)
 
 # Now lets read the output
-hdffile = os.path.join(outdir, params.io.run_name+'_vr.h5')
-print(hdffile)
+file_vr = "_".join((run_name + phase_suffix, 'vr.h5'))
+hdffile = eigen_outdir / file_vr
+
+assert hdffile.is_file(), "File not found"
 
 # Name of the vectors variable inside the .h5 file
 var_name = 'v'
@@ -117,7 +125,7 @@ nametosum = 'eigen_vector'
 for e in num_eigen:
     valpha, vbeta = utils_funcs.compute_vertex_for_dV_components(dE,
                                                                mesh_in,
-                                                               hd5_fpath=hdffile,
+                                                               hd5_fpath=str(hdffile),
                                                                var_name=var_name,
                                                                n_item=e,
                                                                mult_mmatrix=False)

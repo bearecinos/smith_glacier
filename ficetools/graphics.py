@@ -110,17 +110,14 @@ def plot_field_in_tricontourf(data_array,
     import seaborn as sns
     cmap = sns.color_palette("RdBu", as_cmap=True)
 
-    # Get mesh stuff
-    x = mesh.coordinates()[:, 0]
-    y = mesh.coordinates()[:, 1]
-    t = mesh.cells()
-    trim = tri.Triangulation(x, y, t)
+        # Get mesh triangulation
+    x, y, t = read_fenics_ice_mesh(mesh)
 
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("bottom", size="5%", pad=0.1)
     c = ax.tricontourf(x, y, t, data_array, levels=levels, cmap=cmap)
     #ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-    cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
+    cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal", extend="both")
     cbar.ax.set_xlabel('dE '+f'{varname}')
     if add_text:
         n_text = AnchoredText('eigenvector = ' + str(num_eigen),

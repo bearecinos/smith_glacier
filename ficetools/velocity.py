@@ -8,6 +8,7 @@ import numpy as np
 import xarray as xr
 from scipy.interpolate import griddata
 import pandas as pd
+import netCDF4
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -451,3 +452,10 @@ def drop_nan_from_xarray(ds, return_coords=False):
         return x_nonan, y_nonan, ds_nonan
     return ds_nonan
 
+
+class ncDataset(netCDF4.Dataset):
+    """Wrapper around netCDF4 setting auto_mask to False"""
+
+    def __init__(self, *args, **kwargs):
+        super(ncDataset, self).__init__(*args, **kwargs)
+        self.set_auto_mask(False)

@@ -161,3 +161,14 @@ phase_suffix = '_inv_with_cloud_itslive_'
 
 use_melt_parameterisation = true
 
+
+[sample]
+
+sample_size = 2
+sample_alpha = true
+sample_beta = true
+phase_name = 'sample'
+phase_suffix = '_inv_with_cloud_itslive_'
+sample_posterior = true
+num_eigenvals = 10
+

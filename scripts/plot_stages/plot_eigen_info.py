@@ -130,9 +130,9 @@ for e in num_eigen:
                                                                n_item=e,
                                                                mult_mmatrix=False)
 
-    valpha_nom = utils_funcs.normalise_data_array(valpha)
+    valpha_nom = utils_funcs.normalize_dan(valpha)
     print(min(valpha_nom), max(valpha_nom))
-    vbeta_nom = utils_funcs.normalise_data_array(vbeta)
+    vbeta_nom = utils_funcs.normalize_dan(vbeta)
     print(min(vbeta_nom), max(vbeta_nom))
 
     eigen_v_alpha[f'{nametosum}{e}'].append(valpha_nom)

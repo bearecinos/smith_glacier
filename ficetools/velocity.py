@@ -9,6 +9,8 @@ import xarray as xr
 from scipy.interpolate import griddata
 import pandas as pd
 import netCDF4
+import os
+import h5py
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -392,6 +394,37 @@ def create_subsample(ds, step, return_coords=False):
         return v_trn
 
 
+def create_adjusted_std_maxima(std_o, std_to_a):
+    """
+
+    :param do: xarray.DataArray with original std values
+    :param da: xarray.DAtaArray maximum value to adjust the std to
+    :return: ds: xarray.DataArray with adjusted std and the nans
+    filled with the do original values
+    """
+
+    ds = np.maximum(std_o, std_to_a)
+
+    # array to mask ... a dot product of component and std
+    mask_array = ds.data
+
+    # Remove nan from cloud data
+    array_ma = np.ma.masked_invalid(mask_array)
+
+    x_s = std_o.x.data
+    y_s = std_o.y.data
+
+    x_grid, y_grid = np.meshgrid(x_s, y_s)
+
+    x_nan = x_grid[array_ma.mask].ravel()
+    y_nan = y_grid[array_ma.mask].ravel()
+
+    for x, y in zip(x_nan, y_nan):
+        ds.loc[dict(x=x, y=y)] = std_o.loc[dict(x=x, y=y)]
+
+    return ds
+
+
 def drop_nan_from_multiple_numpy(x, y,
                                  vx, vy,
                                  std_vx, std_vy):
@@ -451,6 +484,98 @@ def drop_nan_from_xarray(ds, return_coords=False):
     if return_coords:
         return x_nonan, y_nonan, ds_nonan
     return ds_nonan
+
+
+def write_velocity_tuple_h5file(comp_dict, cloud_dict, fpath=str):
+    """
+    Write velocity tuple h5 file with composite data and cloud data
+    Before writing any data a lot of checks are done.
+
+    :param comp_dict:
+    :param cloud_dict:
+    :param fpath:
+    :return: writes a new velocity file in the required directory
+    """
+
+    # Read the composite dictionary
+    vx_comp = comp_dict['vx_comp']
+    errx_comp = comp_dict['std_vx_comp']
+    vy_comp = comp_dict['vy_comp']
+    erry_comp = comp_dict['std_vy_comp']
+
+    x_comp = comp_dict['x_comp']
+    y_comp = comp_dict['y_comp']
+
+    mask_comp = np.array(vx_comp, dtype=bool)
+
+    # Sanity checks for composite data!
+    assert np.count_nonzero(np.isnan(vx_comp)) == 0
+    assert np.count_nonzero(np.isnan(vy_comp)) == 0
+    assert np.count_nonzero(np.isnan(errx_comp)) == 0
+    assert np.count_nonzero(np.isnan(erry_comp)) == 0
+
+    all_data = [x_comp, y_comp,
+                vx_comp, vy_comp,
+                errx_comp, erry_comp]
+    shape_after = mask_comp.shape
+    bool_list = check_if_arrays_have_same_shape(all_data, shape_after)
+    assert all(element == True for element in bool_list)
+
+    # Read the cloud dictionary
+
+    vx_cloud = cloud_dict['vx_cloud']
+    vx_err_cloud = cloud_dict['std_vx_cloud']
+    vy_cloud = cloud_dict['vy_cloud']
+    vy_err_cloud = cloud_dict['std_vy_cloud']
+
+    x_cloud = cloud_dict['x_cloud']
+    y_cloud = cloud_dict['y_cloud']
+
+    # Sanity checks!
+    assert np.count_nonzero(np.isnan(vx_cloud)) == 0
+    assert np.count_nonzero(np.isnan(vy_cloud)) == 0
+    assert np.count_nonzero(np.isnan(vx_err_cloud)) == 0
+    assert np.count_nonzero(np.isnan(vy_err_cloud)) == 0
+    all_data = [x_cloud, y_cloud,
+                vx_cloud, vy_cloud,
+                vx_err_cloud, vy_err_cloud]
+    shape_after = x_cloud.shape
+    bool_list = check_if_arrays_have_same_shape(all_data, shape_after)
+    assert all(element == True for element in bool_list)
+
+
+    if os.path.exists(fpath):
+        os.remove(fpath)
+    else:
+        print("The file did not exist before so is being created now")
+
+    with h5py.File(fpath, 'w') as outty:
+        data = outty.create_dataset("mask_vel", mask_comp.shape, dtype='f')
+        data[:] = mask_comp
+        data = outty.create_dataset("u_obs", vx_comp.shape, dtype='f')
+        data[:] = vx_comp
+        data = outty.create_dataset("u_std", errx_comp.shape, dtype='f')
+        data[:] = errx_comp
+        data = outty.create_dataset("v_obs", vy_comp.shape, dtype='f')
+        data[:] = vy_comp
+        data = outty.create_dataset("v_std", erry_comp.shape, dtype='f')
+        data[:] = erry_comp
+        data = outty.create_dataset("x", x_comp.shape, dtype='f')
+        data[:] = x_comp
+        data = outty.create_dataset("y", y_comp.shape, dtype='f')
+        data[:] = y_comp
+        data = outty.create_dataset("u_cloud", vx_cloud.shape, dtype='f')
+        data[:] = vx_cloud
+        data = outty.create_dataset("u_cloud_std", vx_err_cloud.shape, dtype='f')
+        data[:] = vx_err_cloud
+        data = outty.create_dataset("v_cloud", vy_cloud.shape, dtype='f')
+        data[:] = vy_cloud
+        data = outty.create_dataset("v_cloud_std", vy_err_cloud.shape, dtype='f')
+        data[:] = vy_err_cloud
+        data = outty.create_dataset("x_cloud", x_cloud.shape, dtype='f')
+        data[:] = x_cloud
+        data = outty.create_dataset("y_cloud", y_cloud.shape, dtype='f')
+        data[:] = y_cloud
 
 
 class ncDataset(netCDF4.Dataset):

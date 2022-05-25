@@ -106,8 +106,12 @@ for exp in exp_names:
     j_paths.append(j_path)
 
 gamma_alpha = utils_funcs.get_data_for_experiment(j_paths[0:9])
+gamma_alpha.to_csv(os.path.join(plot_path, 'gamma_alpha_lcurve.csv'))
 gamma_beta = utils_funcs.get_data_for_experiment(j_paths[9:9+9])
+gamma_beta.to_csv(os.path.join(plot_path, 'gamma_beta_lcurve.csv'))
 delta_beta_gnd = utils_funcs.get_data_for_experiment(j_paths[9+9:len(j_paths)])
+delta_beta_gnd.to_csv(os.path.join(plot_path, 'delta_beta_gnd_lcurve.csv'))
+
 
 #Reading mesh
 mesh_in = fice_mesh.get_mesh(params)

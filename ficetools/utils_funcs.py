@@ -263,8 +263,7 @@ def normalise_data_array(array):
     first_norm = 2 * first_n - 1
     return first_norm
 
-
-def normalize_dan(array):
+def normalize(array):
     """
 
     :param array:

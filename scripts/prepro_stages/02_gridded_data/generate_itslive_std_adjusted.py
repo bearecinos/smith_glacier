@@ -6,7 +6,7 @@ and always provide cloud a cloud point data distribution.
 Additionally, the STD of each vel component its adjusted with the absolute
 difference between MEaSUREs 2014 and ITSLive 2014 data set.
 
-Options for data products for the composite velocity mosaic:
+Options for the composite velocity mosaic:
 - ITSLIVE only
 
 Options for the cloud point velocity:

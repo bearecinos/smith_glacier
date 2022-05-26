@@ -3,7 +3,7 @@ Crops satellite velocities for individual years and composite means
  from different velocity data products to an area extent defined (for now)
   for the smith glacier experiment.
 
-Options for data products for the composite velocity mosaic:
+Options for the composite velocity mosaic:
 - MEaSUREs
 - ITSLIVE
 

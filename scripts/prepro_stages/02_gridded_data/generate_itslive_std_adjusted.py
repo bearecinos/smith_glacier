@@ -1,24 +1,32 @@
 """
-Crops ITslive velocity data to the smith glacier domain for the mosaic and cloud
-point data distribution.
-For the Cloud point data we use 2014 and the STD of each vel component its adjusted.
+Crops ITSLive velocity data to the smith glacier domain for a mosaic and cloud
+point data distribution. By default this script will always use ITSLive data
+and always provide cloud a cloud point data distribution.
 
-Options of data products for the composite velocity mosaic:
+Additionally, the STD of each vel component its adjusted with the absolute
+difference between MEaSUREs 2014 and ITSLive 2014 data set.
+
+Options for the composite velocity mosaic:
 - ITSLIVE only
 
 Options for the cloud point velocity:
 - ITSLIVE 2014
-- with STDvx and STDvy adjusted according to the following:
-    np.maxima(vx_err_s, np.abs(vx_s-vx_mi_s))
-    where vx_s-vx_mi_s is the velocity difference
-    between ITslive 2014 and Measures 2014 (interpolated to
-    the itslive grid).
+- ITSLIVE 2014 with STDvx and STDvy adjusted according to the following:
+    `np.maxima(vx_err_s, np.abs(vx_s-vx_mi_s))`
+    where `vx_s-vx_mi_s` is the velocity difference between ITslive 2014
+    and MEaSUREs 2014 (MEaSUREs was interpolated to the itslive grid).
+- It is possible to subsample each cloud data set by selecting the top left
+    value of every sub-grid box, which size is determined by the variable input: -step
 
-The code generates a .h5 file, with the corresponding velocity
-file suffix,
-e.g. `_itslive-comp_cloud_std_adjust.h5`
+The code generates one or two .h5 files; if a step is chosen, with the corresponding velocity
+file suffix:
+e.g. `*_itslive-comp_std-adjusted-cloud_subsample-training_step-1E+1.h5`
+e.g. `*_itslive-comp_std-adjusted-cloud_subsample-test_step-1E+1.h5`
 
-The file contain the following variables stored as tuples
+If there is no subsampling:
+e.g. `*_itslive-comp_std-adjusted-cloud_subsample-none_step-0E+0.h5`
+
+The files contain the following variables stored as tuples
 and containing no np.nan's:
 - 'u_cloud', 'u_cloud_std', 'v_cloud', 'v_cloud_std', 'x_cloud', 'y_cloud'
 - 'u_obs', 'u_std', 'v_obs', 'v_std', 'x', 'y', 'mask_vel' -> default composite
@@ -31,7 +39,6 @@ import os
 import sys
 from configobj import ConfigObj
 import numpy as np
-import h5py
 import argparse
 import xarray as xr
 from decimal import Decimal
@@ -42,6 +49,9 @@ parser.add_argument("-compute_interpolation",
                     action="store_true",
                     help="If true computes the interpolation of MEaSUREs 2014 vel"
                          "file to the ITSLive grid and saves it as a netcdf file for re-use.")
+parser.add_argument("-step",
+                    type=int, default=10,
+                    help="Sub-box size for the subsample")
 
 args = parser.parse_args()
 config_file = args.conf
@@ -86,12 +96,6 @@ vy_s = vel_tools.crop_velocity_data_to_extend(vy, smith_bbox)
 vx_std_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox)
 vy_std_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox)
 
-print('Lets check all has the same shape')
-print(vx_s.shape, vy_s.shape)
-print(vx_std_s.shape, vy_std_s.shape)
-print(y_s.shape)
-print(x_s.shape)
-
 x_grid, y_grid = np.meshgrid(x_s, y_s)
 
 vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
@@ -101,12 +105,12 @@ stdvy_int = vel_tools.interpolate_missing_data(vy_std_s, x_grid, y_grid)
 
 # Ravel all arrays so they can be stored with
 # a tuple shape (values, )
-x_comp = x_grid.ravel()
-y_comp = y_grid.ravel()
-vx_comp = vx_int
-vy_comp = vy_int
-errx_comp = stdvx_int
-erry_comp = stdvy_int
+composite_dict = {'x_comp': x_grid.ravel(),
+                 'y_comp': y_grid.ravel(),
+                 'vx_comp': vx_int,
+                 'vy_comp': vy_int,
+                 'std_vx_comp': stdvx_int,
+                 'std_vy_comp': stdvy_int}
 
 print('The velocity product for the cloud '
       'point data its ITSlive 2014 with the STD adjusted')
@@ -183,91 +187,120 @@ vxc_err_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox, return_xa
 vyc_err_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox, return_xarray=True)
 
 # We adjust the STD
-vxc_err_its_2014_adjust = np.maximum(vxc_err_s, np.abs(vxc_s-vx_mi_s))
-vyc_err_its_2014_adjust = np.maximum(vyc_err_s, np.abs(vyc_s-vy_mi_s))
+diff_vx = np.abs(vxc_s - vx_mi_s)
+diff_vy = np.abs(vyc_s -vy_mi_s)
 
-# Mask arrays
-x_s = vxc_s.x.data
-y_s = vxc_s.y.data
+vxc_err_its_2014_adjust = vel_tools.create_adjusted_std_maxima(vxc_err_s, diff_vx)
+vyc_err_its_2014_adjust = vel_tools.create_adjusted_std_maxima(vyc_err_s, diff_vy)
 
-x_grid, y_grid = np.meshgrid(x_s, y_s)
+step = abs(args.step)
 
-# array to mask ... a dot product of component and std
-mask_array = vxc_s.data * vxc_err_its_2014_adjust.data
+# Are we subsampling this one? yes only with step > 0.
 
-# Remove nan from cloud data
-array_ma = np.ma.masked_invalid(mask_array)
+if step != 0:
+    print('This is happening')
+    # Computing our training set of cloud velocities
+    vx_trn, x_trn, y_trn = vel_tools.create_subsample(vxc_s, step, return_coords=True)
+    vy_trn = vel_tools.create_subsample(vyc_s, step)
+    vx_std_trn = vel_tools.create_subsample(vxc_err_its_2014_adjust, step)
+    vy_std_trn = vel_tools.create_subsample(vyc_err_its_2014_adjust, step)
 
-# get only the valid values
-x_nona = x_grid[~array_ma.mask].ravel()
-y_nona = y_grid[~array_ma.mask].ravel()
-vx_nona = vxc_s.data[~array_ma.mask].ravel()
-vy_nona = vyc_s.data[~array_ma.mask].ravel()
-stdvx_nona = vxc_err_its_2014_adjust.data[~array_ma.mask].ravel()
-stdvy_nona = vyc_err_its_2014_adjust.data[~array_ma.mask].ravel()
+    # Computing our TEST set of cloud velocities
+    for x, y in zip(x_trn, y_trn):
+        vxc_s.loc[dict(x=x, y=y)] = np.nan
+        vyc_s.loc[dict(x=x, y=y)] = np.nan
+        vxc_err_its_2014_adjust.loc[dict(x=x, y=y)] = np.nan
+        vyc_err_its_2014_adjust.loc[dict(x=x, y=y)] = np.nan
 
-# Ravel all arrays so they can be stored with
-# a tuple shape (values, )
-x_cloud = x_nona
-y_cloud = y_nona
-vx_cloud = vx_nona
-vy_cloud = vy_nona
-vx_err_cloud = stdvx_nona
-vy_err_cloud = stdvy_nona
+    # Dropping the Nans from the TRAINING set
+    out_cloud = vel_tools.drop_nan_from_multiple_numpy(x_trn, y_trn,
+                                                       vx_trn, vy_trn,
+                                                       vx_std_trn, vy_std_trn)
 
-# Sanity checks!
-assert np.count_nonzero(np.isnan(vx_nona)) == 0
-assert np.count_nonzero(np.isnan(vy_nona)) == 0
-assert np.count_nonzero(np.isnan(vx_err_cloud)) == 0
-assert np.count_nonzero(np.isnan(vy_err_cloud)) == 0
+    cloud_dict_training = {'x_cloud': out_cloud.x.values,
+                           'y_cloud': out_cloud.y.values,
+                           'vx_cloud': out_cloud.vx.values,
+                           'vy_cloud': out_cloud.vy.values,
+                           'std_vx_cloud': out_cloud.std_vx.values,
+                           'std_vy_cloud': out_cloud.std_vy.values}
 
-all_data = [x_cloud, y_cloud,
-            vx_cloud, vy_cloud,
-            vx_err_cloud, vy_err_cloud]
 
-shape_after = x_cloud.shape
+    # Dropping the nans from the TEST set
+    masked_array = np.ma.masked_invalid(vxc_s.data*vxc_err_its_2014_adjust.data)
 
-bool_list = vel_tools.check_if_arrays_have_same_shape(all_data,
-                                                      shape_after)
+    out_test = vel_tools.drop_invalid_data_from_several_arrays(vxc_s.x.values,
+                                                               vxc_s.y.values,
+                                                               vxc_s,
+                                                               vyc_s,
+                                                               vxc_err_its_2014_adjust,
+                                                               vyc_err_its_2014_adjust,
+                                                               masked_array)
 
-assert all(element == True for element in bool_list)
+    cloud_dict_test = {'x_cloud': out_test[0],
+                       'y_cloud': out_test[1],
+                       'vx_cloud': out_test[2],
+                       'vy_cloud': out_test[3],
+                       'std_vx_cloud': out_test[4],
+                       'std_vy_cloud': out_test[5]}
 
-mask_comp = np.array(vx_comp, dtype=bool)
-print(mask_comp.shape)
+    # We write the training file first
+    file_suffix = 'itslive-comp_std-adjusted-cloud_subsample-training_step-' + \
+                  "{:.0E}".format(Decimal(args.step)) + '.h5'
 
-file_suffix = 'itslive' + '-comp-' + 'cloud_std_adjusted' + '.h5'
-file_name = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix)
-print(file_name)
+    file_name_training = os.path.join(MAIN_PATH, config['smith_vel_obs'] + file_suffix)
 
-if os.path.exists(file_name):
-  os.remove(file_name)
+    vel_tools.write_velocity_tuple_h5file(comp_dict=composite_dict,
+                                          cloud_dict=cloud_dict_training,
+                                          fpath=file_name_training)
+
+    # We write the test file second
+    file_suffix = 'itslive-comp_std-adjusted-cloud_subsample-test_step-' + \
+                  "{:.0E}".format(Decimal(args.step)) + '.h5'
+
+    file_name_test = os.path.join(MAIN_PATH, config['smith_vel_obs'] + file_suffix)
+
+    vel_tools.write_velocity_tuple_h5file(comp_dict=composite_dict,
+                                          cloud_dict=cloud_dict_test,
+                                          fpath=file_name_test)
 else:
-  print("The file did not exist before so is being created now")
+    # We write the complete cloud array!
 
-with h5py.File(file_name, 'w') as outty:
-    data = outty.create_dataset("mask_vel", mask_comp.shape, dtype='f')
-    data[:] = mask_comp
-    data = outty.create_dataset("u_obs", vx_comp.shape, dtype='f')
-    data[:] = vx_comp
-    data = outty.create_dataset("u_std", errx_comp.shape, dtype='f')
-    data[:] = errx_comp
-    data = outty.create_dataset("v_obs", vy_comp.shape, dtype='f')
-    data[:] = vy_comp
-    data = outty.create_dataset("v_std", erry_comp.shape, dtype='f')
-    data[:] = erry_comp
-    data = outty.create_dataset("x", x_comp.shape, dtype='f')
-    data[:] = x_comp
-    data = outty.create_dataset("y", y_comp.shape, dtype='f')
-    data[:] = y_comp
-    data = outty.create_dataset("u_cloud", vx_cloud.shape, dtype='f')
-    data[:] = vx_cloud
-    data = outty.create_dataset("u_cloud_std", vx_err_cloud.shape, dtype='f')
-    data[:] = vx_err_cloud
-    data = outty.create_dataset("v_cloud", vy_cloud.shape, dtype='f')
-    data[:] = vy_cloud
-    data = outty.create_dataset("v_cloud_std", vy_err_cloud.shape, dtype='f')
-    data[:] = vy_err_cloud
-    data = outty.create_dataset("x_cloud", x_cloud.shape, dtype='f')
-    data[:] = x_cloud
-    data = outty.create_dataset("y_cloud", y_cloud.shape, dtype='f')
-    data[:] = y_cloud
+    # Mask arrays
+    x_s = vxc_s.x.data
+    y_s = vxc_s.y.data
+
+    x_grid, y_grid = np.meshgrid(x_s, y_s)
+
+    # array to mask ... a dot product of component and std
+    mask_array = vxc_s.data * vxc_err_its_2014_adjust.data
+
+    # Remove nan from cloud data
+    array_ma = np.ma.masked_invalid(mask_array)
+
+    # get only the valid values
+    x_nona = x_grid[~array_ma.mask].ravel()
+    y_nona = y_grid[~array_ma.mask].ravel()
+    vx_nona = vxc_s.data[~array_ma.mask].ravel()
+    vy_nona = vyc_s.data[~array_ma.mask].ravel()
+    stdvx_nona = vxc_err_its_2014_adjust.data[~array_ma.mask].ravel()
+    stdvy_nona = vyc_err_its_2014_adjust.data[~array_ma.mask].ravel()
+
+    # Ravel all arrays so they can be stored with
+    # a tuple shape (values, )
+    cloud_dict = {'x_cloud': x_nona,
+                  'y_cloud': y_nona,
+                  'vx_cloud': vx_nona,
+                  'vy_cloud':  vy_nona,
+                  'std_vx_cloud': stdvx_nona,
+                  'std_vy_cloud': stdvy_nona}
+
+
+    # We write the test file second
+    file_suffix = 'itslive-comp_std-adjusted-cloud_subsample-none_step-' + \
+                  "{:.0E}".format(Decimal(args.step)) + '.h5'
+
+    file_name = os.path.join(MAIN_PATH, config['smith_vel_obs'] + file_suffix)
+
+    vel_tools.write_velocity_tuple_h5file(comp_dict=composite_dict,
+                                          cloud_dict=cloud_dict,
+                                          fpath=file_name)

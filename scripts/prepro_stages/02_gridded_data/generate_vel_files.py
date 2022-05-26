@@ -3,17 +3,19 @@ Crops satellite velocities for individual years and composite means
  from different velocity data products to an area extent defined (for now)
   for the smith glacier experiment.
 
-Options of data products for the composite velocity mosaic:
+Options for data products for the composite velocity mosaic:
 - MEaSUREs
 - ITSLIVE
 
 Options for the cloud point velocity:
-- Measures without filling gaps 2013-2014
-- ITSLIVE without filling gaps 2011
+- Measures without filling gaps 2014
+- ITSLIVE without filling gaps 2014
+- It is possible to enhance the STD velocity error by a factor X,
+    by specifying -error_factor as default this is equal to one.
 
 The code generates a .h5 file, with the corresponding velocity
 file suffix, depending on what has been chosen as data:
-e.g. `_itslive-comp_cloud.h5`
+e.g. `*_itslive-comp_itslive-cloud_error-factor-1E+0`
 
 The file contain the following variables stored as tuples
 and containing no np.nan's:
@@ -28,7 +30,6 @@ import os
 import sys
 from configobj import ConfigObj
 import numpy as np
-import h5py
 import argparse
 import xarray as xr
 from decimal import Decimal
@@ -94,12 +95,6 @@ if args.composite == 'itslive':
     vx_std_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox)
     vy_std_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox)
 
-    print('Lets check all has the same shape')
-    print(vx_s.shape, vy_s.shape)
-    print(vx_std_s.shape, vy_std_s.shape)
-    print(y_s.shape)
-    print(x_s.shape)
-
     x_grid, y_grid = np.meshgrid(x_s, y_s)
 
     vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
@@ -109,19 +104,19 @@ if args.composite == 'itslive':
 
     # Ravel all arrays so they can be stored with
     # a tuple shape (values, )
-    x_comp = x_grid.ravel()
-    y_comp = y_grid.ravel()
-    vx_comp = vx_int
-    vy_comp = vy_int
-    errx_comp = stdvx_int
-    erry_comp = stdvy_int
+    composite_dict = {'x_comp': x_grid.ravel(),
+                      'y_comp': y_grid.ravel(),
+                      'vx_comp': vx_int,
+                      'vy_comp': vy_int,
+                      'std_vx_comp': stdvx_int,
+                      'std_vy_comp': stdvy_int}
 
-    x_cloud = None
-    y_cloud = None
-    vx_cloud = None
-    vy_cloud = None
-    vx_err_cloud = None
-    vy_err_cloud = None
+    cloud_dict = {'x_cloud': None,
+                  'y_cloud': None,
+                  'vx_cloud': None,
+                  'vy_cloud': None,
+                  'std_vx_cloud': None,
+                  'std_vy_cloud': None}
 
     if args.add_cloud_data:
         print('The velocity product for the cloud '
@@ -130,7 +125,7 @@ if args.composite == 'itslive':
         # but they end up more organised in xr.DataArrays
         print(paths_itslive[3])
         dv = xr.open_dataset(paths_itslive[3])
-	
+
         vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv, error_factor=args.error_factor)
 
         vx_s, x_s, y_s = vel_tools.crop_velocity_data_to_extend(vx, smith_bbox,
@@ -157,31 +152,12 @@ if args.composite == 'itslive':
 
         # Ravel all arrays so they can be stored with
         # a tuple shape (values, )
-        x_cloud = x_nona
-        y_cloud = y_nona
-        vx_cloud = vx_nona
-        vy_cloud = vy_nona
-        vx_err_cloud = stdvx_nona
-        vy_err_cloud = stdvy_nona
-
-        # Sanity checks!
-        assert np.count_nonzero(np.isnan(vx_nona)) == 0
-        assert np.count_nonzero(np.isnan(vy_nona)) == 0
-        assert np.count_nonzero(np.isnan(vx_err_cloud)) == 0
-        assert np.count_nonzero(np.isnan(vy_err_cloud)) == 0
-
-        all_data = [x_cloud, y_cloud,
-                    vx_cloud, vy_cloud,
-                    vx_err_cloud, vy_err_cloud]
-
-        shape_after = x_cloud.shape
-
-        bool_list = vel_tools.check_if_arrays_have_same_shape(all_data,
-                                                              shape_after)
-
-        assert all(element == True for element in bool_list)
-
-
+        cloud_dict = {'x_cloud': x_nona,
+                      'y_cloud': y_nona,
+                      'vx_cloud': vx_nona,
+                      'vy_cloud': vy_nona,
+                      'std_vx_cloud': stdvx_nona,
+                      'std_vy_cloud': stdvy_nona}
 else:
     print('The velocity product for the composite solution will be MEaSUREs')
 
@@ -212,19 +188,19 @@ else:
 
     # Ravel all arrays so they can be stored with
     # a tuple shape (values, )
-    x_comp = x_grid.ravel()
-    y_comp = y_grid.ravel()
-    vx_comp = vx_int
-    vy_comp = vy_int
-    errx_comp = stdvx_int
-    erry_comp = stdvy_int
+    composite_dict = {'x_comp': x_grid.ravel(),
+                      'y_comp': y_grid.ravel(),
+                      'vx_comp': vx_int,
+                      'vy_comp': vy_int,
+                      'std_vx_comp': stdvx_int,
+                      'std_vy_comp': stdvy_int}
 
-    x_cloud = None
-    y_cloud = None
-    vx_cloud = None
-    vy_cloud = None
-    vx_err_cloud = None
-    vy_err_cloud = None
+    cloud_dict = {'x_cloud': None,
+                  'y_cloud': None,
+                  'vx_cloud': None,
+                  'vy_cloud': None,
+                  'std_vx_cloud': None,
+                  'std_vy_cloud': None}
 
     if args.add_cloud_data:
         print('The velocity product for the cloud '
@@ -264,72 +240,25 @@ else:
 
         # Ravel all arrays so they can be stored with
         # a tuple shape (values, )
-        x_cloud = x_nona
-        y_cloud = y_nona
-        vx_cloud = vx_nona
-        vy_cloud = vy_nona
-        vx_err_cloud = stdvx_nona
-        vy_err_cloud = stdvy_nona
+        cloud_dict = {'x_cloud': x_nona,
+                      'y_cloud': y_nona,
+                      'vx_cloud': vx_nona,
+                      'vy_cloud': vy_nona,
+                      'std_vx_cloud': stdvx_nona,
+                      'std_vy_cloud': stdvy_nona}
 
-        #Sanity checks!
-        assert np.count_nonzero(np.isnan(vx_nona)) == 0
-        assert np.count_nonzero(np.isnan(vy_nona)) == 0
-        assert np.count_nonzero(np.isnan(vx_err_cloud)) == 0
-        assert np.count_nonzero(np.isnan(vy_err_cloud)) == 0
-
-        all_data = [x_cloud, y_cloud,
-                    vx_cloud, vy_cloud,
-                    vx_err_cloud, vy_err_cloud]
-
-        shape_after = x_cloud.shape
-
-        bool_list = vel_tools.check_if_arrays_have_same_shape(all_data,
-                                                              shape_after)
-
-        assert all(element == True for element in bool_list)
-
-mask_comp = np.array(vx_comp, dtype=bool)
-print(mask_comp.shape)
 
 composite = args.composite + '-comp_'
+cloud = args.composite + '-cloud_'
+
 if args.add_cloud_data:
-    file_suffix = composite + 'cloud' + "{:.0E}".format(Decimal(args.error_factor)) +'.h5'
+    file_suffix = composite + cloud + 'error-factor-' + "{:.0E}".format(Decimal(args.error_factor)) +'.h5'
 else:
-    file_suffix = args.composite + '-comp' + "{:.0E}".format(Decimal(args.error_factor)) + '.h5'
+    file_suffix = composite + 'no-cloud_' + 'error-factor-' "{:.0E}".format(Decimal(args.error_factor)) + '.h5'
 
 file_name = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix)
-print(file_name)
 
-if os.path.exists(file_name):
-  os.remove(file_name)
-else:
-  print("The file did not exist before so is being created now")
 
-with h5py.File(file_name, 'w') as outty:
-    data = outty.create_dataset("mask_vel", mask_comp.shape, dtype='f')
-    data[:] = mask_comp
-    data = outty.create_dataset("u_obs", vx_comp.shape, dtype='f')
-    data[:] = vx_comp
-    data = outty.create_dataset("u_std", errx_comp.shape, dtype='f')
-    data[:] = errx_comp
-    data = outty.create_dataset("v_obs", vy_comp.shape, dtype='f')
-    data[:] = vy_comp
-    data = outty.create_dataset("v_std", erry_comp.shape, dtype='f')
-    data[:] = erry_comp
-    data = outty.create_dataset("x", x_comp.shape, dtype='f')
-    data[:] = x_comp
-    data = outty.create_dataset("y", y_comp.shape, dtype='f')
-    data[:] = y_comp
-    if args.add_cloud_data:
-        data = outty.create_dataset("u_cloud", vx_cloud.shape, dtype='f')
-        data[:] = vx_cloud
-        data = outty.create_dataset("u_cloud_std", vx_err_cloud.shape, dtype='f')
-        data[:] = vx_err_cloud
-        data = outty.create_dataset("v_cloud", vy_cloud.shape, dtype='f')
-        data[:] = vy_cloud
-        data = outty.create_dataset("v_cloud_std", vy_err_cloud.shape, dtype='f')
-        data[:] = vy_err_cloud
-        data = outty.create_dataset("x_cloud", x_cloud.shape, dtype='f')
-        data[:] = x_cloud
-        data = outty.create_dataset("y_cloud", y_cloud.shape, dtype='f')
-        data[:] = y_cloud
+vel_tools.write_velocity_tuple_h5file(comp_dict=composite_dict,
+                                  cloud_dict=cloud_dict,
+                                  fpath=file_name)

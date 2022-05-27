@@ -1,12 +1,12 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_lcurve_sub"
+run_name = "smith_composite_itslive"
 input_dir = ""
 output_dir = ""
 diagnostics_dir = ""
 
-write_diagnostics = false
+write_diagnostics = true
 
 # data_file = "ismipc_input.h5"
 thick_data_file = "smith_bedmachine.h5"
@@ -24,9 +24,7 @@ bglenmask_field_name = "bglenmask"
 melt_depth_therm_field_name = "melt_depth_therm"
 melt_max_field_name = "melt_max"
 
-log_level = "error" #This is default
-
-output_var_format = "xml"
+log_level = "info" #This is default
 
 [constants]
 
@@ -56,23 +54,23 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_itslive-comp_itslive-cloud_subsample-test-step-1E+1_error-factor-1E+0.h5"
+vel_file = "smith_obs_vel_measures-comp_no-cloud_error-factor-1E+0.h5"
 
 [inversion]
 
-max_iter = 200
+max_iter = 500
 
 alpha_active = true
 beta_active = true
 
 gamma_alpha = 1e2
 delta_alpha = 1e-5
-gamma_beta = 1e1
+gamma_beta = 1.0e2
 delta_beta = 1e-5
-delta_beta_gnd = 1e-5
+delta_beta_gnd = 3e-5
 
-ftol = 1e-4
-gtol = 1e-6
+ftol = 1e-8
+gtol = 1e-12
 m = 200
 verbose = true
 
@@ -81,9 +79,9 @@ delta_lbfgs = 1.0e3
 initial_guess_alpha_method = 'constant'
 initial_guess_alpha = 15.0
 
-use_cloud_point_velocities = true
+use_cloud_point_velocities = false
 
-phase_suffix = '_'
+phase_suffix = '_inv_with_comp_measures_'
 
 [ice_dynamics]
 
@@ -131,9 +129,9 @@ total_steps = 960
 #dt = 0.033333333
 num_sens = 15 #TODO rename
 
-save_frequency = 0
+save_frequency = 5
 
-phase_suffix = '_'
+phase_suffix = '_inv_with_comp_measures_'
 
 [eigendec]
 
@@ -146,18 +144,18 @@ test_ed = true
 precondition_by = "prior" #prior by default
 eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_'
+phase_suffix = '_inv_with_comp_measures_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_'
+phase_suffix = '_inv_with_comp_measures_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_'
+phase_suffix = '_inv_with_comp_measures_'
 
 [melt]
 
@@ -169,6 +167,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_'
+phase_suffix = '_inv_with_comp_measures_'
 sample_posterior = true
 num_eigenvals = 10

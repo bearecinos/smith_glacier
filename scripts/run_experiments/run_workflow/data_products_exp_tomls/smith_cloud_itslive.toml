@@ -1,10 +1,10 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_mied_test"
-input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/output"
-diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/diagnostics"
+run_name = "smith_cloud_itslive"
+input_dir = ""
+output_dir = ""
+diagnostics_dir = ""
 
 write_diagnostics = true
 
@@ -23,7 +23,6 @@ bglenmask_field_name = "bglenmask"
 
 melt_depth_therm_field_name = "melt_depth_therm"
 melt_max_field_name = "melt_max"
-
 
 log_level = "info" #This is default
 
@@ -55,7 +54,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_measures-comp_cloud.h5"
+vel_file = "smith_obs_vel_itslive-comp_itslive-cloud_error-factor-1E+0.h5"
 
 [inversion]
 
@@ -82,7 +81,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_cloud_itslive_'
 
 [ice_dynamics]
 
@@ -130,34 +129,44 @@ total_steps = 960
 #dt = 0.033333333
 num_sens = 15 #TODO rename
 
-save_frequency = 0
+save_frequency = 5
 
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_cloud_itslive_'
 
 [eigendec]
 
-num_eig = 15000
+num_eig = 5000
 eig_algo = "slepc"
 misfit_only = true
 
+test_ed = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
 eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_cloud_itslive_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_cloud_itslive_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_inv_with_cloud_'
+phase_suffix = '_inv_with_cloud_itslive_'
 
 [melt]
 
 use_melt_parameterisation = true
 
+[sample]
+
+sample_size = 2
+sample_alpha = true
+sample_beta = true
+phase_name = 'sample'
+phase_suffix = '_inv_with_cloud_itslive_'
+sample_posterior = true
+num_eigenvals = 10

@@ -1,10 +1,10 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_subsample"
-input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/output"
-diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/diagnostics"
+run_name = "smith_complete_std_adjusted_old_priors"
+input_dir = ""
+output_dir = ""
+diagnostics_dir = ""
 
 write_diagnostics = true
 
@@ -23,7 +23,6 @@ bglenmask_field_name = "bglenmask"
 
 melt_depth_therm_field_name = "melt_depth_therm"
 melt_max_field_name = "melt_max"
-
 
 log_level = "info" #This is default
 
@@ -55,7 +54,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_itslive-compcloud_subsampled1E+1.h5"
+vel_file = "smith_obs_vel_itslive-comp_std-adjusted-cloud_subsample-none_step-0E+0.h5"
 
 [inversion]
 
@@ -64,6 +63,7 @@ max_iter = 500
 alpha_active = true
 beta_active = true
 
+# Old priors!
 gamma_alpha = 1e2
 delta_alpha = 1e-5
 gamma_beta = 1e1
@@ -82,7 +82,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_inv_with_subsample_itslive_'
+phase_suffix = '_complete_std_adjusted_old_priors_'
 
 [ice_dynamics]
 
@@ -132,32 +132,42 @@ num_sens = 15 #TODO rename
 
 save_frequency = 5
 
-phase_suffix = '_inv_with_subsample_itslive_'
+phase_suffix = '_complete_std_adjusted_old_priors_'
 
 [eigendec]
 
-num_eig = 7500
+num_eig = 5000
 eig_algo = "slepc"
 misfit_only = true
 
+test_ed = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
 eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_inv_with_subsample_itslive_'
+phase_suffix = '_complete_std_adjusted_old_priors_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_inv_with_subsample_itslive_'
+phase_suffix = '_complete_std_adjusted_old_priors_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_inv_with_subsample_itslive_'
+phase_suffix = '_complete_std_adjusted_old_priors_'
 
 [melt]
 
 use_melt_parameterisation = true
 
+[sample]
+
+sample_size = 2
+sample_alpha = true
+sample_beta = true
+phase_name = 'sample'
+phase_suffix = '_complete_std_adjusted_old_priors_'
+sample_posterior = true
+num_eigenvals = 10

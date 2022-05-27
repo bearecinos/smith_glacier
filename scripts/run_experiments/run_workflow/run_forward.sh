@@ -27,6 +27,11 @@ then
 else
   echo "Directory $run_inv_output_dir exist, we can run everything now"
   echo $(date -u) "Run started"
+
+  toml set --toml-path $2 io.input_dir "$input_run_inv"
+  toml set --toml-path $2 io.output_dir "$run_inv_output_dir/output"
+  toml set --toml-path $2 io.diagnostics_dir "$run_inv_output_dir/diagnostics"
+
   mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $RUN_CONFIG_DIR/run_workflow/$2
   echo $(date -u) "Done!"
 fi

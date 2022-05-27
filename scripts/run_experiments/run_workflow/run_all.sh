@@ -30,6 +30,10 @@ else
   echo "Directory is $run_inv_output_dir already exist"
 fi
 
+toml set --toml-path $2 io.input_dir "$input_run_inv"
+toml set --toml-path $2 io.output_dir "$run_inv_output_dir/output"
+toml set --toml-path $2 io.diagnostics_dir "$run_inv_output_dir/diagnostics"
+
 echo $(date -u) "Run started"
 
 mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $RUN_CONFIG_DIR/run_workflow/$2

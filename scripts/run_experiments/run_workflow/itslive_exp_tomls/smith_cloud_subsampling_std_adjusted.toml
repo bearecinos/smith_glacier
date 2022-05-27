@@ -54,7 +54,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_itslive-comp_std-adjusted-cloud_subsample-test_step-1E+1.h5"
+vel_file = "smith_obs_vel_itslive-comp_std-adjusted-cloud_subsample-training_step-1E+1.h5"
 
 [inversion]
 

@@ -1,7 +1,7 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_subsample_step_1E+1_std_adjusted"
+run_name = "smith_complete_std_adjusted_new_prior"
 input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
 output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/output"
 diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/diagnostics"
@@ -54,7 +54,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_itslive-comp_std-adjusted-cloud_subsample-training_step-1E+1.h5"
+vel_file = "smith_obs_vel_itslive-comp_std-adjusted-cloud_subsample-none_step-0E+0.h5"
 
 [inversion]
 
@@ -63,12 +63,12 @@ max_iter = 500
 alpha_active = true
 beta_active = true
 
-# Old priors!
-gamma_alpha = 1e2
-delta_alpha = 1e-5
-gamma_beta = 1e1
-delta_beta = 1e-5
-delta_beta_gnd = 1e-5
+# New priors!
+gamma_alpha = 1e0
+delta_alpha = 1e-7
+gamma_beta = 1e-1
+delta_beta = 1e-7
+delta_beta_gnd = 1e-7
 
 ftol = 1e-8
 gtol = 1e-12
@@ -82,7 +82,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_subsample_step_1E+1_std_adjusted_'
+phase_suffix = '_subsample_complete_std_adjusted_new_priors_'
 
 [ice_dynamics]
 
@@ -132,7 +132,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 5
 
-phase_suffix = '_subsample_step_1E+1_std_adjusted_'
+phase_suffix = '_subsample_complete_std_adjusted_new_priors_'
 
 [eigendec]
 
@@ -145,18 +145,18 @@ test_ed = true
 precondition_by = "prior" #prior by default
 eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_subsample_step_1E+1_std_adjusted_'
+phase_suffix = '_subsample_complete_std_adjusted_new_priors_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_subsample_step_1E+1_std_adjusted_'
+phase_suffix = '_subsample_complete_std_adjusted_new_priors_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_subsample_step_1E+1_std_adjusted_'
+phase_suffix = '_subsample_complete_std_adjusted_new_priors_'
 
 [melt]
 
@@ -168,6 +168,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_subsample_step_1E+1_std_adjusted_'
+phase_suffix = '_subsample_complete_std_adjusted_new_priors_'
 sample_posterior = true
 num_eigenvals = 10

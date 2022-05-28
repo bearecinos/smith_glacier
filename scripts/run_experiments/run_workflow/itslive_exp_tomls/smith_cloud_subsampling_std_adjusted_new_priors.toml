@@ -1,10 +1,10 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_subsample_step_1E+1_std_adjusted_new_prior"
-input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/output"
-diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv/diagnostics"
+run_name = "smith_itslive_exp"
+input_dir = ""
+output_dir = ""
+diagnostics_dir = ""
 
 write_diagnostics = true
 

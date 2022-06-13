@@ -15,16 +15,15 @@ And to carry out the following experiments with the model:
 4. Run the eigendecomposition of the Hessian matrix of the model-observations misfit *J<sup>c</sup><sub>mis</sub>* and multiply this, by the inverse of the covariance matrix of the basal drag/ice stiffness. 
 5. And finally project this covariance on a linearization of the time-dependent ice sheet model (using Automatic Differentiation to generate the linearization) and estimate the growth of a QoI (Quantity of Interest) uncertainty over time (e.g. Ice mass loss).
 
-
 Repository structure:
 ---------------------
 
-- `meshtools`: A set of tools for mesh and input data generation.
+- `ficetools`: A set of tools for mesh and input data generation.
 - `scripts`: Python and bash scripts to run each data processing stage.
-   - `prepro_stages`: Python scripts to generate the input data for the model runs cropped to the study region.
-   - `run_experiments`: Bash scritps and `.toml` configuration files for each run stage of fenics_ice.
-
-- `config.init`: Configuration file for paths to input and output data.
+   - `prepro_stages`: Python scripts to generate the input data cropped to the study region for all the model stages.
+   - `run_experiments`: Bash scrips and `.toml` configuration files for each run experiment and stage of fenics_ice.
+   - `plot_stages`: An alternative to Paraview to visualize the model input and output data with matplotlib.
+- `config.ini`: Configuration file for paths to input and output data.
 - `setpaths.sh`: Global paths to repository and repository directories.
 
 Installation and usage

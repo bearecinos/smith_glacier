@@ -2,9 +2,9 @@
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
 run_name = "smith_itslive_exp"
-input_dir = ""
-output_dir = ""
-diagnostics_dir = ""
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
+output_dir = "/exports/csce/datastore/geos/users/brecinos/output_smith_backup/03_run_inv_itslive_exp_folder/03_run_inv/output"
+diagnostics_dir = "/exports/csce/datastore/geos/users/brecinos/output_smith_backup/03_run_inv_itslive_exp_folder/03_run_inv/diagnostics"
 
 write_diagnostics = true
 
@@ -140,7 +140,6 @@ num_eig = 5000
 eig_algo = "slepc"
 misfit_only = true
 
-test_ed = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
 eigenvalue_thresh = 1.0e-1

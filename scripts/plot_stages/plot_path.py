@@ -7,22 +7,30 @@ Plot run_invsigma output, Paths of QIS along T's in smith exp.
 @authors: Fenics_ice contributors
 """
 import sys
-import os
 import numpy as np
+import os
+import salem
+import h5py
+import argparse
 import pickle
-import seaborn as sns
 from pathlib import Path
 from configobj import ConfigObj
 
+from fenics import *
 from fenics_ice import config as conf
 from fenics_ice import mesh as fice_mesh
-from fenics import *
+from ufl import finiteelement
 
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.tri as tri
-import argparse
+import seaborn as sns
 
+import matplotlib.tri as tri
+rcParams['axes.labelsize'] = 18
+rcParams['xtick.labelsize'] = 18
+rcParams['ytick.labelsize'] = 18
+import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str,
@@ -37,7 +45,8 @@ configuration = ConfigObj(os.path.expanduser(config_file))
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
-from ficetools import backend, graphics, velocity, utils_funcs
+
+from ficetools import backend, utils_funcs, graphics, velocity
 
 # Paths to data
 sub_plot_dir = args.sub_plot_dir

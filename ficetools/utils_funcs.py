@@ -7,6 +7,7 @@ Useful functions to organise data, compute vertex for fenic_ice paramters,
 import logging
 import numpy as np
 import os
+from pathlib import Path
 import math
 import fnmatch
 import re
@@ -353,3 +354,116 @@ def generate_constant_parameter_configuration(target_param=str,
 
     return gamma, delta
 
+def define_stage_output_paths(params, stage):
+    """
+    Defines the stages output dirs for a particular set of params
+
+    :param params: params read from the toml
+    :param stage: stage of the model workflow that we need
+    :return: exp_outdir: string with the path for the stage requested
+    """
+
+    # general paths
+    run_name = params.io.run_name
+    out_dir = params.io.output_dir
+    diag_dir = params.io.diagnostics_dir
+
+    # general names of stages
+    phase_name_inversion = params.inversion.phase_name
+    phase_name_fwd = params.time.phase_name
+    phase_name_eigen = params.eigendec.phase_name
+    phase_name_errp = params.error_prop.phase_name
+    phase_name_invsigma = params.inv_sigma.phase_name
+
+    # stages suffixes
+    phase_suffix_inversion = params.inversion.phase_suffix
+    phase_suffix_fwd = params.time.phase_suffix
+    phase_suffix_eigen = params.eigendec.phase_suffix
+    phase_suffix_errprop = params.error_prop.phase_suffix
+    phase_suffix_invsigma = params.inv_sigma.phase_suffix
+
+    exp_outdir = None
+
+    if stage == 'inversion':
+        exp_outdir = Path(out_dir) / phase_name_inversion / phase_suffix_inversion
+    if stage == 'time':
+        exp_outdir = Path(out_dir) / phase_name_fwd / phase_suffix_fwd
+    if stage == 'eigendec':
+        exp_outdir = Path(out_dir) / phase_name_eigen / phase_suffix_eigen
+    if stage == 'error_prop':
+        exp_outdir = Path(out_dir) / phase_name_errp / phase_suffix_errprop
+    if stage == 'inv_sigma':
+        exp_outdir = Path(out_dir) / phase_name_invsigma / phase_suffix_invsigma
+
+    return exp_outdir
+
+def get_file_names_for_path_plot(params):
+    """
+    This constructs the file names for the variables
+    needed in the QoI sigma path plot
+
+    :param params: params read from the toml
+    :return: Q_filename: the 'Qval_ts.p' file name with the corresponding suffix
+    :return: sigma_filename: the 'sigma.p' file name with the corresponding suffix
+    :return: sigma_prior_file: the 'sigma_prior.p' file name with the corresponding suffix
+    """
+
+    # stages suffixes
+    phase_suffix_fwd = params.time.phase_suffix
+    phase_suffix_errprop = params.error_prop.phase_suffix
+
+    # File names
+    Qfile_name = "_".join((params.io.run_name + phase_suffix_fwd, 'Qval_ts.p'))
+    sigma_file = "_".join((params.io.run_name + phase_suffix_errprop, 'sigma.p'))
+    sigma_prior_file = "_".join((params.io.run_name + phase_suffix_errprop, 'sigma_prior.p'))
+
+    return Qfile_name, sigma_file, sigma_prior_file
+
+
+def get_file_names_for_inversion_plot(params):
+    """
+    This constructs the file names for the variables
+    needed in the QoI sigma path plot
+
+    :param params: params read from the toml
+    :return: dict_inv_fnames: directory with all the file names
+        needed for the inversion plot and their corresponding file suffix
+
+    """
+
+    # File names
+    alpha_fname = "_".join((params.io.run_name + params.inversion.phase_suffix,
+                            '_alpha.xml'))
+    beta_fname = "_".join((params.io.run_name + params.inversion.phase_suffix,
+                           '_beta.xml'))
+    model_vel_fname = "_".join((params.io.run_name + params.inversion.phase_suffix,
+                                '_U.xml'))
+    obs_vel_fname = "_".join((params.io.run_name + params.inversion.phase_suffix,
+                              '_uv_cloud.xml'))
+
+    dict_inv_fnames = {'alpha_fname': alpha_fname,
+                       'beta_fname': beta_fname,
+                       'model_vel_fname': model_vel_fname,
+                       'obs_vel_fname': obs_vel_fname}
+
+    return dict_inv_fnames
+
+
+def get_file_names_for_invsigma_plot(params):
+    """
+    This constructs the file names for the variables
+    needed in the STD sigma alpha / beta plot
+
+    :param params:  params read from the toml
+    :return: file_salpha: sigma alpha file name
+             file_sbeta: sigma beta file name
+    """
+
+    # stages suffixes
+    phase_suffix_inv_sigma = params.inv_sigma.phase_suffix
+
+    # File names
+    file_salpha = "_".join((params.io.run_name + phase_suffix_inv_sigma, 'sigma_alpha.xml'))
+    file_sbeta = "_".join((params.io.run_name + phase_suffix_inv_sigma, 'sigma_beta.xml'))
+
+    return file_salpha, file_sbeta

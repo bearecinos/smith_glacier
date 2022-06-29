@@ -128,30 +128,59 @@ if args.composite == 'itslive':
 
     step = args.step
 
-    # Computing our training set of cloud velocities
-    vx_trn, x_trn, y_trn = vel_tools.create_subsample(vx_s, step, return_coords=True)
-    vy_trn = vel_tools.create_subsample(vy_s, step)
-    vx_std_trn = vel_tools.create_subsample(vx_err_s, step)
-    vy_std_trn = vel_tools.create_subsample(vy_err_s, step)
+    # Computing our training sets of cloud velocities
+    # vx_trn_0 is the upper left
+    # vx_trn_m is the middle point of the array
+
+    vx_trn_0_dic, vx_trn_m_dic = vel_tools.create_subsample(vx_s, step, return_coords=True)
+
+    vx_trn_0 = vx_trn_0_dic['v_trn_0']
+    x_trn_0 = vx_trn_0_dic['x_trn_0']
+    y_trn_0 = vx_trn_0_dic['y_trn_0']
+
+    vx_trn_m = vx_trn_m_dic['v_trn_m']
+    x_trn_m = vx_trn_m_dic['x_trn_m']
+    y_trn_m = vx_trn_m_dic['y_trn_m']
+
+    vy_trn_0, vy_trn_m = vel_tools.create_subsample(vy_s, step)
+    vx_std_trn_0, vx_std_trn_m = vel_tools.create_subsample(vx_err_s, step)
+    vy_std_trn_0, vy_std_trn_m = vel_tools.create_subsample(vy_err_s, step)
 
     # Computing our test set of cloud velocities
-    for x, y in zip(x_trn, y_trn):
-        vx_s.loc[dict(x=x, y=y)] = np.nan
-        vy_s.loc[dict(x=x, y=y)] = np.nan
-        vx_err_s.loc[dict(x=x, y=y)] = np.nan
-        vy_err_s.loc[dict(x=x, y=y)] = np.nan
+    for x_0, y_0 in zip(x_trn_0, y_trn_0):
+        vx_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vy_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vx_err_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vy_err_s.loc[dict(x=x_0, y=y_0)] = np.nan
+
+    for x_m, y_m in zip(x_trn_m, y_trn_m):
+        vx_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vy_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vx_err_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vy_err_s.loc[dict(x=x_m, y=y_m)] = np.nan
 
     # Dropping the Nans from the training set
-    out_cloud = vel_tools.drop_nan_from_multiple_numpy(x_trn, y_trn,
-                                                       vx_trn, vy_trn,
-                                                       vx_std_trn, vy_std_trn)
+    out_cloud_0 = vel_tools.drop_nan_from_multiple_numpy(x_trn_0, y_trn_0,
+                                                         vx_trn_0, vy_trn_0,
+                                                         vx_std_trn_0, vy_std_trn_0)
 
-    cloud_dict_training = {'x_cloud': out_cloud.x.values,
-                           'y_cloud': out_cloud.y.values,
-                           'vx_cloud': out_cloud.vx.values,
-                           'vy_cloud': out_cloud.vy.values,
-                           'std_vx_cloud': out_cloud.std_vx.values,
-                           'std_vy_cloud': out_cloud.std_vy.values}
+    out_cloud_m = vel_tools.drop_nan_from_multiple_numpy(x_trn_m, y_trn_m,
+                                                         vx_trn_m, vy_trn_m,
+                                                         vx_std_trn_m, vy_std_trn_m)
+
+    cloud_dict_training_0 = {'x_cloud': out_cloud_0.x.values,
+                             'y_cloud': out_cloud_0.y.values,
+                             'vx_cloud': out_cloud_0.vx.values,
+                             'vy_cloud': out_cloud_0.vy.values,
+                             'std_vx_cloud': out_cloud_0.std_vx.values,
+                             'std_vy_cloud': out_cloud_0.std_vy.values}
+
+    cloud_dict_training_m = {'x_cloud': out_cloud_m.x.values,
+                             'y_cloud': out_cloud_m.y.values,
+                             'vx_cloud': out_cloud_m.vx.values,
+                             'vy_cloud': out_cloud_m.vy.values,
+                             'std_vx_cloud': out_cloud_m.std_vx.values,
+                             'std_vy_cloud': out_cloud_m.std_vy.values}
 
     # Dropping the nans from the testing set
     masked_array = np.ma.masked_invalid(vx_s.data)
@@ -229,30 +258,58 @@ else:
 
     step = args.step
 
-    # Computing our training set of cloud velocities
-    vx_trn, x_trn, y_trn = vel_tools.create_subsample(vx_s, step, return_coords=True)
-    vy_trn = vel_tools.create_subsample(vy_s, step)
-    vx_std_trn = vel_tools.create_subsample(vx_err_s, step)
-    vy_std_trn = vel_tools.create_subsample(vy_err_s, step)
+    # Computing our training sets of cloud velocities
+    # vx_trn_0 is the upper left
+    # vx_trn_m is the middle point of the array
+    vx_trn_0_dic, vx_trn_m_dic = vel_tools.create_subsample(vx_s, step, return_coords=True)
+
+    vx_trn_0 = vx_trn_0_dic['v_trn_0']
+    x_trn_0 = vx_trn_0_dic['x_trn_0']
+    y_trn_0 = vx_trn_0_dic['y_trn_0']
+
+    vx_trn_m = vx_trn_m_dic['v_trn_m']
+    x_trn_m = vx_trn_m_dic['x_trn_m']
+    y_trn_m = vx_trn_m_dic['y_trn_m']
+
+    vy_trn_0, vy_trn_m = vel_tools.create_subsample(vy_s, step)
+    vx_std_trn_0, vx_std_trn_m = vel_tools.create_subsample(vx_err_s, step)
+    vy_std_trn_0, vy_std_trn_m = vel_tools.create_subsample(vy_err_s, step)
 
     # Computing our test set of cloud velocities
-    for x, y in zip(x_trn, y_trn):
-        vx_s.loc[dict(x=x, y=y)] = np.nan
-        vy_s.loc[dict(x=x, y=y)] = np.nan
-        vx_err_s.loc[dict(x=x, y=y)] = np.nan
-        vy_err_s.loc[dict(x=x, y=y)] = np.nan
+    for x_0, y_0 in zip(x_trn_0, y_trn_0):
+        vx_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vy_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vx_err_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vy_err_s.loc[dict(x=x_0, y=y_0)] = np.nan
+
+    for x_m, y_m in zip(x_trn_m, y_trn_m):
+        vx_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vy_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vx_err_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vy_err_s.loc[dict(x=x_m, y=y_m)] = np.nan
 
     # Dropping the Nans from the training set
-    out_cloud = vel_tools.drop_nan_from_multiple_numpy(x_trn, y_trn,
-                                                       vx_trn, vy_trn,
-                                                       vx_std_trn, vy_std_trn)
+    out_cloud_0 = vel_tools.drop_nan_from_multiple_numpy(x_trn_0, y_trn_0,
+                                                         vx_trn_0, vy_trn_0,
+                                                         vx_std_trn_0, vy_std_trn_0)
 
-    cloud_dict_training = {'x_cloud': out_cloud.x.values,
-                           'y_cloud': out_cloud.y.values,
-                           'vx_cloud': out_cloud.vx.values,
-                           'vy_cloud': out_cloud.vy.values,
-                           'std_vx_cloud': out_cloud.std_vx.values,
-                           'std_vy_cloud': out_cloud.std_vy.values}
+    out_cloud_m = vel_tools.drop_nan_from_multiple_numpy(x_trn_m, y_trn_m,
+                                                         vx_trn_m, vy_trn_m,
+                                                         vx_std_trn_m, vy_std_trn_m)
+
+    cloud_dict_training_0 = {'x_cloud': out_cloud_0.x.values,
+                             'y_cloud': out_cloud_0.y.values,
+                             'vx_cloud': out_cloud_0.vx.values,
+                             'vy_cloud': out_cloud_0.vy.values,
+                             'std_vx_cloud': out_cloud_0.std_vx.values,
+                             'std_vy_cloud': out_cloud_0.std_vy.values}
+
+    cloud_dict_training_m = {'x_cloud': out_cloud_m.x.values,
+                             'y_cloud': out_cloud_m.y.values,
+                             'vx_cloud': out_cloud_m.vx.values,
+                             'vy_cloud': out_cloud_m.vy.values,
+                             'std_vx_cloud': out_cloud_m.std_vx.values,
+                             'std_vy_cloud': out_cloud_m.std_vy.values}
 
     # Dropping the nans from the testing set
     masked_array = np.ma.masked_invalid(vx_s.data*vx_err_s.data)
@@ -279,16 +336,25 @@ cloud = args.composite + '-cloud_'
 file_suffix_test = composite + cloud + 'subsample-test-step-' + "{:.0E}".format(Decimal(step)) + \
                    '_error-factor-' + "{:.0E}".format(Decimal(args.error_factor)) + '.h5'
 
-file_suffix_training = composite + cloud + 'subsample-training-step-' + "{:.0E}".format(Decimal(step)) + \
+file_suffix_training_0 = composite + cloud + 'subsample-training-step-zero-' + "{:.0E}".format(Decimal(step)) + \
+                       '_error-factor-' + "{:.0E}".format(Decimal(args.error_factor)) + '.h5'
+
+file_suffix_training_m = composite + cloud + 'subsample-training-step-middle-' + "{:.0E}".format(Decimal(step)) + \
                        '_error-factor-' + "{:.0E}".format(Decimal(args.error_factor)) + '.h5'
 
 file_name_test = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix_test)
-file_name_training = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix_training)
+file_name_training_0 = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix_training_0)
+file_name_training_m = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix_training_m)
+
 
 vel_tools.write_velocity_tuple_h5file(comp_dict=composite_dict,
                                   cloud_dict=cloud_dict_test,
                                   fpath=file_name_test)
 
 vel_tools.write_velocity_tuple_h5file(comp_dict=composite_dict,
-                                  cloud_dict=cloud_dict_training,
-                                  fpath=file_name_training)
+                                  cloud_dict=cloud_dict_training_0,
+                                  fpath=file_name_training_0)
+
+vel_tools.write_velocity_tuple_h5file(comp_dict=composite_dict,
+                                  cloud_dict=cloud_dict_training_m,
+                                  fpath=file_name_training_m)

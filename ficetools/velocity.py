@@ -367,10 +367,17 @@ def create_subsample(ds, step, return_coords=False):
     index_x = np.arange(0, len(x), step)
     index_y = np.arange(0, len(y), step)
 
+    # Lets make an array for the step indexes
+    step_arr = np.arange(step)
+
     # where data will get saved
-    v_trn = []
-    x_trn = []
-    y_trn = []
+    v_trn_0 = []
+    x_trn_0 = []
+    y_trn_0 = []
+
+    v_trn_m = []
+    x_trn_m = []
+    y_trn_m = []
 
     for i in index_y:
         for j in index_x:
@@ -382,15 +389,42 @@ def create_subsample(ds, step, return_coords=False):
             indy = np.arange(0, b.shape[0])
             indx = np.arange(0, b.shape[1])
 
-            bb = b[indy[0], indx[0]]
-            v_trn = np.append(v_trn, bb)
-            y_trn = np.append(y_trn, coord_y[indy[0]])
-            x_trn = np.append(x_trn, coord_x[indx[0]])
+            set_0 = 0
+            set_mid_x = int(len(step_arr) / 2)
+            set_mid_y = set_mid_x
+
+            bb_0 = b[indy[set_0], indx[set_0]]
+
+            if len(indx) <= 2:
+                set_mid_x = 1
+            if len(indy) <= 2:
+                set_mid_y = 1
+
+            bb_m = b[indy[set_mid_y], indx[set_mid_x]]
+
+            v_trn_0 = np.append(v_trn_0, bb_0)
+            y_trn_0 = np.append(y_trn_0, coord_y[indy[set_0]])
+            x_trn_0 = np.append(x_trn_0, coord_x[indx[set_0]])
+
+            v_trn_m = np.append(v_trn_m, bb_m)
+            y_trn_m = np.append(y_trn_m, coord_y[indy[set_mid_y]])
+            x_trn_m = np.append(x_trn_m, coord_x[indx[set_mid_x]])
+
+    trn_0 = {'x_trn_0': x_trn_0,
+             'y_trn_0': y_trn_0,
+             'v_trn_0': v_trn_0}
+
+    trn_m = {'x_trn_m': x_trn_m,
+             'y_trn_m': y_trn_m,
+             'v_trn_m': v_trn_m}
+
+    assert not np.array_equal(x_trn_m, x_trn_0)
+    assert not np.array_equal(y_trn_m, y_trn_0)
 
     if return_coords:
-        return v_trn, x_trn, y_trn,
+        return trn_0, trn_m
     else:
-        return v_trn
+        return v_trn_0, v_trn_m
 
 
 def create_adjusted_std_maxima(std_o, std_to_a):

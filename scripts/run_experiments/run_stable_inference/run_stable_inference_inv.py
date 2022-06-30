@@ -140,11 +140,13 @@ def run_invs(config_file_train, config_file_test):
     J_test = slvr_test.comp_J_inv(verbose=True)
 
     if params_test.io.write_diagnostics:
-        inout.write_variable(mdl_test.beta,
+        diag_dir = Path(params_test.io.diagnostics_dir)
+        phase_suffix = params_test.inversion.phase_suffix
+        inout.write_variable(slvr_test.beta,
                              params_test, outdir=diag_dir,
                              phase_name=phase_name, phase_suffix=phase_suffix)
 
-        inout.write_variable(mdl_test.alpha, params_test, outdir=diag_dir,
+        inout.write_variable(slvr_test.alpha, params_test, outdir=diag_dir,
                              phase_name=phase_name, phase_suffix=phase_suffix)
 
     return J_test

@@ -356,75 +356,41 @@ def create_subsample(ds, step, return_coords=False):
             (eg. vx, vy, stdvx, stdvy)
     :param step: step for subsampling (eg. every 10 grid spaces)
     :param return_coords: if true returns coordinates for the new arrays
-    :return: v_trn: the top left element of the subarray
+    :return: b_0 and b_m: the top left or middle element of the subarray
     """
 
     x = ds.x.data
     y = ds.y.data
-
     sel = ds.data
 
-    index_x = np.arange(0, len(x), step)
-    index_y = np.arange(0, len(y), step)
+    x_0 = x[::step]
+    y_0 = y[::step]
+    x_m = x[(step // 2)::step]
+    y_m = y[(step // 2)::step]
 
-    # Lets make an array for the step indexes
-    step_arr = np.arange(step)
+    b_m = sel[(step // 2)::step, (step // 2)::step]
+    b_0 = sel[::step, ::step]
 
-    # where data will get saved
-    v_trn_0 = []
-    x_trn_0 = []
-    y_trn_0 = []
+    [xx_0, yy_0] = np.meshgrid(x_0, y_0)
+    [xx_m, yy_m] = np.meshgrid(x_m, y_m)
 
-    v_trn_m = []
-    x_trn_m = []
-    y_trn_m = []
+    coords_0 = zip(xx_0, yy_0)
+    coords_m = zip(xx_m, yy_m)
 
-    for i in index_y:
-        for j in index_x:
-            coord_y = y[i:i + step]
-            coord_x = x[j:j + step]
+    assert not np.array_equal(coords_0, coords_m)
 
-            b = sel[i:i + step, j:j + step]
+    trn_0 = {'x_trn_0': xx_0.flatten(),
+             'y_trn_0': yy_0.flatten(),
+             'v_trn_0': b_0.flatten()}
 
-            indy = np.arange(0, b.shape[0])
-            indx = np.arange(0, b.shape[1])
-
-            set_0 = 0
-            set_mid_x = int(len(step_arr) / 2)
-            set_mid_y = set_mid_x
-
-            bb_0 = b[indy[set_0], indx[set_0]]
-
-            if len(indx) <= 2:
-                set_mid_x = 1
-            if len(indy) <= 2:
-                set_mid_y = 1
-
-            bb_m = b[indy[set_mid_y], indx[set_mid_x]]
-
-            v_trn_0 = np.append(v_trn_0, bb_0)
-            y_trn_0 = np.append(y_trn_0, coord_y[indy[set_0]])
-            x_trn_0 = np.append(x_trn_0, coord_x[indx[set_0]])
-
-            v_trn_m = np.append(v_trn_m, bb_m)
-            y_trn_m = np.append(y_trn_m, coord_y[indy[set_mid_y]])
-            x_trn_m = np.append(x_trn_m, coord_x[indx[set_mid_x]])
-
-    trn_0 = {'x_trn_0': x_trn_0,
-             'y_trn_0': y_trn_0,
-             'v_trn_0': v_trn_0}
-
-    trn_m = {'x_trn_m': x_trn_m,
-             'y_trn_m': y_trn_m,
-             'v_trn_m': v_trn_m}
-
-    assert not np.array_equal(x_trn_m, x_trn_0)
-    assert not np.array_equal(y_trn_m, y_trn_0)
+    trn_m = {'x_trn_m': xx_m.flatten(),
+             'y_trn_m': yy_m.flatten(),
+             'v_trn_m': b_m.flatten()}
 
     if return_coords:
         return trn_0, trn_m
     else:
-        return v_trn_0, v_trn_m
+        return b_0.flatten(), b_m.flatten()
 
 
 def create_adjusted_std_maxima(std_o, std_to_a):

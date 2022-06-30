@@ -36,5 +36,5 @@ toml set --toml-path $DIR_TOMLS/smith_cloud_training_zero_step_1E+1_.toml io.dia
 toml set --toml-path $DIR_TOMLS/smith_cloud_testing_middle_step_1E+1_.toml io.diagnostics_dir "$run_inv_output_dir/diagnostics"
 toml set --toml-path $DIR_TOMLS/smith_cloud_testing_zero_step_1E+1_.toml io.diagnostics_dir "$run_inv_output_dir/diagnostics"
 
-mpirun -n 2 python $script_inv $DIR_TOMLS/smith_cloud_training_middle_step_1E+1_.toml $DIR_TOMLS/smith_cloud_testing_middle_step_1E+1_.toml
-mpirun -n 2 python $script_inv $DIR_TOMLS/smith_cloud_training_zero_step_1E+1_.toml $DIR_TOMLS/smith_cloud_testing_zero_step_1E+1_.toml
+mpirun -n 24 python $script_inv $DIR_TOMLS/smith_cloud_training_middle_step_1E+1_.toml $DIR_TOMLS/smith_cloud_testing_middle_step_1E+1_.toml
+mpirun -n 24 python $script_inv $DIR_TOMLS/smith_cloud_training_zero_step_1E+1_.toml $DIR_TOMLS/smith_cloud_testing_zero_step_1E+1_.toml

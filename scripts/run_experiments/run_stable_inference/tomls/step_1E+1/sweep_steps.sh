@@ -38,3 +38,5 @@ toml set --toml-path $DIR_TOMLS/smith_cloud_testing_zero_step_1E+1_.toml io.diag
 
 mpirun -n 24 python $script_inv $DIR_TOMLS/smith_cloud_training_middle_step_1E+1_.toml $DIR_TOMLS/smith_cloud_testing_middle_step_1E+1_.toml
 mpirun -n 24 python $script_inv $DIR_TOMLS/smith_cloud_training_zero_step_1E+1_.toml $DIR_TOMLS/smith_cloud_testing_zero_step_1E+1_.toml
+
+echo $(date -u) "We are done with the stable inference for step 1E+1!"

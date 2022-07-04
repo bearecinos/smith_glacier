@@ -1,9 +1,9 @@
 [io] #Directory specification
 
 run_name = "smith_training_"
-input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/output"
-diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/diagnostics"
+input_dir = ""
+output_dir = ""
+diagnostics_dir = ""
 
 write_diagnostics = true
 
@@ -25,7 +25,7 @@ melt_max_field_name = "melt_max"
 
 log_level = "info" #This is default
 
-output_var_format = 'all'
+output_var_format = 'xml'
 
 [constants]
 

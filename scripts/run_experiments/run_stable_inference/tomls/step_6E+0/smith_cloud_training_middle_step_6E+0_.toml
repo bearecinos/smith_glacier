@@ -1,9 +1,9 @@
 [io] #Directory specification
 
 run_name = "smith_training_"
-input_dir = ""
-output_dir = ""
-diagnostics_dir = ""
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/diagnostics"
 
 write_diagnostics = true
 

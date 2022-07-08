@@ -132,12 +132,14 @@ def run_invs(config_file_train, config_file_test):
 
     # Set alpha and beta equal to the inversion output from
     # training set
-    slvr_test.set_control_fns([mdl_trn.alpha, mdl_trn.beta])
+    J_test = slvr_test.forward([mdl_trn.alpha, mdl_trn.beta], verbose=True)
 
+    # slvr_test.set_control_fns([mdl_trn.alpha, mdl_trn.beta])
+    #
     assert slvr_test.alpha == mdl_trn.alpha
     assert slvr_test.beta == mdl_trn.beta
 
-    J_test = slvr_test.comp_J_inv(verbose=True)
+    #J_test = slvr_test.comp_J_inv(verbose=True)
 
     if params_test.io.write_diagnostics:
         diag_dir = Path(params_test.io.diagnostics_dir)

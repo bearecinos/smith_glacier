@@ -346,7 +346,7 @@ def interp_to_measures_grid(dv, dm):
     return ds
 
 
-def create_subsample(ds, step, return_coords=False):
+def create_subsample(ds, step):
     """
     Creates a subsample of the velocity data by hovering over the original array
     and cropping the data every certain step, we only retain the top left element
@@ -374,23 +374,13 @@ def create_subsample(ds, step, return_coords=False):
     [xx_0, yy_0] = np.meshgrid(x_0, y_0)
     [xx_m, yy_m] = np.meshgrid(x_m, y_m)
 
-    coords_0 = zip(xx_0, yy_0)
-    coords_m = zip(xx_m, yy_m)
+    coords_0 = tuple(zip(xx_0, yy_0))
+    coords_m = tuple(zip(xx_m, yy_m))
 
     assert not np.array_equal(coords_0, coords_m)
 
-    trn_0 = {'x_trn_0': xx_0.flatten(),
-             'y_trn_0': yy_0.flatten(),
-             'v_trn_0': b_0.flatten()}
-
-    trn_m = {'x_trn_m': xx_m.flatten(),
-             'y_trn_m': yy_m.flatten(),
-             'v_trn_m': b_m.flatten()}
-
-    if return_coords:
-        return trn_0, trn_m
-    else:
-        return b_0.flatten(), b_m.flatten()
+    return (xx_0.flatten(), yy_0.flatten(), b_0.flatten()), \
+           (xx_m.flatten(), yy_m.flatten(), b_m.flatten())
 
 
 def create_adjusted_std_maxima(std_o, std_to_a):

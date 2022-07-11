@@ -132,19 +132,10 @@ if args.composite == 'itslive':
     # vx_trn_0 is the upper left
     # vx_trn_m is the middle point of the array
 
-    vx_trn_0_dic, vx_trn_m_dic = vel_tools.create_subsample(vx_s, step, return_coords=True)
-
-    vx_trn_0 = vx_trn_0_dic['v_trn_0']
-    x_trn_0 = vx_trn_0_dic['x_trn_0']
-    y_trn_0 = vx_trn_0_dic['y_trn_0']
-
-    vx_trn_m = vx_trn_m_dic['v_trn_m']
-    x_trn_m = vx_trn_m_dic['x_trn_m']
-    y_trn_m = vx_trn_m_dic['y_trn_m']
-
-    vy_trn_0, vy_trn_m = vel_tools.create_subsample(vy_s, step)
-    vx_std_trn_0, vx_std_trn_m = vel_tools.create_subsample(vx_err_s, step)
-    vy_std_trn_0, vy_std_trn_m = vel_tools.create_subsample(vy_err_s, step)
+    (x_trn_0, y_trn_0, vx_trn_0), (x_trn_m, y_trn_m, vx_trn_m) = vel_tools.create_subsample(vx_s, step)
+    (_, _, vy_trn_0), (_, _, vy_trn_m) = vel_tools.create_subsample(vy_s, step)
+    (_, _, vx_std_trn_0), (_, _, vx_std_trn_m) = vel_tools.create_subsample(vx_err_s, step)
+    (_, _, vy_std_trn_0), (_, _, vy_std_trn_m) = vel_tools.create_subsample(vy_err_s, step)
 
     # Computing our test set of cloud velocities
     for x_0, y_0 in zip(x_trn_0, y_trn_0):
@@ -255,19 +246,11 @@ else:
     # Computing our training sets of cloud velocities
     # vx_trn_0 is the upper left
     # vx_trn_m is the middle point of the array
-    vx_trn_0_dic, vx_trn_m_dic = vel_tools.create_subsample(vx_s, step, return_coords=True)
+    (x_trn_0, y_trn_0, vx_trn_0), (x_trn_m, y_trn_m, vx_trn_m) = vel_tools.create_subsample(vx_s, step)
 
-    vx_trn_0 = vx_trn_0_dic['v_trn_0']
-    x_trn_0 = vx_trn_0_dic['x_trn_0']
-    y_trn_0 = vx_trn_0_dic['y_trn_0']
-
-    vx_trn_m = vx_trn_m_dic['v_trn_m']
-    x_trn_m = vx_trn_m_dic['x_trn_m']
-    y_trn_m = vx_trn_m_dic['y_trn_m']
-
-    vy_trn_0, vy_trn_m = vel_tools.create_subsample(vy_s, step)
-    vx_std_trn_0, vx_std_trn_m = vel_tools.create_subsample(vx_err_s, step)
-    vy_std_trn_0, vy_std_trn_m = vel_tools.create_subsample(vy_err_s, step)
+    (_, _, vy_trn_0), (_, _, vy_trn_m) = vel_tools.create_subsample(vy_s, step)
+    (_, _, vx_std_trn_0), (_, _, vx_std_trn_m) = vel_tools.create_subsample(vx_err_s, step)
+    (_, _, vy_std_trn_0), (_, _, vy_std_trn_m) = vel_tools.create_subsample(vy_err_s, step)
 
     # Computing our test set of cloud velocities
     for x_0, y_0 in zip(x_trn_0, y_trn_0):

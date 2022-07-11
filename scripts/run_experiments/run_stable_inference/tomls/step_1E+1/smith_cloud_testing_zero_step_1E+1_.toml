@@ -1,9 +1,9 @@
 [io] #Directory specification
 
 run_name = "smith_testing_"
-input_dir = ""
-output_dir = ""
-diagnostics_dir = ""
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/diagnostics"
 
 write_diagnostics = true
 
@@ -142,7 +142,6 @@ misfit_only = true
 
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
-eigenvalue_thresh = 1.0e-1
 
 phase_suffix = '_testing_results_1E+1_zero_'
 

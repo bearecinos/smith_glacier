@@ -238,19 +238,13 @@ if step != 0:
                                                          vx_trn_m, vy_trn_m,
                                                          vx_std_trn_m, vy_std_trn_m)
 
-    cloud_dict_training_0 = {'x_cloud': out_cloud_0.x.values,
-                             'y_cloud': out_cloud_0.y.values,
-                             'vx_cloud': out_cloud_0.vx.values,
-                             'vy_cloud': out_cloud_0.vy.values,
-                             'std_vx_cloud': out_cloud_0.std_vx.values,
-                             'std_vy_cloud': out_cloud_0.std_vy.values}
+    cloud_dict_training_0 = {f'{name:s}_cloud': getattr(out_cloud_0, name).values for name in ['x', 'y',
+                                                                                               'vx', 'vy',
+                                                                                               'std_vx', 'std_vy']}
 
-    cloud_dict_training_m = {'x_cloud': out_cloud_m.x.values,
-                             'y_cloud': out_cloud_m.y.values,
-                             'vx_cloud': out_cloud_m.vx.values,
-                             'vy_cloud': out_cloud_m.vy.values,
-                             'std_vx_cloud': out_cloud_m.std_vx.values,
-                             'std_vy_cloud': out_cloud_m.std_vy.values}
+    cloud_dict_training_m = {f'{name:s}_cloud': getattr(out_cloud_m, name).values for name in ['x', 'y',
+                                                                                               'vx', 'vy',
+                                                                                               'std_vx', 'std_vy']}
 
     # Dropping the nans from the TEST set
     masked_array = np.ma.masked_invalid(vxc_s.data*vxc_err_its_2014_adjust.data)

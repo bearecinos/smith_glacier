@@ -141,7 +141,7 @@ num_eig = 5000
 eig_algo = "slepc"
 misfit_only = true
 
-test_ed = true
+#test_ed = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
 

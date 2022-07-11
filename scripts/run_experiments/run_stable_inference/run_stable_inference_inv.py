@@ -48,7 +48,6 @@ def run_invs(config_file_train, config_file_test):
 
     mdl_trn.gen_alpha()
 
-    # Add random noise to Beta field iff we're inverting for it
     mdl_trn.bglen_from_data()
     mdl_trn.init_beta(mdl_trn.bglen_to_beta(mdl_trn.bglen), pert=False)
 
@@ -119,7 +118,7 @@ def run_invs(config_file_train, config_file_test):
 
     mdl_test.gen_alpha()
 
-    # Add random noise to Beta field iff we're inverting for it
+
     mdl_test.bglen_from_data()
     mdl_test.init_beta(mdl_test.bglen_to_beta(mdl_test.bglen), pert=False)
 

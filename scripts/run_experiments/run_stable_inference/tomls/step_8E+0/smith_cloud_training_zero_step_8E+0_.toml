@@ -143,7 +143,6 @@ misfit_only = true
 test_ed = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
-eigenvalue_thresh = 1.0e-1
 
 phase_suffix = '_subsample_step_8E+0_zero_'
 

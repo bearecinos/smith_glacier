@@ -202,22 +202,22 @@ if step != 0:
     # Computing our training sets of cloud velocities
     # vx_trn_0 is the upper left
     # vx_trn_m is the middle point of the array
-    (x_trn_0, y_trn_0, vx_trn_0), (x_trn_m, y_trn_m, vx_trn_m) = vel_tools.create_subsample(vx_s, step)
+    (x_trn_0, y_trn_0, vx_trn_0), (x_trn_m, y_trn_m, vx_trn_m) = vel_tools.create_subsample(vxc_s, step)
 
-    (_, _, vy_trn_0), (_, _, vy_trn_m) = vel_tools.create_subsample(vy_s, step)
+    (_, _, vy_trn_0), (_, _, vy_trn_m) = vel_tools.create_subsample(vyc_s, step)
     (_, _, vx_std_trn_0), (_, _, vx_std_trn_m) = vel_tools.create_subsample(vxc_err_its_2014_adjust, step)
     (_, _, vy_std_trn_0), (_, _, vy_std_trn_m) = vel_tools.create_subsample(vyc_err_its_2014_adjust, step)
 
     # Computing our test set of cloud velocities
     for x_0, y_0 in zip(x_trn_0, y_trn_0):
-        vx_s.loc[dict(x=x_0, y=y_0)] = np.nan
-        vy_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vxc_s.loc[dict(x=x_0, y=y_0)] = np.nan
+        vyc_s.loc[dict(x=x_0, y=y_0)] = np.nan
         vxc_err_its_2014_adjust.loc[dict(x=x_0, y=y_0)] = np.nan
         vyc_err_its_2014_adjust.loc[dict(x=x_0, y=y_0)] = np.nan
 
     for x_m, y_m in zip(x_trn_m, y_trn_m):
-        vx_s.loc[dict(x=x_m, y=y_m)] = np.nan
-        vy_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vxc_s.loc[dict(x=x_m, y=y_m)] = np.nan
+        vyc_s.loc[dict(x=x_m, y=y_m)] = np.nan
         vxc_err_its_2014_adjust.loc[dict(x=x_m, y=y_m)] = np.nan
         vyc_err_its_2014_adjust.loc[dict(x=x_m, y=y_m)] = np.nan
 

@@ -1,10 +1,9 @@
 [io] #Directory specification
 
-#gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_composite_itslive"
-input_dir = ""
-output_dir = ""
-diagnostics_dir = ""
+run_name = "smith_testing_"
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/diagnostics"
 
 write_diagnostics = true
 
@@ -25,6 +24,8 @@ melt_depth_therm_field_name = "melt_depth_therm"
 melt_max_field_name = "melt_max"
 
 log_level = "info" #This is default
+
+output_var_format = 'xml'
 
 [constants]
 
@@ -54,7 +55,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_itslive-comp_no-cloud_error-factor-1E+0.h5"
+vel_file = "smith_obs_vel_measures-comp_measures-cloud-interpolated-itslive-grid_error-factor-std-equal-to-one.h5"
 
 [inversion]
 
@@ -63,11 +64,11 @@ max_iter = 500
 alpha_active = true
 beta_active = true
 
-gamma_alpha = 1e2
-delta_alpha = 1e-5
-gamma_beta = 1.0e2
-delta_beta = 1e-5
-delta_beta_gnd = 3e-5
+gamma_alpha = 1E-10
+delta_alpha = 1E-10
+gamma_beta = 1E-10
+delta_beta = 1E-10
+delta_beta_gnd = 1E-10
 
 ftol = 1e-8
 gtol = 1e-12
@@ -79,9 +80,9 @@ delta_lbfgs = 1.0e3
 initial_guess_alpha_method = 'constant'
 initial_guess_alpha = 15.0
 
-use_cloud_point_velocities = false
+use_cloud_point_velocities = true
 
-phase_suffix = '_inv_with_comp_itslive_'
+phase_suffix = '_testing_results_8E+0_zero_'
 
 [ice_dynamics]
 
@@ -131,7 +132,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 5
 
-phase_suffix = '_inv_with_comp_itslive_'
+phase_suffix = '_testing_results_8E+0_zero_'
 
 [eigendec]
 
@@ -139,22 +140,21 @@ num_eig = 5000
 eig_algo = "slepc"
 misfit_only = true
 
-test_ed = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
 
-phase_suffix = '_inv_with_comp_itslive_'
+phase_suffix = '_testing_results_8E+0_zero_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_inv_with_comp_itslive_'
+phase_suffix = '_testing_results_8E+0_zero_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_inv_with_comp_itslive_'
+phase_suffix = '_testing_results_8E+0_zero_'
 
 [melt]
 
@@ -166,6 +166,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_inv_with_comp_itslive_'
+phase_suffix = '_testing_results_8E+0_zero_'
 sample_posterior = true
 num_eigenvals = 10

@@ -346,7 +346,7 @@ def interp_to_measures_grid(dv, dm):
     return ds
 
 
-def create_subsample(ds, step, return_coords=False):
+def create_subsample(ds, step):
     """
     Creates a subsample of the velocity data by hovering over the original array
     and cropping the data every certain step, we only retain the top left element
@@ -356,41 +356,31 @@ def create_subsample(ds, step, return_coords=False):
             (eg. vx, vy, stdvx, stdvy)
     :param step: step for subsampling (eg. every 10 grid spaces)
     :param return_coords: if true returns coordinates for the new arrays
-    :return: v_trn: the top left element of the subarray
+    :return: b_0 and b_m: the top left or middle element of the subarray
     """
 
     x = ds.x.data
     y = ds.y.data
-
     sel = ds.data
 
-    index_x = np.arange(0, len(x), step)
-    index_y = np.arange(0, len(y), step)
+    x_0 = x[::step]
+    y_0 = y[::step]
+    x_m = x[(step // 2)::step]
+    y_m = y[(step // 2)::step]
 
-    # where data will get saved
-    v_trn = []
-    x_trn = []
-    y_trn = []
+    b_m = sel[(step // 2)::step, (step // 2)::step]
+    b_0 = sel[::step, ::step]
 
-    for i in index_y:
-        for j in index_x:
-            coord_y = y[i:i + step]
-            coord_x = x[j:j + step]
+    [xx_0, yy_0] = np.meshgrid(x_0, y_0)
+    [xx_m, yy_m] = np.meshgrid(x_m, y_m)
 
-            b = sel[i:i + step, j:j + step]
+    coords_0 = tuple(zip(xx_0, yy_0))
+    coords_m = tuple(zip(xx_m, yy_m))
 
-            indy = np.arange(0, b.shape[0])
-            indx = np.arange(0, b.shape[1])
+    assert not np.array_equal(coords_0, coords_m)
 
-            bb = b[indy[0], indx[0]]
-            v_trn = np.append(v_trn, bb)
-            y_trn = np.append(y_trn, coord_y[indy[0]])
-            x_trn = np.append(x_trn, coord_x[indx[0]])
-
-    if return_coords:
-        return v_trn, x_trn, y_trn,
-    else:
-        return v_trn
+    return (xx_0.flatten(), yy_0.flatten(), b_0.flatten()), \
+           (xx_m.flatten(), yy_m.flatten(), b_m.flatten())
 
 
 def create_adjusted_std_maxima(std_o, std_to_a):

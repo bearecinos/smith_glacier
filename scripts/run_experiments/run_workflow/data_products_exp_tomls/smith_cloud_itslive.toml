@@ -64,11 +64,11 @@ alpha_active = true
 beta_active = true
 
 # New priors for alpha only!
-gamma_alpha = 1e1
-delta_alpha = 1e-6
-gamma_beta = 1e1
-delta_beta = 1e-5
-delta_beta_gnd = 1e-5
+gamma_alpha = 2.8
+delta_alpha = 2.8e-06
+gamma_beta = 5.6
+delta_beta = 5.6e-06
+delta_beta_gnd = 5.6e-06
 
 ftol = 1e-8
 gtol = 1e-12

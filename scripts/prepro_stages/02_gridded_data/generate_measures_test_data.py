@@ -68,6 +68,9 @@ for f in file_names:
     paths_itslive.append(os.path.join(path_itslive, f))
 print(paths_itslive)
 
+assert '_0000.nc' in paths_itslive[2]
+assert '_2014.nc' in paths_itslive[3]
+
 # Define paths for MEaSUREs
 path_measures = os.path.join(MAIN_PATH, config['measures_cloud'])
 

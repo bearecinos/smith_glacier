@@ -86,7 +86,10 @@ for f in file_names:
 
 print(paths_itslive)
 
-dv = xr.open_dataset(paths_itslive[0])
+assert '_0000.nc' in paths_itslive[2]
+assert '_2014.nc' in paths_itslive[3]
+
+dv = xr.open_dataset(paths_itslive[2])
 
 vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv)
 
@@ -133,6 +136,8 @@ fpath = os.path.join(os.path.dirname(os.path.abspath(path_measures)),
 if args.compute_interpolation:
     vx_mi = vx_m.interp(y=dv.y.values, x=dv.x.values)
     vy_mi = vy_m.interp(y=dv.y.values, x=dv.x.values)
+    std_vx_mi = std_vx_m.interp(y=dv.y.values, x=dv.x.values)
+    std_vy_mi = std_vy_m.interp(y=dv.y.values, x=dv.x.values)
 
     with vel_tools.ncDataset(fpath, 'w', format='NETCDF4') as nc:
 
@@ -171,6 +176,16 @@ if args.compute_interpolation:
         v.units = 'm/yr'
         v.long_name = 'vy velocity component'
         v[:] = vy_mi.data
+
+        v = nc.createVariable('std_vx', 'f4', ('y', 'x'))
+        v.units = 'm/yr'
+        v.long_name = 'std vx velocity component'
+        v[:] = std_vx_mi.data
+
+        v = nc.createVariable('std_vy', 'f4', ('y', 'x'))
+        v.units = 'm/yr'
+        v.long_name = 'std vy velocity component'
+        v[:] = std_vy_mi.data
 
 ds = xr.open_dataset(fpath)
 

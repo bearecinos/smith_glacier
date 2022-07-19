@@ -85,7 +85,10 @@ if args.composite == 'itslive':
 
     print(paths_itslive)
 
-    dv = xr.open_dataset(paths_itslive[0])
+    assert '_0000.nc' in paths_itslive[2]
+    assert '_2014.nc' in paths_itslive[3]
+
+    dv = xr.open_dataset(paths_itslive[2])
 
     vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv, error_factor=args.error_factor)
 

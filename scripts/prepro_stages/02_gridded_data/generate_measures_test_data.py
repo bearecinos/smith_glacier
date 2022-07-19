@@ -42,6 +42,10 @@ parser.add_argument("-compute_interpolation",
                     action="store_true",
                     help="If true computes the interpolation of Itslive 2014 vel"
                          "file to MEaSUREs grid and saves it as a netcdf file for re-use.")
+parser.add_argument("-normalise_measures_std",
+                    action="store_true",
+                    help="If true sets MEaSUREs stdvx and stdvy in cloud data equal to one."
+                    )
 
 args = parser.parse_args()
 config_file = args.conf
@@ -199,6 +203,9 @@ vv_i = (vxi_s**2 + vyi_s**2)**0.5
 meas_vx = vxm_s.copy()
 meas_vy = vym_s.copy()
 
+meas_stdvx = stdm_vx_s.copy()
+meas_stdvy = stdm_vy_s.copy()
+
 y_ep, x_ep = np.where(np.abs(vv_m-vv_i) >= 50)
 
 x_coord = meas_vx.x[x_ep]
@@ -208,8 +215,12 @@ y_coord = meas_vx.y[y_ep]
 for x, y in zip(x_coord, y_coord):
     meas_vx.loc[dict(x=x, y=y)] = np.nan
     meas_vy.loc[dict(x=x, y=y)] = np.nan
+    meas_stdvx.loc[dict(x=x, y=y)] = np.nan
+    meas_stdvy.loc[dict(x=x, y=y)] = np.nan
 
 assert meas_vx.shape == meas_vy.shape
+assert meas_stdvx.shape == meas_vy.shape
+assert meas_stdvx.shape == meas_stdvy.shape
 
 # Mask arrays
 x_s = meas_vx.x.data
@@ -218,7 +229,7 @@ y_s = meas_vx.y.data
 x_grid, y_grid = np.meshgrid(x_s, y_s)
 
 # array to mask ... a dot product of component and std
-mask_array = meas_vx * meas_vy
+mask_array = meas_vx * meas_stdvy
 
 array_ma = np.ma.masked_invalid(mask_array)
 
@@ -228,8 +239,12 @@ y_nona = y_grid[~array_ma.mask].ravel()
 vx_nona = meas_vx.data[~array_ma.mask].ravel()
 vy_nona = meas_vy.data[~array_ma.mask].ravel()
 
-stdvx_nona = np.ones(vx_nona.shape, vx_nona.dtype)
-stdvy_nona = np.ones(vy_nona.shape, vy_nona.dtype)
+if args.normalise_measures_std:
+    stdvx_nona = np.ones(vx_nona.shape, vx_nona.dtype)
+    stdvy_nona = np.ones(vy_nona.shape, vy_nona.dtype)
+else:
+    stdvx_nona = meas_stdvy.data[~array_ma.mask].ravel()
+    stdvy_nona = meas_stdvy.data[~array_ma.mask].ravel()
 
 # Ravel all arrays so they can be stored with
 # a tuple shape (values, )
@@ -243,7 +258,10 @@ cloud_dict = {'x_cloud': x_nona,
 composite = 'measures' + '-comp_'
 cloud = 'measures' + '-cloud-interpolated-itslive-grid_'
 
-file_suffix = composite + cloud + 'error-factor-' + 'std-equal-to-one' +'.h5'
+if args.normalise_measures_std:
+    file_suffix = composite + cloud + 'error-factor-' + 'std-equal-to-one' +'.h5'
+else:
+    file_suffix = composite + cloud + 'error-factor-' + 'std-original' + '.h5'
 
 file_name = os.path.join(MAIN_PATH, config['smith_vel_obs']+file_suffix)
 

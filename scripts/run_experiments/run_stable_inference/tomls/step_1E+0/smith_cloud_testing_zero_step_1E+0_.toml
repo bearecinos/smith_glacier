@@ -55,7 +55,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_measures-comp_measures-cloud-interpolated-itslive-grid_error-factor-std-equal-to-one.h5"
+vel_file = "smith_obs_vel_measures-comp_measures-cloud-interpolated-itslive-grid_error-factor-std-original.h5"
 
 [inversion]
 

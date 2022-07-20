@@ -9,7 +9,7 @@ else
 fi
 
 # Create output directory for inversion output
-export run_inv_output_dir=$OUTPUT_DIR/05_stable_inference
+export run_inv_output_dir=$OUTPUT_DIR/05_stable_inference_original_measures_std
 if [ ! -d $run_inv_output_dir ]
 then
   echo "Creating run directory $run_inv_output_dir"

@@ -82,7 +82,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_testing_results_8E+0_zero_'
+phase_suffix = '_testing_results_2E+0_zero_'
 
 [ice_dynamics]
 
@@ -132,7 +132,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 5
 
-phase_suffix = '_testing_results_8E+0_zero_'
+phase_suffix = '_testing_results_2E+0_zero_'
 
 [eigendec]
 
@@ -143,18 +143,18 @@ misfit_only = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
 
-phase_suffix = '_testing_results_8E+0_zero_'
+phase_suffix = '_testing_results_2E+0_zero_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_testing_results_8E+0_zero_'
+phase_suffix = '_testing_results_2E+0_zero_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_testing_results_8E+0_zero_'
+phase_suffix = '_testing_results_2E+0_zero_'
 
 [melt]
 
@@ -166,6 +166,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_testing_results_8E+0_zero_'
+phase_suffix = '_testing_results_2E+0_zero_'
 sample_posterior = true
 num_eigenvals = 10

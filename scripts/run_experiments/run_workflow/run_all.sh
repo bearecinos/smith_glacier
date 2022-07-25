@@ -21,7 +21,7 @@ echo "Copying prepro output files to input run dir"
 #cp $OUTPUT_DIR/02_gridded_data/smith_melt_depth_params.h5 $input_run_inv/.
 
 # Create output directory for inversion output
-export run_inv_output_dir=$OUTPUT_DIR/03_run_inv
+export run_inv_output_dir=$OUTPUT_DIR/03_run_inv_newpriors
 if [ ! -d $run_inv_output_dir ]
 then
   echo "Creating run directory $run_inv_output_dir"

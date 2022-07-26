@@ -90,11 +90,18 @@ python plot_path.py -conf $CONFIGFILE -toml $TOMLFILE -sub_plot_dir=$plotting_di
 cd $OLDPWD
 
 echo $(date -u) "Done with error propagation"
-echo $(date -u) "done with errorprop" | mail -s "errorpro" dngoldberg@gmail.com
+msg=$(cat $new_toml; tail $run_inv_output_dir/out.err)
+echo $msg | mail -s "errorpro" dngoldberg@gmail.com
 
-mpirun -n $1 ./unmute.sh 0 python $FENICS_ICE_BASE_DIR/runs/run_invsigma.py $new_toml > $run_inv_output_dir/out.inv 2> $run_inv_output_dir/err.inv
+mpirun -n $1 ./unmute.sh 0 python $FENICS_ICE_BASE_DIR/runs/run_invsigma.py $new_toml > $run_inv_output_dir/out.invs 2> $run_inv_output_dir/err.invs
 
 echo $(date -u) "We are done with the whole workflow!"
-echo $(date -u) "done with workflow" | mail -s "end" dngoldberg@gmail.com
+msg=$(cat $new_toml; tail $run_inv_output_dir/out.invs)
+echo $msg | mail -s "end" dngoldberg@gmail.com
 
-python run_all.py
+if [[ ${11} == "none" ]]; then
+ echo "no more to be called"
+else
+ python run_all.py ${11} ${12}
+fi
+

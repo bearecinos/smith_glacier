@@ -90,6 +90,12 @@ python plot_dq_ts.py -conf $CONFIGFILE -toml $TOMLFILE -sub_plot_dir=$plotting_d
 cd $OLDPWD
 
 echo $(date -u) "Done with Forward!"
-echo $(date -u) "done with fwd" | mail -s "forward" dngoldberg@gmail.com
+msg=$(cat $new_toml; tail $run_inv_output_dir/out.fwd)
+echo $msg | mail -s "forward" dngoldberg@gmail.com
 
-python run_all.py
+if [[ ${11} == "none" ]]; then
+ echo "no more to be called"
+else
+ python run_all.py ${11} ${12}
+fi
+

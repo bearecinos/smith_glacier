@@ -17,6 +17,8 @@ echo $7
 echo $8
 echo $9
 echo ${10}
+echo ${11}
+echo ${12}
 
 
 # Create run_input directory for the inversion run
@@ -95,9 +97,14 @@ python plot_inversion.py -conf $CONFIGFILE -toml $TOMLFILE -sub_plot_dir=$plotti
 cd $OLDPWD
 
 echo $(date -u) "Done with Inversion!"
-echo $(date -u) "done with inversion" | mail -s "inversion" dngoldberg@gmail.com
+msg=$(cat $new_toml; tail $run_inv_output_dir/out.inv)
+echo $msg | mail -s "inversion" dngoldberg@gmail.com
 
-python run_all.py
+if [[ ${11} == "none" ]]; then
+ echo "no more to be called"
+else
+ python run_all.py ${11} ${12}
+fi
 
 exit 0
 

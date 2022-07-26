@@ -91,6 +91,12 @@ python plot_eigen_info.py -conf $CONFIGFILE -toml $TOMLFILE -sub_plot_dir=$plott
 cd $OLDPWD
 
 echo $(date -u) "Done with eigendec -------------------------------------------------------!"
-echo $(date -u) "done with eigendec" | mail -s "eigendec" dngoldberg@gmail.com
+msg=$(cat $new_toml; tail $run_inv_output_dir/out.eig)
+echo $msg | mail -s "eigendec" dngoldberg@gmail.com
 
-python run_all.py
+if [[ ${11} == "none" ]]; then
+ echo "no more to be called"
+else
+ python run_all.py ${11} ${12}
+fi
+

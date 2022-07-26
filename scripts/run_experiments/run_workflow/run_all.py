@@ -7,7 +7,7 @@ print(sys.argv)
 
 if (len(sys.argv)==1):
     print ('need arguments')
-    exis()
+    exit()
 
 if (len(sys.argv)==3):
     runs = np.load(sys.argv[1])
@@ -23,7 +23,6 @@ if (len(sys.argv)==3):
             runs = runs[1:,:]
         else:
             runs = []
-        np.save('runs.npy',runs)
         ga = float(run1[0])
         gb = float(run1[1])
         da = float(run1[2])
@@ -104,10 +103,16 @@ for i in range(len(alpha_pairs_gamma_delt)):
                          + '_Lb_' + str(beta_pairs_L0_s[0][0]) + '_Cb_' + str(beta_pairs_L0_s[0][1]) + '_std_' + str(std)  + '.toml'
     base2_toml = base_toml + '.toml'
 
-    submit_cmd = 'nohup bash ' + script + '.sh '  + str(24) + ' ' + str(step) + ' ' + \
+    if (len(sys.argv)==3):
+     submit_cmd = 'nohup bash ' + script + '.sh '  + str(30) + ' ' + str(step) + ' ' + \
                  vel_file + ' ' + base2_toml + ' ' + new_toml + ' ' + \
                  str(gamma_alpha) + ' ' + str(delta_alpha) + ' ' + \
-                 str(gamma_beta) + ' ' + str(delta_beta) + ' ' + str(std) + ' &'
+                 str(gamma_beta) + ' ' + str(delta_beta) + ' ' + str(std) + ' ' + sys.argv[1]  + ' ' + sys.argv[2] + ' &'
+    else:
+     submit_cmd = 'nohup bash ' + script + '.sh '  + str(24) + ' ' + str(step) + ' ' + \
+                 vel_file + ' ' + base2_toml + ' ' + new_toml + ' ' + \
+                 str(gamma_alpha) + ' ' + str(delta_alpha) + ' ' + \
+                 str(gamma_beta) + ' ' + str(delta_beta) + ' ' + str(std) + ' ' + 'none'  + ' ' + 'none' + ' &'
     print (submit_cmd)
     submit_cm2 = 'bash plot_all.sh ' + str(24) + ' ' + \
                  vel_file + ' ' + base2_toml + ' ' + new_toml + ' ' + \
@@ -117,3 +122,7 @@ for i in range(len(alpha_pairs_gamma_delt)):
      os.system(submit_cmd)
     else:
      os.system(submit_cm2)
+
+
+if (len(sys.argv)==3):
+        np.save(sys.argv[1],runs)

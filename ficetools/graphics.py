@@ -6,12 +6,18 @@ import numpy as np
 import logging
 import salem
 import pyproj
+import pickle
 
 #Plotting imports
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
 from matplotlib.offsetbox import AnchoredText
+
+from fenics_ice import model, config
+from fenics_ice import mesh as fice_mesh
+from fenics import *
+from pathlib import Path
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -244,3 +250,235 @@ def set_levels_ticks_for_colorbar(vmin, vmax):
     ticks = np.linspace(vmin, vmax, 3)
 
     return levels, ticks
+
+
+def define_stage_output_paths(params, stage):
+    """
+    Defines the stages output dirs for a particular set of params
+
+    params: params read from the toml
+    stage: stage of the model workflow that we need
+
+    returns
+    -------
+    dict_output: string with the path for the stage requested
+    """
+
+    # general paths
+    out_dir = params.io.output_dir
+
+    # general names of stages
+    phase_name_inversion = params.inversion.phase_name
+    phase_name_fwd = params.time.phase_name
+    phase_name_eigen = params.eigendec.phase_name
+    phase_name_errp = params.error_prop.phase_name
+    phase_name_invsigma = params.inv_sigma.phase_name
+
+    # stages suffixes
+    phase_suffix_inversion = params.inversion.phase_suffix
+    phase_suffix_fwd = params.time.phase_suffix
+    phase_suffix_eigen = params.eigendec.phase_suffix
+    phase_suffix_errprop = params.error_prop.phase_suffix
+    phase_suffix_invsigma = params.inv_sigma.phase_suffix
+
+    if stage == 'inversion':
+        exp_outdir = Path(out_dir) / phase_name_inversion / phase_suffix_inversion
+    if stage == 'time':
+        exp_outdir = Path(out_dir) / phase_name_fwd / phase_suffix_fwd
+    if stage == 'eigendec':
+        exp_outdir = Path(out_dir) / phase_name_eigen / phase_suffix_eigen
+    if stage == 'error_prop':
+        exp_outdir = Path(out_dir) / phase_name_errp / phase_suffix_errprop
+    if stage == 'inv_sigma':
+        exp_outdir = Path(out_dir) / phase_name_invsigma / phase_suffix_invsigma
+
+    return exp_outdir
+
+
+def get_file_names_for_path_plot(params):
+    """
+    This constructs the file names for the files
+    needed for the QoI sigma path plot
+
+    params: params read from the toml
+
+    returns
+    -------
+    Q_filename: the 'Qval_ts.p' file name with the corresponding suffix
+    sigma_filename: the 'sigma.p' file name with the corresponding suffix
+    sigma_prior_file: the 'sigma_prior.p' file name with the corresponding suffix
+    """
+
+    # stages suffixes
+    phase_suffix_fwd = params.time.phase_suffix
+    phase_suffix_errprop = params.error_prop.phase_suffix
+
+    # File names
+    Qfile_name = "_".join((params.io.run_name + phase_suffix_fwd, 'Qval_ts.p'))
+    sigma_file = "_".join((params.io.run_name + phase_suffix_errprop, 'sigma.p'))
+    sigma_prior_file = "_".join((params.io.run_name + phase_suffix_errprop, 'sigma_prior.p'))
+
+    return Qfile_name, sigma_file, sigma_prior_file
+
+
+def get_file_names_for_invsigma_plot(params):
+    """
+    Return the file names for inversion sigma output data
+
+    :param params:
+    :return: file_salpha: sigma alpha file name with phase suffix
+             file_sbeta: sigma beta file name with phase suffix
+             file_prior_alpha: prior alpha file name with phase suffix
+            file_prior_beta: prior beta file name with phase suffix
+    """
+
+    # stages suffixes
+    phase_suffix_inv_sigma = params.inv_sigma.phase_suffix
+
+    # File names
+    file_salpha = "_".join((params.io.run_name + phase_suffix_inv_sigma, 'sigma_alpha.xml'))
+    file_sbeta = "_".join((params.io.run_name + phase_suffix_inv_sigma, 'sigma_beta.xml'))
+
+    file_prior_alpha = "_".join((params.io.run_name + phase_suffix_inv_sigma, 'sigma_prior_alpha.xml'))
+    file_prior_beta = "_".join((params.io.run_name + phase_suffix_inv_sigma, 'sigma_prior_beta.xml'))
+
+    return file_salpha, file_sbeta, file_prior_alpha, file_prior_beta
+
+def get_data_for_sigma_path_from_toml(toml, main_dir_path):
+    """
+    Returns the data to plot the QoI uncertainty path with a given .toml
+
+    :param toml: fenics_ice configuration file
+    :param main_dir_path: main directory path e.g. /scratch/local/smith_glacier
+    :return: qoi_dict: a dictionary with all the data needed for the plot.
+            x: number of years
+            y: QoI trayectory
+            s_c: QoI posterior distribution
+            sp_c: QoI prior distribution
+    """
+
+    params = config.ConfigParser(toml, top_dir=Path(main_dir_path))
+
+    log.info("The configuration pass is the following:")
+    dict_config = {'phase_suffix': params.inversion.phase_suffix,
+                    'gamma_alpha': params.inversion.gamma_alpha,
+                    'delta_alpha': params.inversion.delta_alpha,
+                    'gama_beta': params.inversion.gamma_beta,
+                    'delta_beta': params.inversion.delta_beta}
+    log.info("-----------------------------------------------")
+    log.info(dict_config)
+
+    exp_outdir_fwd = define_stage_output_paths(params, 'time')
+    exp_outdir_errp = define_stage_output_paths(params, 'error_prop')
+
+    c_fnames = get_file_names_for_path_plot(params)
+
+    Q_c_fname = c_fnames[0]
+    sigma_c_fname = c_fnames[1]
+    sigma_c_prior_fname = c_fnames[2]
+
+    # config three
+    Qfile_c = exp_outdir_fwd / Q_c_fname
+    sigmafile_c = exp_outdir_errp / sigma_c_fname
+    sigmapriorfile_c = exp_outdir_errp / sigma_c_prior_fname
+
+    # Check if the file exist
+    assert Qfile_c.is_file()
+    assert sigmafile_c.is_file()
+    assert sigmapriorfile_c.is_file()
+
+    with open(Qfile_c, 'rb') as f:
+        out = pickle.load(f)
+    dQ_vals_c = out[0]
+    dQ_t_c = out[1]
+
+    with open(sigmafile_c, 'rb') as f:
+        out = pickle.load(f)
+    sigma_vals_c = out[0]
+    sigma_t_c = out[1]
+
+    with open(sigmapriorfile_c, 'rb') as f:
+        out = pickle.load(f)
+    sigma_prior_vals_c = out[0]
+
+    sigma_interp_c = np.interp(dQ_t_c, sigma_t_c, sigma_vals_c)
+    sigma_prior_interp_c = np.interp(dQ_t_c, sigma_t_c, sigma_prior_vals_c)
+
+    x_c = dQ_t_c
+
+    y_c = dQ_vals_c - dQ_vals_c[0]
+
+    s_c = 2 * sigma_interp_c
+    sp_c = 2 * sigma_prior_interp_c
+
+    qoi_dict = {'x': x_c, 'y': y_c,
+                'simga_post': s_c, 'sigma_prior': sp_c}
+
+    return qoi_dict
+
+def get_params_posterior_std(toml, main_dir_path):
+    """
+    Returns the data to plot the parameters uncertainty via a given .toml
+
+    :param toml: fenics_ice configuration file
+    :param main_dir_path: main directory path e.g. /scratch/local/smith_glacier
+    :return: sigma_params_dict: a dictionary with all the data needed for plotting
+            pior and posterior distribution of the inverted parameters.
+            x: x coordinates
+            y: y coordinates
+            t: triangulation
+            sigma_alpha: posterior alpha std
+            sigma_beta: posterior beta std
+            prior_alpha: prior alpha std
+            prior_alpha: prior beta std
+    """
+    params = config.ConfigParser(toml, top_dir=Path(main_dir_path))
+
+    exp_outdir_invsigma = define_stage_output_paths(params, 'inv_sigma')
+
+    file_names_invsigma = get_file_names_for_invsigma_plot(params)
+
+    path_alphas = exp_outdir_invsigma / file_names_invsigma[0]
+    path_betas = exp_outdir_invsigma / file_names_invsigma[1]
+
+    path_alphas_prior = exp_outdir_invsigma / file_names_invsigma[2]
+    path_betas_prior = exp_outdir_invsigma / file_names_invsigma[3]
+
+    assert path_alphas_prior.is_file()
+    assert path_betas_prior.is_file()
+    assert path_alphas.is_file()
+    assert path_betas.is_file()
+
+    # Reading mesh
+    mesh_in = fice_mesh.get_mesh(params)
+
+    # Compute the function spaces from the Mesh
+    M = FunctionSpace(mesh_in, 'DG', 0)
+
+    x, y, t = read_fenics_ice_mesh(mesh_in)
+
+    alpha_sigma = Function(M, str(path_alphas))
+    alpha_sig = project(alpha_sigma, M)
+    sigma_alpha = alpha_sig.compute_vertex_values(mesh_in)
+
+    beta_sigma = Function(M, str(path_betas))
+    beta_sig = project(beta_sigma, M)
+    sigma_beta = beta_sig.compute_vertex_values(mesh_in)
+
+    alpha_sigmap = Function(M, str(path_alphas_prior))
+    alpha_sigp= project(alpha_sigmap, M)
+    prior_alpha = alpha_sigp.compute_vertex_values(mesh_in)
+
+    beta_sigmap = Function(M, str(path_betas))
+    beta_sigp = project(beta_sigmap, M)
+    prior_beta = beta_sigp.compute_vertex_values(mesh_in)
+
+    sigma_params_dict = {'x': x, 'y': y, 't': t,
+                         'sigma_alpha': sigma_alpha,
+                         'sigma_beta': sigma_beta,
+                         'prior_alpha': prior_alpha,
+                         'prior_beta': prior_beta}
+
+    return sigma_params_dict
+
+

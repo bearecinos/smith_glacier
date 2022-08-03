@@ -3,8 +3,8 @@
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
 run_name = "smith_cloud_itslive"
 input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_newpriors/output"
-diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_newpriors/diagnostics"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_VAF_path_exp/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_VAF_path_exp/diagnostics"
 
 write_diagnostics = true
 

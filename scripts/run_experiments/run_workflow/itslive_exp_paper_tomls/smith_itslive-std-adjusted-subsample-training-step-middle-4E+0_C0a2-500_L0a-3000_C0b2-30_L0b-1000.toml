@@ -147,7 +147,7 @@ phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-4E+0_C0a**2
 
 [eigendec]
 
-num_eig = 10000
+num_eig = 5000
 eig_algo = "slepc"
 misfit_only = true
 

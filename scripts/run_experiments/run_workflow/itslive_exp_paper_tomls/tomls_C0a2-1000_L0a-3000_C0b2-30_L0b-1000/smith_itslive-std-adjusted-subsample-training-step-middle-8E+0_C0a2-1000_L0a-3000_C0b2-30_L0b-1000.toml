@@ -74,8 +74,8 @@ delta_beta = 9.4e-06
 delta_beta_gnd = 9.4e-06
 
 # All rounded to 2 digits
-#C0_alpha = 250000.0
-#C0_alpha**2 = 500.0
+#C0_alpha = 1000000.0
+#C0_alpha**2 = 1000.0
 #L0_alpha = 3000.0
 #C0_beta = 900.0
 #C0_beta**2 = 30.0

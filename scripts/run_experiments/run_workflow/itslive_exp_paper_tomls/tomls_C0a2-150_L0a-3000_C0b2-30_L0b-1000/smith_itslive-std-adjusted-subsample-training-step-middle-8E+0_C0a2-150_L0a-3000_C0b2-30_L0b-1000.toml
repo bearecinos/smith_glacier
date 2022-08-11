@@ -57,7 +57,7 @@ flow_bc = "calving"
 
 [obs]
 # This is the only thing we will change at the moment
-vel_file = "smith_obs_vel_itslive-comp_std-adjusted-cloud_subsample-training-step-middle-4E+0.h5"
+vel_file = "smith_obs_vel_itslive-comp_std-adjusted-cloud_subsample-training-step-middle-8E+0.h5"
 
 [inversion]
 
@@ -67,15 +67,15 @@ alpha_active = true
 beta_active = true
 
 # change alpha c0 priors
-gamma_alpha = 0.85
-delta_alpha = 9.4e-08
+gamma_alpha = 5.6
+delta_alpha = 6.2e-07
 gamma_beta = 9.4
 delta_beta = 9.4e-06
 delta_beta_gnd = 9.4e-06
 
 # All rounded to 2 digits
-#C0_alpha = 250000.0
-#C0_alpha**2 = 500.0
+#C0_alpha = 23000.0
+#C0_alpha**2 = 150.0
 #L0_alpha = 3000.0
 #C0_beta = 900.0
 #C0_beta**2 = 30.0
@@ -93,7 +93,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-4E+0_C0a2-1000_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-8E+0_C0a2-150_L0a-3000_C0b2-30_L0b-1000_'
 
 [ice_dynamics]
 
@@ -143,7 +143,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 5
 
-phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-4E+0_C0a2-1000_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-8E+0_C0a2-150_L0a-3000_C0b2-30_L0b-1000_'
 
 [eigendec]
 
@@ -155,18 +155,18 @@ misfit_only = true
 precondition_by = "prior" #prior by default
 #eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-4E+0_C0a2-1000_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-8E+0_C0a2-150_L0a-3000_C0b2-30_L0b-1000_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-4E+0_C0a2-1000_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-8E+0_C0a2-150_L0a-3000_C0b2-30_L0b-1000_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-4E+0_C0a2-1000_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-8E+0_C0a2-150_L0a-3000_C0b2-30_L0b-1000_'
 
 [melt]
 
@@ -178,6 +178,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-4E+0_C0a2-1000_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_itslive-std-adjusted-subsample-training-step-middle-8E+0_C0a2-150_L0a-3000_C0b2-30_L0b-1000_'
 sample_posterior = true
 num_eigenvals = 10

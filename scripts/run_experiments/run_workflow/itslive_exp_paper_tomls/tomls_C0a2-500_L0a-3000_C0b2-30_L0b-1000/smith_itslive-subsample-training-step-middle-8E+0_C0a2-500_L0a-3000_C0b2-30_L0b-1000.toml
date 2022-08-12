@@ -147,7 +147,7 @@ phase_suffix = '_itslive-subsample-training-step-middle-8E+0_C0a2-500_L0a-3000_C
 
 [eigendec]
 
-num_eig = 5000
+num_eig = 10000
 eig_algo = "slepc"
 misfit_only = true
 

@@ -147,7 +147,7 @@ phase_suffix = '_itslive-std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-100
 
 [eigendec]
 
-num_eig = 5000
+num_eig = 10000
 eig_algo = "slepc"
 misfit_only = true
 

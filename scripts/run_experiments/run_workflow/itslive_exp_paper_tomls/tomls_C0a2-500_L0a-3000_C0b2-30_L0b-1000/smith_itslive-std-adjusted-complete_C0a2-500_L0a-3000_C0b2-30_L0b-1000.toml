@@ -93,7 +93,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_itslive-std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
 
 [ice_dynamics]
 
@@ -143,7 +143,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 5
 
-phase_suffix = '_itslive-std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
 
 [eigendec]
 
@@ -155,18 +155,18 @@ misfit_only = true
 precondition_by = "prior" #prior by default
 #eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_itslive-std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_itslive-std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_itslive-std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
 
 [melt]
 
@@ -178,6 +178,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_itslive-std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
+phase_suffix = '_std-adjusted-complete_C0a2-500_L0a-3000_C0b2-30_L0b-1000_'
 sample_posterior = true
 num_eigenvals = 10

@@ -11,4 +11,5 @@ scripts/run_experiments/run_workflow/log_*
 scripts/run_experiments/run_lcurves/*.txt
 scripts/run_experiments/run_workflow/dan_tomls
 scripts/run_experiments/run_workflow/experiments_priors
+scripts/run_experiments/run_workflow/itslive_exp_paper_tomls/log_tom*
 plots/

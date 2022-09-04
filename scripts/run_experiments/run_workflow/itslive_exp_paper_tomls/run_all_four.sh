@@ -41,47 +41,49 @@ toml set --toml-path $5 io.diagnostics_dir "$run_inv_output_dir/diagnostics"
 
 echo $(date -u) "Run started"
 
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $2 |& tee $path_logs/log_tom2_inv.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $3 |& tee $path_logs/log_tom3_inv.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $4 |& tee $path_logs/log_tom4_inv.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $5 |& tee $path_logs/log_tom5_inv.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $2 |& tee $path_logs/log_tom2_inv.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $3 |& tee $path_logs/log_tom3_inv.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $4 |& tee $path_logs/log_tom4_inv.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $5 |& tee $path_logs/log_tom5_inv.txt
 
-OUT=$(tail "$path_logs/log_tom2_inv.txt")
-echo $OUT | mail -s "run inv finish config1" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom3_inv.txt")
-echo $OUT | mail -s "run inv finish config2" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom4_inv.txt")
-echo $OUT | mail -s "run inv finish config3" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom5_inv.txt")
-echo $OUT | mail -s "run inv finish config4" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom2_inv.txt")
+#echo $OUT | mail -s "run inv finish config1" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom3_inv.txt")
+#echo $OUT | mail -s "run inv finish config2" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom4_inv.txt")
+#echo $OUT | mail -s "run inv finish config3" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom5_inv.txt")
+#echo $OUT | mail -s "run inv finish config4" beatriz.recinos@ed.ac.uk
 
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $2 |& tee $path_logs/log_tom2_fwd.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $3 |& tee $path_logs/log_tom3_fwd.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $4 |& tee $path_logs/log_tom4_fwd.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $5 |& tee $path_logs/log_tom5_fwd.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $2 |& tee $path_logs/log_tom2_fwd.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $3 |& tee $path_logs/log_tom3_fwd.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $4 |& tee $path_logs/log_tom4_fwd.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_forward.py $5 |& tee $path_logs/log_tom5_fwd.txt
 
-OUT=$(tail "$path_logs/log_tom2_fwd.txt")
-echo $OUT | mail -s "run fwd finish config1" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom3_fwd.txt")
-echo $OUT | mail -s "run fwd finish config2" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom4_fwd.txt")
-echo $OUT | mail -s "run fwd finish config3" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom5_fwd.txt")
-echo $OUT | mail -s "run fwd finish config4" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom2_fwd.txt")
+#echo $OUT | mail -s "run fwd finish config1" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom3_fwd.txt")
+#echo $OUT | mail -s "run fwd finish config2" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom4_fwd.txt")
+#echo $OUT | mail -s "run fwd finish config3" beatriz.recinos@ed.ac.uk
+#OUT=$(tail "$path_logs/log_tom5_fwd.txt")
+#echo $OUT | mail -s "run fwd finish config4" beatriz.recinos@ed.ac.uk
 
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $2 |& tee $path_logs/log_tom2_eigen.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $3 |& tee $path_logs/log_tom3_eigen.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $4 |& tee $path_logs/log_tom4_eigen.txt
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $5 |& tee $path_logs/log_tom5_eigen.txt
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $2 |& tee $path_logs/log_tom2_eigen.txt
+#OUT=$(tail "$path_logs/log_tom2_eigen.txt")
+#echo $OUT | mail -s "run eigen finish config1" beatriz.recinos@ed.ac.uk
 
-OUT=$(tail "$path_logs/log_tom2_eigen.txt")
-echo $OUT | mail -s "run eigen finish config1" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom3_eigen.txt")
-echo $OUT | mail -s "run eigen finish config2" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom4_eigen.txt")
-echo $OUT | mail -s "run eigen finish config3" beatriz.recinos@ed.ac.uk
-OUT=$(tail "$path_logs/log_tom5_eigen.txt")
-echo $OUT | mail -s "run eigen finish config4" beatriz.recinos@ed.ac.uk
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $3 |& tee $path_logs/log_tom3_eigen.txt
+#OUT=$(tail "$path_logs/log_tom3_eigen.txt")
+#echo $OUT | mail -s "run eigen finish config2" beatriz.recinos@ed.ac.uk
+
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $4 |& tee $path_logs/log_tom4_eigen.txt
+#OUT=$(tail "$path_logs/log_tom4_eigen.txt")
+#echo $OUT | mail -s "run eigen finish config3" beatriz.recinos@ed.ac.uk
+
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $5 |& tee $path_logs/log_tom5_eigen.txt
+#OUT=$(tail "$path_logs/log_tom5_eigen.txt")
+#echo $OUT | mail -s "run eigen finish config4" beatriz.recinos@ed.ac.uk
 
 mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_errorprop.py $2 |& tee $path_logs/log_tom2_errprop.txt
 mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_errorprop.py $3 |& tee $path_logs/log_tom3_errprop.txt

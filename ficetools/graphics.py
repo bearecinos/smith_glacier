@@ -469,7 +469,7 @@ def get_params_posterior_std(toml, main_dir_path):
     alpha_sigp= project(alpha_sigmap, M)
     prior_alpha = alpha_sigp.compute_vertex_values(mesh_in)
 
-    beta_sigmap = Function(M, str(path_betas))
+    beta_sigmap = Function(M, str(path_betas_prior))
     beta_sigp = project(beta_sigmap, M)
     prior_beta = beta_sigp.compute_vertex_values(mesh_in)
 

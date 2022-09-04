@@ -27,7 +27,7 @@ melt_depth_therm_field_name = "melt_depth_therm"
 melt_max_field_name = "melt_max"
 
 log_level = "info" #This is default
-#output_var_format = "pvd xml"
+output_var_format = "xml"
 
 [constants]
 

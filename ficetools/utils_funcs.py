@@ -19,6 +19,7 @@ from .backend import MPI, Mesh, XDMFFile, Function, \
     project, sqrt, HDF5File, Measure, TestFunction, TrialFunction, assemble, inner
 from dolfin import KrylovSolver
 from tlm_adjoint.interface import function_new
+import h5py
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -467,3 +468,16 @@ def get_file_names_for_invsigma_plot(params):
     file_sbeta = "_".join((params.io.run_name + phase_suffix_inv_sigma, 'sigma_beta.xml'))
 
     return file_salpha, file_sbeta
+
+
+def get_pts_from_h5_velfile(file):
+    """
+    Counts how many data points exist in the velocity files
+    :param file: .h5 velocity file
+    :return: length of x-coordinates, length of y-coordinates
+    """
+    f = h5py.File(file, 'r')
+    x = f['x_cloud'][:]
+    y = f['y_cloud'][:]
+    return len(x), len(y)
+

@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.tri as tri
 from matplotlib.offsetbox import AnchoredText
+from scipy.stats import linregress
 
 from fenics_ice import model, config
 from fenics_ice import mesh as fice_mesh
@@ -481,4 +482,57 @@ def get_params_posterior_std(toml, main_dir_path):
 
     return sigma_params_dict
 
+
+def get_data_for_sigma_convergence_from_toml(toml, main_dir_path, startind=3000):
+    """
+    Returns the data to plot the QoI convergence and uncertainty change
+     according to the number of eigen values calculated.
+     Per toml!
+
+    :param toml: fenics_ice configuration file
+    :param main_dir_path: main directory path e.g. /scratch/local/smith_glacier
+    :param startind: which eigen value to start calculating the slop for sigma change
+    :return: qoi_conv_dict: a dictionary with all the
+            data needed for the convergence plot.
+            eigenum: number of eigen values
+            sigma: QoI posterior
+    """
+
+    params = config.ConfigParser(toml, top_dir=Path(main_dir_path))
+
+    exp_outdir_errp = define_stage_output_paths(params, 'error_prop')
+    phase_suffix_errprop = params.error_prop.phase_suffix
+
+    sigma_conv_filename = "".join((params.io.run_name + '_' + phase_suffix_errprop, 'sigma_qoi_convergence.p'))
+
+    sigma_conv_path = exp_outdir_errp / sigma_conv_filename
+
+    # Check if the file exist
+    assert sigma_conv_path.is_file()
+
+    with open(sigma_conv_path, 'rb') as f:
+        out = pickle.load(f)
+
+    eignum = np.array(out[0])
+    sig = out[1]
+
+    ind = 0.5 * (eignum[1:] + eignum[0:-1])
+    diffs = (np.diff(sig)) / np.diff(eignum)
+
+    ind2 = ind[ind > startind]
+    diffs2 = diffs[ind > startind]
+
+    result = linregress(ind2, np.log(np.abs(diffs2)))
+    slope = result.slope
+    inter = result.intercept
+
+    qoi_conv_dict = {'eignum': eignum,
+                     'sig': sig,
+                     'ind': ind,
+                     'ind2': ind2,
+                     'result': result,
+                     'slope': slope,
+                     'inter': inter}
+
+    return qoi_conv_dict
 

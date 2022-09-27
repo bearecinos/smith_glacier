@@ -9,7 +9,7 @@ else
   echo "Directory is $input_run_inv already exist"
 fi
 
-export run_lcurves_output_dir=$OUTPUT_DIR/04_run_inv_lcurves
+export run_lcurves_output_dir=$OUTPUT_DIR/08_lcurves_paper
 export run_lcurves_cov_output_dir=$OUTPUT_DIR/04_run_inv_lcurves_cov
 
 if [ ! -d $run_lcurves_output_dir ]

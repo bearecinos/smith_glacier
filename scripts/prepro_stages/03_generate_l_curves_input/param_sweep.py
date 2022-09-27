@@ -73,10 +73,10 @@ name_suff = args.name_sweep
 param_min = args.min
 param_max = args.max
 
-runs_directory = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_lcurves')
+runs_directory = os.path.join(MAIN_PATH, 'scripts/run_experiments/run_lcurves_paper')
 tomls_f = os.path.join(runs_directory, 'tomls_'+target_param)
-output_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves/output')
-diag_dir = os.path.join(MAIN_PATH, 'output/04_run_inv_lcurves/diagnostics')
+output_dir = os.path.join(MAIN_PATH, 'output/08_lcurves_paper/output')
+diag_dir = os.path.join(MAIN_PATH, 'output/08_lcurves_paper/diagnostics')
 
 # Paths to data
 if not os.path.exists(tomls_f):
@@ -87,7 +87,7 @@ if not os.path.exists(diag_dir):
     os.makedirs(diag_dir)
 
 command_template = "mpirun -n 24 python $RUN_CONFIG_DIR/run_lcurves/run_lcurves_inv.py " \
-                   "$RUN_CONFIG_DIR/run_lcurves/{target_param}/{toml_fname} |& tee {log_fname}\n"
+                   "$RUN_CONFIG_DIR/run_lcurves_paper/{target_param}/{toml_fname} |& tee {log_fname}\n"
 
 script_name = f"sweep_{target_param}.sh"
 

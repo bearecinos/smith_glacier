@@ -1,5 +1,5 @@
 #!/bin/bash
-input_run_inv=$INPUT_DIR/input_run_inv
+input_run_inv=$INPUT_DIR/input_run_workflow
 
 if [ ! -d $input_run_inv ]
 then

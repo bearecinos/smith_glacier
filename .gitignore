@@ -13,3 +13,4 @@ scripts/run_experiments/run_workflow/dan_tomls
 scripts/run_experiments/run_workflow/experiments_priors
 scripts/run_experiments/run_workflow/itslive_exp_paper_tomls/log_tom*
 plots/
+scripts/run_experiments/run_lcurves_paper/tomls_gamma_alpha/log__*

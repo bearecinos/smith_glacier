@@ -66,18 +66,18 @@ alpha_active = true
 beta_active = true
 
 # Dan priors
-gamma_alpha = 100.0
-delta_alpha = 1.9e-07
+gamma_alpha = 100.0 # after doing gamma-alpha and gamma-beta l-curve
+delta_alpha = 1e-5
 gamma_beta = 10.0
-delta_beta = 9.4e-06
-delta_beta_gnd = 9.4e-06
+delta_beta = 1e-5
+delta_beta_gnd = 3e-5
 
 # All rounded to 2 digits
-#C0_alpha = 4200.0
-#C0_alpha**2 = 65.0
-#L0_alpha = 23000.0
-#C0_beta = 850.0
-#C0_beta**2 = 29.0
+#C0_alpha = 80.0
+#C0_alpha**2 = 8.9
+#L0_alpha = 3200.0
+#C0_beta = 800.0
+#C0_beta**2 = 28.0
 #L0_beta = 1000.0
 
 ftol = 1e-8

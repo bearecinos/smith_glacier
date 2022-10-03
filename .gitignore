@@ -15,3 +15,4 @@ scripts/run_experiments/run_workflow/itslive_exp_paper_tomls/log_tom*
 plots/
 scripts/run_experiments/run_lcurves_paper/tomls_gamma_alpha/log__*
 scripts/run_experiments/run_lcurves_paper/tomls_gamma_beta/log__*
+scripts/run_experiments/run_lcurves_paper/lcurve_workflow/log_*

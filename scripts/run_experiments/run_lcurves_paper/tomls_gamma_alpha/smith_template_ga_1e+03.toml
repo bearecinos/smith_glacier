@@ -65,17 +65,17 @@ max_iter = 500
 alpha_active = true
 beta_active = true
 
-# Dan priors + gamma_alpha from l-curve
-gamma_alpha = 100.0
+# Dan priors
+gamma_alpha = 1.0E+3
 delta_alpha = 1.9e-07
 gamma_beta = 9.4
 delta_beta = 9.4e-06
 delta_beta_gnd = 9.4e-06
 
 # All rounded to 2 digits
-#C0_alpha = 4200.0
-#C0_alpha**2 = 65.0
-#L0_alpha = 23000.0
+#C0_alpha = 250000.0
+#C0_alpha**2 = 500.0
+#L0_alpha = 3000.0
 #C0_beta = 900.0
 #C0_beta**2 = 30.0
 #L0_beta = 1000.0
@@ -92,7 +92,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_'
+phase_suffix = 'gamma_alpha_1E+3'
 
 [ice_dynamics]
 
@@ -142,7 +142,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 0
 
-phase_suffix = '_'
+phase_suffix = 'gamma_alpha_1E+3'
 
 [eigendec]
 
@@ -154,18 +154,18 @@ misfit_only = true
 precondition_by = "prior" #prior by default
 #eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_'
+phase_suffix = 'gamma_alpha_1E+3'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_'
+phase_suffix = 'gamma_alpha_1E+3'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_'
+phase_suffix = 'gamma_alpha_1E+3'
 
 [melt]
 
@@ -177,6 +177,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_'
+phase_suffix = 'gamma_alpha_1E+3'
 sample_posterior = true
 num_eigenvals = 10

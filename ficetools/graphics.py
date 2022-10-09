@@ -51,7 +51,7 @@ def plot_field_in_contour_plot(x, y, t, field, field_name,
     if levels is None:
         levels = np.linspace(minv, maxv, 200)
         ticks = np.linspace(minv, maxv, 3)
-    c = ax.tricontourf(x, y, t, field, levels=levels, cmap=cmap)
+    c = ax.tricontourf(x, y, t, field, levels=levels, cmap=cmap, extend="both")
     if add_mesh:
         ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
     cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal")
@@ -63,7 +63,7 @@ def plot_field_in_contour_plot(x, y, t, field, field_name,
 def plot_lcurve_scatter(data_frame, var_name, ax,
                         xlim_min=None, xlim_max=None,
                         ylim_min=None, ylim_max=None, xytext=(float, float),
-                        rot=float):
+                        rot=float, add_annotate=False):
     """
 
     :param data_frame: pandas.Dataframe with the results of the l-curve
@@ -83,14 +83,18 @@ def plot_lcurve_scatter(data_frame, var_name, ax,
 
     ax.scatter(div, j_ls)
     ax.plot(div, j_ls)
-    for i, lab in enumerate(data_frame[var_name]):
-        ax.annotate(lab, (div[i], j_ls[i]), xytext=xytext, textcoords='offset pixels',
-                     horizontalalignment='right',
-                     verticalalignment='bottom', rotation=rot, size=10)
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_ylabel('J_ls')
-    ax.set_xlabel('J_reg/' + str(var_name))
+    if add_annotate:
+        for i, lab in enumerate(data_frame[var_name]):
+            ax.annotate(lab, (div[i], j_ls[i]), xytext=xytext, textcoords='offset pixels',
+                         horizontalalignment='right',
+                         verticalalignment='bottom', rotation=rot, size=12)
+    ax.set_xscale("log", base=10)
+    ax.set_yscale("log", base=10)
+    ax.set_ylabel(r'$J_{c}$')
+    if 'alpha' in var_name:
+        ax.set_xlabel(r'$J_{reg}/$' + r'$\gamma_{\alpha}$')
+    if 'beta' in var_name:
+        ax.set_xlabel(r'$J_{reg}/$' + r'$\gamma_{\beta}$')
     ax.set_xlim(xlim_min, xlim_max)
     ax.set_ylim(ylim_min, ylim_max)
     return {}

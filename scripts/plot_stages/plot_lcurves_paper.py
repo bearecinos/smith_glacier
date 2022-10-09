@@ -46,15 +46,6 @@ args = parser.parse_args()
 config_file = args.conf
 configuration = ConfigObj(os.path.expanduser(config_file))
 
-rcParams['axes.labelsize'] = 16
-rcParams['xtick.labelsize'] = 16
-rcParams['ytick.labelsize'] = 16
-
-color = sns.color_palette()
-cmap_topo = salem.get_cmap('topo')
-cmap_thick = plt.cm.get_cmap('YlGnBu')
-cmap_glen=plt.get_cmap('RdBu_r')
-
 #Load main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)

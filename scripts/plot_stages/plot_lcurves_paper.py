@@ -294,7 +294,7 @@ ax7.semilogy(x_qoi, s, color=colors[3], label='posterior')
 ax7.legend()
 ax7.set_xlabel('Time (yrs)')
 ax7.set_ylabel(r'$\sigma_{QoI}$ $(m^3)$')
-at = AnchoredText('i', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('h', prop=dict(size=14), frameon=True, loc='upper left')
 ax7.add_artist(at)
 
 plt.tight_layout()

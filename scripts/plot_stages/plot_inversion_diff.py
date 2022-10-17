@@ -55,6 +55,7 @@ from ficetools import backend, utils_funcs, graphics, velocity
 rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 18
 rcParams['ytick.labelsize'] = 18
+rcParams['axes.titlesize'] = 20
 
 cmap_vel=sns.diverging_palette(220, 20, as_cmap=True)
 #cmap_params_alpha = sns.diverging_palette(145, 300, s=60, as_cmap=True)

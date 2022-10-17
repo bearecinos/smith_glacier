@@ -37,7 +37,10 @@ parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass
 parser.add_argument("-toml_path_lcurve", type=str,
                     default="../run_experiments/run_workflow/smith_cloud.toml",
                     help="pass .toml file")
-parser.add_argument("-toml_path_workflow", type=str,
+parser.add_argument("-toml_path_workflow_i", type=str,
+                    default="../run_experiments/run_workflow/smith_cloud.toml",
+                    help="pass .toml file")
+parser.add_argument("-toml_path_workflow_m", type=str,
                     default="../run_experiments/run_workflow/smith_cloud.toml",
                     help="pass .toml file")
 parser.add_argument("-sub_plot_dir", type=str,
@@ -62,53 +65,99 @@ tomlf_lcurve = args.toml_path_lcurve
 params_lcurve = conf.ConfigParser(tomlf_lcurve)
 path_output = os.path.join(params_lcurve.io.output_dir, 'inversion')
 
-tomlf_workflow = args.toml_path_workflow
-params_workflow = conf.ConfigParser(tomlf_workflow)
+tomlf_workflow_i = args.toml_path_workflow_i
+params_workflow_i = conf.ConfigParser(tomlf_workflow_i)
+
+tomlf_workflow_m = args.toml_path_workflow_m
+params_workflow_m = conf.ConfigParser(tomlf_workflow_m)
 
 ## Get inv sigma files
-exp_outdir_fwd = utils_funcs.define_stage_output_paths(params_workflow, 'time')
-exp_outdir_errp = utils_funcs.define_stage_output_paths(params_workflow, 'error_prop')
+exp_outdir_fwd_i = utils_funcs.define_stage_output_paths(params_workflow_i, 'time')
+exp_outdir_errp_i = utils_funcs.define_stage_output_paths(params_workflow_i, 'error_prop')
+exp_outdir_fwd_m = utils_funcs.define_stage_output_paths(params_workflow_m, 'time')
+exp_outdir_errp_m = utils_funcs.define_stage_output_paths(params_workflow_m, 'error_prop')
+
 
 #Config five
-fnames = utils_funcs.get_file_names_for_path_plot(params_workflow)
-Q_fname = fnames[0]
-sigma_fname = fnames[1]
-sigma_prior_fname = fnames[2]
-print(Q_fname)
-print(sigma_fname)
-print(sigma_prior_fname)
+fnames_i = utils_funcs.get_file_names_for_path_plot(params_workflow_i)
+Q_fname_i = fnames_i[0]
+sigma_fname_i = fnames_i[1]
+sigma_prior_fname_i = fnames_i[2]
+print(Q_fname_i)
+print(sigma_fname_i)
+print(sigma_prior_fname_i)
 
-Qfile = exp_outdir_fwd / Q_fname
-sigmafile = exp_outdir_errp / sigma_fname
-sigmapriorfile = exp_outdir_errp / sigma_prior_fname
+Qfile_i = exp_outdir_fwd_i / Q_fname_i
+sigmafile_i = exp_outdir_errp_i / sigma_fname_i
+sigmapriorfile_i = exp_outdir_errp_i / sigma_prior_fname_i
 
-assert Qfile.is_file()
-assert sigmafile.is_file()
-assert sigmapriorfile.is_file()
+assert Qfile_i.is_file()
+assert sigmafile_i.is_file()
+assert sigmapriorfile_i.is_file()
+
+fnames_m = utils_funcs.get_file_names_for_path_plot(params_workflow_m)
+Q_fname_m = fnames_m[0]
+sigma_fname_m = fnames_m[1]
+sigma_prior_fname_m = fnames_m[2]
+print(Q_fname_m)
+print(sigma_fname_m)
+print(sigma_prior_fname_m)
+
+Qfile_m = exp_outdir_fwd_m / Q_fname_m
+sigmafile_m = exp_outdir_errp_m / sigma_fname_m
+sigmapriorfile_m = exp_outdir_errp_m / sigma_prior_fname_m
+
+assert Qfile_m.is_file()
+assert sigmafile_m.is_file()
+assert sigmapriorfile_m.is_file()
 
 ### Reading QoI path and sigma QoI
-with open(Qfile, 'rb') as f:
+with open(Qfile_i, 'rb') as f:
     out = pickle.load(f)
-dQ_vals = out[0]
-dQ_t = out[1]
+dQ_vals_i = out[0]
+dQ_t_i = out[1]
 
-with open(sigmafile, 'rb') as f:
+with open(sigmafile_i, 'rb') as f:
     out = pickle.load(f)
-sigma_vals = out[0]
-sigma_t = out[1]
+sigma_vals_i = out[0]
+sigma_t_i = out[1]
 
-with open(sigmapriorfile, 'rb') as f:
+with open(sigmapriorfile_i, 'rb') as f:
     out = pickle.load(f)
-sigma_prior_vals = out[0]
+sigma_prior_vals_i = out[0]
 
-sigma_interp = np.interp(dQ_t, sigma_t, sigma_vals)
-sigma_prior_interp = np.interp(dQ_t, sigma_t, sigma_prior_vals)
+sigma_interp_i = np.interp(dQ_t_i, sigma_t_i, sigma_vals_i)
+sigma_prior_interp_i = np.interp(dQ_t_i, sigma_t_i, sigma_prior_vals_i)
 
-s = 2*sigma_interp
-sp = 2*sigma_prior_interp
+s_i = 2*sigma_interp_i
+sp_i = 2*sigma_prior_interp_i
 
-x_qoi = dQ_t
-y_qoi = dQ_vals - dQ_vals[0]
+x_qoi_i = dQ_t_i
+y_qoi_i = dQ_vals_i - dQ_vals_i[0]
+
+### Reading QoI path and sigma QoI
+with open(Qfile_m, 'rb') as f:
+    out = pickle.load(f)
+dQ_vals_m = out[0]
+dQ_t_m = out[1]
+
+with open(sigmafile_m, 'rb') as f:
+    out = pickle.load(f)
+sigma_vals_m = out[0]
+sigma_t_m = out[1]
+
+with open(sigmapriorfile_m, 'rb') as f:
+    out = pickle.load(f)
+sigma_prior_vals_m = out[0]
+
+sigma_interp_m = np.interp(dQ_t_m, sigma_t_m, sigma_vals_m)
+sigma_prior_interp_m = np.interp(dQ_t_m, sigma_t_m, sigma_prior_vals_m)
+
+s_m = 2*sigma_interp_m
+sp_m = 2*sigma_prior_interp_m
+
+x_qoi_m = dQ_t_m
+y_qoi_m = dQ_vals_m - dQ_vals_m[0]
 
 # Set parameter range for gamma-alpha and gamma-beta exp.
 param_min = 1e-04
@@ -245,8 +294,10 @@ at = AnchoredText('c', prop=dict(size=14), frameon=True, loc='upper right')
 ax2.add_artist(at)
 
 ax3 = plt.subplot(spec[3])
-ax3.plot(x_qoi, y_qoi, color=colors[3], label='QoI projection')
-ax3.fill_between(x_qoi, y_qoi-s, y_qoi+s, facecolor=colors[3], alpha=0.3)
+ax3.plot(x_qoi_i, y_qoi_i, color=colors[3], label='QoI projection \n ITS_LIVE')
+ax3.fill_between(x_qoi_i, y_qoi_i-s_i, y_qoi_i+s_i, facecolor=colors[3], alpha=0.3)
+ax3.plot(x_qoi_m, y_qoi_m, color=colors[4], label='QoI projection \n  MEaSUREs')
+ax3.fill_between(x_qoi_m, y_qoi_m-s_m, y_qoi_m+s_m, facecolor=colors[4], alpha=0.3)
 ax3.set_xlabel('Time (yrs)')
 ax3.set_ylabel(r'$QoI: VAF$ $(m^3)$')
 ax3.legend(loc='lower left')
@@ -280,8 +331,10 @@ ax6.add_artist(at)
 
 ax7 = plt.subplot(spec[7])
 ax7.tick_params(**tick_options_lc)
-ax7.semilogy(x_qoi, sp, color=colors[3], linestyle='dashed', label='prior')
-ax7.semilogy(x_qoi, s, color=colors[3], label='posterior')
+ax7.semilogy(x_qoi_i, sp_i, color=colors[3], linestyle='dashed', label='prior ITS_LIVE')
+ax7.semilogy(x_qoi_i, s_i, color=colors[3], label='posterior ITS_LIVE')
+ax7.semilogy(x_qoi_m, sp_m, color=colors[4], linestyle='dashed', label='prior MEaSUREs')
+ax7.semilogy(x_qoi_m, s_m, color=colors[4], label='posterior MEaSUREs')
 ax7.legend()
 ax7.set_xlabel('Time (yrs)')
 ax7.set_ylabel(r'$\sigma_{QoI}$ $(m^3)$')

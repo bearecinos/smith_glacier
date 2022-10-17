@@ -38,12 +38,12 @@ toml set --toml-path $2 io.diagnostics_dir "$run_inv_output_dir/diagnostics"
 #OUT=$(tail "$path_logs/log_tom2_fwd.txt")
 #echo $OUT | mail -s "run fwd finish config1" beatriz.recinos@ed.ac.uk
 
-echo $(date -u) "Run eigen stages started"
-
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $2 |& tee $path_logs/log_tom2_eigen.txt
-OUT=$(tail "$path_logs/log_tom2_eigen.txt")
-echo $OUT | mail -s "run eigen finish config1" beatriz.recinos@ed.ac.uk
-
+#echo $(date -u) "Run eigen stages started"
+#
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_eigendec.py $2 |& tee $path_logs/log_tom2_eigen.txt
+#OUT=$(tail "$path_logs/log_tom2_eigen.txt")
+#echo $OUT | mail -s "run eigen finish config1" beatriz.recinos@ed.ac.uk
+#
 echo $(date -u) "Run error prop stages started"
 mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_errorprop.py $2 |& tee $path_logs/log_tom2_errprop.txt
 OUT=$(tail "$path_logs/log_tom2_errprop.txt")

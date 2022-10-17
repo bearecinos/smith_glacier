@@ -298,6 +298,8 @@ ax3.plot(x_qoi_i, y_qoi_i, color=colors[3], label='QoI projection \n ITS_LIVE')
 ax3.fill_between(x_qoi_i, y_qoi_i-s_i, y_qoi_i+s_i, facecolor=colors[3], alpha=0.3)
 ax3.plot(x_qoi_m, y_qoi_m, color=colors[4], label='QoI projection \n  MEaSUREs')
 ax3.fill_between(x_qoi_m, y_qoi_m-s_m, y_qoi_m+s_m, facecolor=colors[4], alpha=0.3)
+ax3.text(x_qoi_m[-1]+2, y_qoi_m[-1]-np.abs(y_qoi_i[-1]-y_qoi_m[-1]),
+         '}'+r'$\sim O(10^{11})$', fontsize = 24)
 ax3.set_xlabel('Time (yrs)')
 ax3.set_ylabel(r'$QoI: VAF$ $(m^3)$')
 ax3.legend(loc='lower left')

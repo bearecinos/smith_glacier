@@ -342,8 +342,8 @@ cax = divider.append_axes("bottom", size="5%", pad=0.5)
 smap = salem.Map(gv, countries=False)
 x_n, y_n = smap.grid.transform(x, y,
                               crs=gv.proj)
-minv = -40
-maxv = 40
+minv = -50
+maxv = 50
 levels = np.linspace(minv,maxv,200)
 ticks = np.linspace(minv,maxv,3)
 c = ax3.tricontourf(x_n, y_n, t, beta_v_me-beta_v_il, levels=levels, cmap=cmap_params_bglen, extend="both")

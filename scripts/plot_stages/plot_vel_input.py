@@ -218,7 +218,7 @@ gv = salem.Grid(nxny=(len(x_grid), len(y_grid)), dxdy=(dx, -1*dy), # We use -dy 
 
 
 # Now plotting
-r = 1.8
+r = 2.0
 
 fig1 = plt.figure(figsize=(10*r, 6*r))#, constrained_layout=True)
 spec = gridspec.GridSpec(2, 3, hspace=0.3, wspace=0.1)

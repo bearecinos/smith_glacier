@@ -10,7 +10,11 @@ Plot inversion output
 """
 import sys
 import os
+import salem
+import h5py
 import numpy as np
+import pandas as pd
+import xarray as xr
 
 from fenics import *
 from fenics_ice import config as conf
@@ -218,7 +222,7 @@ r = 2.0
 fig1 = plt.figure(figsize=(10*r, 6*r))#, constrained_layout=True)
 spec = gridspec.GridSpec(2, 3, hspace=0.3, wspace=0.1)
 
-ax0 = plt.subplot(spec[4])
+ax0 = plt.subplot(spec[3])
 ax0.set_aspect('equal')
 divider = make_axes_locatable(ax0)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -248,7 +252,7 @@ cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
 at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
-ax1 = plt.subplot(spec[5])
+ax1 = plt.subplot(spec[4])
 ax1.set_aspect('equal')
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -277,7 +281,7 @@ cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
 at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
-ax2 = plt.subplot(spec[6])
+ax2 = plt.subplot(spec[5])
 ax2.set_aspect('equal')
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)

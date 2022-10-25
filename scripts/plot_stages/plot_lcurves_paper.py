@@ -248,7 +248,7 @@ max_alpha = 40
 min_beta = 400
 max_beta = 800
 
-g = 1.2
+g = 1.0
 tick_options_lc = {'axis':'both','which':'both','bottom':True,
     'top':False,'left':True,'right':False,'labelleft':True, 'labelbottom':True}
 
@@ -257,31 +257,31 @@ tick_options_mesh = {'axis':'both','which':'both','bottom':False,
 
 colors = sns.color_palette()
 
-rcParams['axes.labelsize'] = 20
-rcParams['xtick.labelsize'] = 20
-rcParams['ytick.labelsize'] = 20
-rcParams['axes.titlesize'] = 20
-rcParams['legend.fontsize'] = 10
+rcParams['axes.labelsize'] = 18
+rcParams['xtick.labelsize'] = 18
+rcParams['ytick.labelsize'] = 18
+rcParams['axes.titlesize'] = 18
+rcParams['legend.fontsize'] = 16
 
 cmap_params_alpha = plt.cm.get_cmap('YlOrBr')
 cmap_params_bglen = plt.cm.get_cmap('YlGnBu')
 
-fig1 = plt.figure(figsize=(15*g, 7*g))#, constrained_layout=True)
-spec = gridspec.GridSpec(2, 4, hspace=0.45, wspace=0.65, width_ratios=[1.5, 1.5, 1.3, 1.3])
+fig1 = plt.figure(figsize=(18*g, 9*g))#, constrained_layout=True)
+spec = gridspec.GridSpec(2, 4, hspace=0.7, wspace=0.7, width_ratios=[2, 2, 1.5, 1.5])
 
 ax0 = plt.subplot(spec[0])
 ax0.tick_params(**tick_options_mesh)
-graphics.plot_field_in_contour_plot(x, y, t, v_alpha_min, r'Sliding parameter $\alpha$',
+graphics.plot_field_in_contour_plot(x, y, t, v_alpha_min, r'Sliding parameter $\alpha$' + '\n [m$^{-1/6}$ yr$^{1/6}$]',
                                ax=ax0, vmin=min_alpha, vmax=max_alpha, cmap=cmap_params_alpha, add_mesh=True)
-ax0.set_title(r'$\gamma_{\alpha} = $'+ str(np.min(gamma_alpha['gamma_alpha'])), fontsize=20)
+ax0.set_title(r'$\gamma_{\alpha} = $'+ str(np.min(gamma_alpha['gamma_alpha'])), fontsize=18)
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
 ax1 = plt.subplot(spec[1])
 ax1.tick_params(**tick_options_mesh)
-graphics.plot_field_in_contour_plot(x, y, t, v_alpha_max, r'Sliding parameter $\alpha$',
+graphics.plot_field_in_contour_plot(x, y, t, v_alpha_max, r'Sliding parameter $\alpha$' + '\n [m$^{-1/6}$ yr$^{1/6}$]',
                                ax=ax1, vmin=min_alpha, vmax=max_alpha, cmap=cmap_params_alpha, add_mesh=True)
-ax1.set_title(r'$\gamma_{\alpha} = $'+ str(np.max(gamma_alpha['gamma_alpha'])), fontsize=20)
+ax1.set_title(r'$\gamma_{\alpha} = $'+ str(np.max(gamma_alpha['gamma_alpha'])), fontsize=18)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
@@ -290,7 +290,7 @@ ax2.tick_params(**tick_options_lc)
 graphics.plot_lcurve_scatter(gamma_alpha, 'gamma_alpha', ax=ax2,
                               xlim_min=None, xlim_max=10e9, ylim_min=None,
                               ylim_max=None, xytext=(40,5), rot=30)
-ax2.set_title(r'$\gamma_{\alpha}  \it{L-curve}$', fontsize=20)
+ax2.set_title(r'$\gamma_{\alpha}  \it{L-curve}$', fontsize=18)
 at = AnchoredText('c', prop=dict(size=14), frameon=True, loc='upper right')
 ax2.add_artist(at)
 
@@ -303,23 +303,23 @@ ax3.text(x_qoi_m[-1]+2, y_qoi_m[-1]-np.abs(y_qoi_i[-1]-y_qoi_m[-1]),
          '}'+r'$\sim O(10^{11})$', fontsize = 24)
 ax3.set_xlabel('Time (yrs)')
 ax3.set_ylabel(r'$QoI: VAF$ $(m^3)$')
-ax3.legend(loc='lower left')
+ax3.legend(bbox_to_anchor=(1.1, 1.05))
 at = AnchoredText('d', prop=dict(size=14), frameon=True, loc='upper right')
 ax3.add_artist(at)
 
 ax4 = plt.subplot(spec[4])
 ax4.tick_params(**tick_options_mesh)
-graphics.plot_field_in_contour_plot(x, y, t, v_beta_min, r'Ice stiffness parameter $\beta$',
+graphics.plot_field_in_contour_plot(x, y, t, v_beta_min, r'Ice stiffness parameter $\beta$'+ '\n [Pa$^{1/2}$. yr$^{1/6}$]',
                                      ax=ax4, vmin=min_beta, vmax=max_beta, cmap=cmap_params_bglen, add_mesh=True)
-ax4.set_title(r'$\gamma_{\beta} = $' + str(np.min(gamma_beta['gamma_beta'])), fontsize=20)
+ax4.set_title(r'$\gamma_{\beta} = $' + str(np.min(gamma_beta['gamma_beta'])), fontsize=18)
 at = AnchoredText('e', prop=dict(size=14), frameon=True, loc='upper left')
 ax4.add_artist(at)
 
 ax5 = plt.subplot(spec[5])
 ax5.tick_params(**tick_options_mesh)
-graphics.plot_field_in_contour_plot(x, y, t, v_beta_max, r'Ice stiffness parameter $\beta$',
+graphics.plot_field_in_contour_plot(x, y, t, v_beta_max, r'Ice stiffness parameter $\beta$'+ '\n [Pa$^{1/2}$. yr$^{1/6}$]',
                                      ax=ax5, vmin=min_beta, vmax=max_beta, cmap=cmap_params_bglen, add_mesh=True)
-ax5.set_title(r'$\gamma_{\beta} = $' + str(np.max(gamma_beta['gamma_beta'])), fontsize=20)
+ax5.set_title(r'$\gamma_{\beta} = $' + str(np.max(gamma_beta['gamma_beta'])), fontsize=18)
 at = AnchoredText('f', prop=dict(size=14), frameon=True, loc='upper left')
 ax5.add_artist(at)
 
@@ -328,7 +328,7 @@ ax6.tick_params(**tick_options_lc)
 graphics.plot_lcurve_scatter(gamma_beta, 'gamma_beta', ax=ax6,
                               xlim_min=None, xlim_max=10e9, ylim_min=None,
                               ylim_max=None, xytext=(45,1), rot=30)
-ax6.set_title(r'$\gamma_{\beta}  \it{L-curve}$', fontsize=20)
+ax6.set_title(r'$\gamma_{\beta}  \it{L-curve}$', fontsize=18)
 at = AnchoredText('g', prop=dict(size=14), frameon=True, loc='upper right')
 ax6.add_artist(at)
 
@@ -338,7 +338,8 @@ ax7.semilogy(x_qoi_i, sp_i, color=colors[3], linestyle='dashed', label='prior IT
 ax7.semilogy(x_qoi_i, s_i, color=colors[3], label='posterior ITS_LIVE')
 ax7.semilogy(x_qoi_m, sp_m, color=colors[4], linestyle='dashed', label='prior MEaSUREs')
 ax7.semilogy(x_qoi_m, s_m, color=colors[4], label='posterior MEaSUREs')
-ax7.legend()
+ax7.legend(bbox_to_anchor=(1.1, 1.05))
+ax7.grid(True, which="major", ls="-")
 ax7.set_xlabel('Time (yrs)')
 ax7.set_ylabel(r'$\sigma_{QoI}$ $(m^3)$')
 at = AnchoredText('h', prop=dict(size=14), frameon=True, loc='upper left')

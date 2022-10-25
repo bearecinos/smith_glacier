@@ -152,6 +152,7 @@ p4_prior, = ax1.semilogy(qoi_dict_c4['x'], qoi_dict_c4['sigma_prior'],
 p4_post, = ax1.semilogy(qoi_dict_c4['x'], qoi_dict_c4['sigma_post'],
              color=colors[3], label='')
 
+ax1.grid(True, which="major", ls="-")
 ax1.set_xlabel('Time (yrs)')
 ax1.set_ylabel(r'$\sigma$ $(m^3)$')
 

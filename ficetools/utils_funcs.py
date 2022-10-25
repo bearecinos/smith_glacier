@@ -355,7 +355,7 @@ def generate_constant_parameter_configuration(target_param=str,
 
     return gamma, delta
 
-def define_stage_output_paths(params, stage):
+def define_stage_output_paths(params, stage, diagnostics=False):
     """
     Defines the stages output dirs for a particular set of params
 
@@ -365,9 +365,10 @@ def define_stage_output_paths(params, stage):
     """
 
     # general paths
-    run_name = params.io.run_name
-    out_dir = params.io.output_dir
-    diag_dir = params.io.diagnostics_dir
+    if diagnostics:
+        out_dir = params.io.diagnostics_dir
+    else:
+        out_dir = params.io.output_dir
 
     # general names of stages
     phase_name_inversion = params.inversion.phase_name

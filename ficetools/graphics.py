@@ -257,7 +257,7 @@ def set_levels_ticks_for_colorbar(vmin, vmax):
     return levels, ticks
 
 
-def define_stage_output_paths(params, stage):
+def define_stage_output_paths(params, stage, diagnostics=False):
     """
     Defines the stages output dirs for a particular set of params
 
@@ -270,7 +270,10 @@ def define_stage_output_paths(params, stage):
     """
 
     # general paths
-    out_dir = params.io.output_dir
+    if diagnostics:
+        out_dir = params.io.diagnostics_dir
+    else:
+        out_dir = params.io.output_dir
 
     # general names of stages
     phase_name_inversion = params.inversion.phase_name

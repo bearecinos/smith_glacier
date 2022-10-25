@@ -20,7 +20,6 @@ from fenics import *
 from fenics_ice import config as conf
 from fenics_ice import mesh as fice_mesh
 from pathlib import Path
-import seaborn as sns
 from configobj import ConfigObj
 import argparse
 
@@ -223,7 +222,7 @@ r = 2.0
 fig1 = plt.figure(figsize=(10*r, 6*r))#, constrained_layout=True)
 spec = gridspec.GridSpec(2, 3, hspace=0.3, wspace=0.1)
 
-ax0 = plt.subplot(spec[0])
+ax0 = plt.subplot(spec[3])
 ax0.set_aspect('equal')
 divider = make_axes_locatable(ax0)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -250,10 +249,10 @@ smap.visualize(ax=ax0, orientation='horizontal', addcbar=False)
 
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='MEaSUREs Velocity \n [m. $yr^{-1}$]')
-at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
-ax1 = plt.subplot(spec[1])
+ax1 = plt.subplot(spec[4])
 ax1.set_aspect('equal')
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -279,10 +278,10 @@ smap.set_cmap('viridis')
 smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VX STD MEaSUREs \n [m. $yr^{-1}$]')
-at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('e', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
-ax2 = plt.subplot(spec[2])
+ax2 = plt.subplot(spec[5])
 ax2.set_aspect('equal')
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -308,11 +307,11 @@ smap.set_cmap('viridis')
 smap.visualize(ax=ax2, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VY STD MEaSUREs \n [m. $yr^{-1}$]')
-at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('f', prop=dict(size=18), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
 
-ax3 = plt.subplot(spec[3])
+ax3 = plt.subplot(spec[0])
 ax3.set_aspect('equal')
 divider = make_axes_locatable(ax3)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -341,11 +340,11 @@ smap.set_extend('both')
 smap.visualize(ax=ax3, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='ITSLive velocity \n [m. $yr^{-1}$]')
-at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 
-ax4 = plt.subplot(spec[4])
+ax4 = plt.subplot(spec[1])
 ax4.set_aspect('equal')
 divider = make_axes_locatable(ax4)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -371,10 +370,10 @@ smap.set_extend('both')
 smap.visualize(ax=ax4, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VX STD ITSLive \n [m. $yr^{-1}$]')
-at = AnchoredText('e', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax4.add_artist(at)
 
-ax5 = plt.subplot(spec[5])
+ax5 = plt.subplot(spec[2])
 ax5.set_aspect('equal')
 divider = make_axes_locatable(ax5)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -400,7 +399,7 @@ smap.set_extend('both')
 smap.visualize(ax=ax5, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VY STD ITSLive \n [m. $yr^{-1}$]')
-at = AnchoredText('f', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
 ax5.add_artist(at)
 
 plt.tight_layout()

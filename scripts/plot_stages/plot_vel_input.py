@@ -249,7 +249,7 @@ smap.visualize(ax=ax0, orientation='horizontal', addcbar=False)
 
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='MEaSUREs Velocity \n [m. $yr^{-1}$]')
-at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
 ax1 = plt.subplot(spec[4])
@@ -278,7 +278,7 @@ smap.set_cmap('viridis')
 smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VX STD MEaSUREs \n [m. $yr^{-1}$]')
-at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('e', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
 ax2 = plt.subplot(spec[5])
@@ -307,7 +307,7 @@ smap.set_cmap('viridis')
 smap.visualize(ax=ax2, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VY STD MEaSUREs \n [m. $yr^{-1}$]')
-at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('f', prop=dict(size=18), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
 
@@ -340,7 +340,7 @@ smap.set_extend('both')
 smap.visualize(ax=ax3, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='ITSLive velocity \n [m. $yr^{-1}$]')
-at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 
@@ -370,7 +370,7 @@ smap.set_extend('both')
 smap.visualize(ax=ax4, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VX STD ITSLive \n [m. $yr^{-1}$]')
-at = AnchoredText('e', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax4.add_artist(at)
 
 ax5 = plt.subplot(spec[2])
@@ -399,7 +399,7 @@ smap.set_extend('both')
 smap.visualize(ax=ax5, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
                          label='VY STD ITSLive \n [m. $yr^{-1}$]')
-at = AnchoredText('f', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
 ax5.add_artist(at)
 
 plt.tight_layout()

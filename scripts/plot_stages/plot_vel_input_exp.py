@@ -267,4 +267,4 @@ ax3.set_title('Validation set MEaSUREs', fontdict={'fontsize': 20})
 
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'input_vel_exp.png'),
-            bbox_inches='tight')
+            bbox_inches='tight', dpi=150)

@@ -75,8 +75,8 @@ params_il = conf.ConfigParser(tomlf_i)
 tomlf_m = args.toml_path_m
 params_me = conf.ConfigParser(tomlf_m)
 
-vel_file_itslive = params_il.io.input_dir / params_il.obs.vel_file
-vel_file_measures = params_me.io.input_dir / params_me.obs.vel_file
+vel_file_itslive = Path(params_il.io.input_dir) / params_il.obs.vel_file
+vel_file_measures = Path(params_me.io.input_dir) / params_me.obs.vel_file
 
 f_vel_trn = h5py.File(vel_file_itslive, 'r')
 f_vel_test = h5py.File(vel_file_measures, 'r')
@@ -152,7 +152,7 @@ smap = salem.Map(gv, countries=False)
 x_n, y_n = smap.grid.transform(x_trn, y_trn,
                               crs=gv.proj)
 
-dl = DataLevels(vv_trn, levels=np.arange(0, 1200, 10), extend='both')
+dl = DataLevels(vv_trn, levels=np.arange(0, 1000, 10), extend='both')
 c = ax0.scatter(x_n, y_n, c=dl.to_rgb(), s=0.5, cmap='viridis')
 smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
 out = graphics.get_projection_grid_labels(smap)
@@ -210,7 +210,7 @@ smap = salem.Map(gv, countries=False)
 x_n, y_n = smap.grid.transform(x_val, y_val,
                               crs=gv.proj)
 
-dl = DataLevels(vv_val, levels=np.arange(0, 1200, 10), extend='both')
+dl = DataLevels(vv_val, levels=np.arange(0, 1000, 10), extend='both')
 c = ax3.scatter(x_n, y_n, c=dl.to_rgb(), s=0.5, cmap='viridis')
 smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
 out = graphics.get_projection_grid_labels(smap)
@@ -230,7 +230,7 @@ smap = salem.Map(gv, countries=False)
 x_n, y_n = smap.grid.transform(x_val, y_val,
                               crs=gv.proj)
 
-dl = DataLevels(u_obs_std_val, levels=np.arange(0, 1200, 10), extend='both')
+dl = DataLevels(u_obs_std_val, levels=np.arange(0, 100, 1), extend='both')
 c = ax4.scatter(x_n, y_n, c=dl.to_rgb(), s=0.5, cmap='viridis')
 smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
 out = graphics.get_projection_grid_labels(smap)
@@ -249,7 +249,7 @@ smap = salem.Map(gv, countries=False)
 x_n, y_n = smap.grid.transform(x_val, y_val,
                               crs=gv.proj)
 
-dl = DataLevels(v_obs_std_val, levels=np.arange(0, 1200, 10), extend='both')
+dl = DataLevels(v_obs_std_val, levels=np.arange(0, 100, 1), extend='both')
 c = ax5.scatter(x_n, y_n, c=dl.to_rgb(), s=0.5, cmap='viridis')
 smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
 out = graphics.get_projection_grid_labels(smap)
@@ -259,8 +259,18 @@ smap.ytick_pos = out[2]
 smap.ytick_val = out[3]
 smap.visualize(ax=ax5, orientation='horizontal', addcbar=False)
 dl.append_colorbar(ax5, position='bottom', size="5%", pad=0.5, label='velocity VY STD [m. $yr^{-1}$]')
-at = AnchoredText('e', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('f', prop=dict(size=18), frameon=True, loc='upper left')
 ax5.add_artist(at)
+
+ax0.set_title('Retaining only 1.6% of ITS_LIVE data', fontdict={'fontsize': 20})
+ax1.set_title('VX STD ITS_LIVE adjusted', fontdict={'fontsize': 20})
+ax2.set_title('VY STD ITS_LIVE adjusted', fontdict={'fontsize': 20})
+
+ax3.set_title('Validation set MEaSUREs', fontdict={'fontsize': 20})
+#ax4.set_title('Validation set MEaSUREs', fontdict={'fontsize': 20})
+#ax5.set_title('Validation set MEaSUREs', fontdict={'fontsize': 20})
+
+
 
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'input_vel_exp.png'),

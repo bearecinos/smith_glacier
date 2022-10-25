@@ -10,17 +10,12 @@ Plot inversion output
 """
 import sys
 import os
-import salem
-import h5py
 import numpy as np
-import pandas as pd
-import xarray as xr
 
 from fenics import *
 from fenics_ice import config as conf
 from fenics_ice import mesh as fice_mesh
 from pathlib import Path
-import seaborn as sns
 from configobj import ConfigObj
 import argparse
 
@@ -223,7 +218,7 @@ r = 2.0
 fig1 = plt.figure(figsize=(10*r, 6*r))#, constrained_layout=True)
 spec = gridspec.GridSpec(2, 3, hspace=0.3, wspace=0.1)
 
-ax0 = plt.subplot(spec[0])
+ax0 = plt.subplot(spec[4])
 ax0.set_aspect('equal')
 divider = make_axes_locatable(ax0)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -253,7 +248,7 @@ cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
 at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
-ax1 = plt.subplot(spec[1])
+ax1 = plt.subplot(spec[5])
 ax1.set_aspect('equal')
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -282,7 +277,7 @@ cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
 at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
-ax2 = plt.subplot(spec[2])
+ax2 = plt.subplot(spec[6])
 ax2.set_aspect('equal')
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -312,7 +307,7 @@ at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
 
-ax3 = plt.subplot(spec[3])
+ax3 = plt.subplot(spec[0])
 ax3.set_aspect('equal')
 divider = make_axes_locatable(ax3)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -345,7 +340,7 @@ at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 
-ax4 = plt.subplot(spec[4])
+ax4 = plt.subplot(spec[1])
 ax4.set_aspect('equal')
 divider = make_axes_locatable(ax4)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
@@ -374,7 +369,7 @@ cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
 at = AnchoredText('e', prop=dict(size=18), frameon=True, loc='upper left')
 ax4.add_artist(at)
 
-ax5 = plt.subplot(spec[5])
+ax5 = plt.subplot(spec[2])
 ax5.set_aspect('equal')
 divider = make_axes_locatable(ax5)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)

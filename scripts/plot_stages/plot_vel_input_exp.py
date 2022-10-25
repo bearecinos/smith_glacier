@@ -14,15 +14,12 @@ import salem
 from salem import DataLevels
 import h5py
 import numpy as np
-import pandas as pd
 import xarray as xr
 import pyproj
 
 from fenics import *
 from fenics_ice import config as conf
-from fenics_ice import mesh as fice_mesh
 from pathlib import Path
-import seaborn as sns
 from configobj import ConfigObj
 import argparse
 
@@ -31,8 +28,6 @@ from matplotlib import rcParams
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import matplotlib.gridspec as gridspec
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.tri as tri
 
 # Load configuration file for more order in paths
 parser = argparse.ArgumentParser()
@@ -269,8 +264,6 @@ ax2.set_title('VY STD ITS_LIVE adjusted', fontdict={'fontsize': 20})
 ax3.set_title('Validation set MEaSUREs', fontdict={'fontsize': 20})
 #ax4.set_title('Validation set MEaSUREs', fontdict={'fontsize': 20})
 #ax5.set_title('Validation set MEaSUREs', fontdict={'fontsize': 20})
-
-
 
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'input_vel_exp.png'),

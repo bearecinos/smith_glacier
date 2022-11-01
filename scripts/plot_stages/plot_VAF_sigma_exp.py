@@ -191,7 +191,7 @@ ax0.grid(True, which="both", ls="-")
 ax0.set_xlabel('Time (yrs)')
 ax0.set_ylabel(r'$\sigma$ Q$(m^3)$')
 
-plt.legend(handles = [p2_post, p5_post, p4_post, p1_post, p3_post],
+plt.legend(handles = [p2_prior, p5_prior, p4_prior, p1_prior, p3_prior],
            labels = ['Weak prior',
                      '',
                      '',

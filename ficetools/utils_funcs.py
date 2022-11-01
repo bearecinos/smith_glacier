@@ -20,6 +20,7 @@ from .backend import MPI, Mesh, XDMFFile, Function, \
 from dolfin import KrylovSolver
 from tlm_adjoint.interface import function_new
 import h5py
+from fenics_ice import config
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -482,3 +483,51 @@ def get_pts_from_h5_velfile(file):
     y = f['y_cloud'][:]
     return len(x), len(y)
 
+def get_prior_information_from_toml(toml):
+    """
+    Gets the prior strength information from a toml file path
+    toml: path to toml
+    returns: pandas.Dataframe df containing all the run information
+    """
+    f_name = os.path.basename(toml)
+    name, ext = os.path.splitext(f_name)
+    list_vars = name.split('_')
+    C0a2 = []
+    L0a = []
+    C0b2 = []
+    L0b = []
+    vel_config = []
+
+    for var in list_vars:
+        if 'C0a2' in var:
+            C0a2 = np.append(C0a2, np.float64(var.split('-')[-1]))
+        if 'L0a' in var:
+            L0a = np.append(L0a, np.float64(var.split('-')[-1]))
+        if 'C0b2' in var:
+            C0b2 = np.append(C0b2, np.float64(var.split('-')[-1]))
+        if 'L0b' in var:
+            L0b = np.append(L0b, np.float64(var.split('-')[-1]))
+        if 'itslive' in var:
+            vel_config = np.append(vel_config, var)
+
+    params = config.ConfigParser(toml)
+
+    dict_prior = {'c0a2': C0a2[0],
+                  'c0a': C0a2[0] ** 2,
+                  'L0a': L0a[0],
+                  'gamma_alpha': params.inversion.gamma_alpha,
+                  'delta_alpha': params.inversion.delta_alpha,
+                  'c0b2': C0b2[0],
+                  'c0b': C0b2[0] ** 2,
+                  'L0b': L0b[0],
+                  'gamma_beta': params.inversion.gamma_beta,
+                  'delta_beta': params.inversion.delta_beta,
+                  'vel_file_config': vel_config[0],
+                  'path_to_toml': toml}
+
+    df = pd.DataFrame(dict_prior.items())
+    df = df.T
+    df.columns = df.iloc[0]
+    df = df.drop(df.index[0])
+
+    return df

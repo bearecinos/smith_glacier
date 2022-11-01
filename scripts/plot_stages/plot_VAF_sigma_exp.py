@@ -11,6 +11,7 @@ rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 18
 rcParams['ytick.labelsize'] = 18
 rcParams['axes.titlesize'] = 18
+rcParams['legend.fontsize'] = 14
 
 from pathlib import Path
 import glob
@@ -131,12 +132,6 @@ sigma_conv_c9 = graphics.get_data_for_sigma_convergence_from_toml(toml_config9,
 
 dp.to_csv(os.path.join(plot_path, 'prior_configs.csv'))
 dv.to_csv(os.path.join(plot_path, 'vel_configs.csv'))
-
-rcParams['axes.labelsize'] = 18
-rcParams['xtick.labelsize'] = 18
-rcParams['ytick.labelsize'] = 18
-rcParams['axes.titlesize'] = 18
-rcParams['legend.fontsize'] = 14
 
 g=1.2
 from matplotlib.offsetbox import AnchoredText

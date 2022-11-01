@@ -1,11 +1,21 @@
 import sys
 import argparse
+import pandas as pd
+import numpy as np
+import salem
+import pyproj
+import xarray as xr
+import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+from pathlib import Path
+from configobj import ConfigObj
+import matplotlib.ticker as ticker
 from matplotlib import rcParams
+from matplotlib.offsetbox import AnchoredText
+import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import glob
 
 rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 18
@@ -13,9 +23,6 @@ rcParams['ytick.labelsize'] = 18
 rcParams['axes.titlesize'] = 18
 rcParams['legend.fontsize'] = 14
 
-from pathlib import Path
-import glob
-from configobj import ConfigObj
 
 # Load configuration file for more order in paths
 parser = argparse.ArgumentParser()

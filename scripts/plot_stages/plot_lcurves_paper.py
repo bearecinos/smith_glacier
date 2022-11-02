@@ -271,7 +271,8 @@ spec = gridspec.GridSpec(2, 4, hspace=0.7, wspace=0.7, width_ratios=[2, 2, 1.5, 
 
 ax0 = plt.subplot(spec[0])
 ax0.tick_params(**tick_options_mesh)
-graphics.plot_field_in_contour_plot(x, y, t, v_alpha_min, r'Sliding parameter $\alpha$' + '\n [m$^{-1/6}$ yr$^{1/6}$]',
+graphics.plot_field_in_contour_plot(x, y, t, v_alpha_min, r'Sliding parameter $\alpha$' +
+                                    '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/3}$]',
                                ax=ax0, vmin=min_alpha, vmax=max_alpha, cmap=cmap_params_alpha, add_mesh=True)
 ax0.set_title(r'$\gamma_{\alpha} = $'+ str(np.min(gamma_alpha['gamma_alpha'])), fontsize=18)
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
@@ -279,7 +280,8 @@ ax0.add_artist(at)
 
 ax1 = plt.subplot(spec[1])
 ax1.tick_params(**tick_options_mesh)
-graphics.plot_field_in_contour_plot(x, y, t, v_alpha_max, r'Sliding parameter $\alpha$' + '\n [m$^{-1/6}$ yr$^{1/6}$]',
+graphics.plot_field_in_contour_plot(x, y, t, v_alpha_max, r'Sliding parameter $\alpha$' +
+                                    '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/3}$]',
                                ax=ax1, vmin=min_alpha, vmax=max_alpha, cmap=cmap_params_alpha, add_mesh=True)
 ax1.set_title(r'$\gamma_{\alpha} = $'+ str(np.max(gamma_alpha['gamma_alpha'])), fontsize=18)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
@@ -295,14 +297,14 @@ at = AnchoredText('c', prop=dict(size=14), frameon=True, loc='upper right')
 ax2.add_artist(at)
 
 ax3 = plt.subplot(spec[3])
-ax3.plot(x_qoi_i, y_qoi_i, color=colors[3], label='QoI projection \n ITS_LIVE')
+ax3.plot(x_qoi_i, y_qoi_i, color=colors[3], label='VAF projection \n ITS_LIVE')
 ax3.fill_between(x_qoi_i, y_qoi_i-s_i, y_qoi_i+s_i, facecolor=colors[3], alpha=0.3)
-ax3.plot(x_qoi_m, y_qoi_m, color=colors[4], label='QoI projection \n  MEaSUREs')
+ax3.plot(x_qoi_m, y_qoi_m, color=colors[4], label='VAF projection \n  MEaSUREs')
 ax3.fill_between(x_qoi_m, y_qoi_m-s_m, y_qoi_m+s_m, facecolor=colors[4], alpha=0.3)
 ax3.text(x_qoi_m[-1]+2, y_qoi_m[-1]-np.abs(y_qoi_i[-1]-y_qoi_m[-1]),
          '}'+r'$\sim O(10^{11})$', fontsize = 24)
 ax3.set_xlabel('Time (yrs)')
-ax3.set_ylabel(r'$QoI: VAF$ $(m^3)$')
+ax3.set_ylabel(r'Q$(m^3)$')
 ax3.legend(bbox_to_anchor=(1.1, 1.05))
 at = AnchoredText('d', prop=dict(size=14), frameon=True, loc='upper right')
 ax3.add_artist(at)
@@ -341,7 +343,7 @@ ax7.semilogy(x_qoi_m, s_m, color=colors[4], label='posterior MEaSUREs')
 ax7.legend(bbox_to_anchor=(1.1, 1.05))
 ax7.grid(True, which="major", ls="-")
 ax7.set_xlabel('Time (yrs)')
-ax7.set_ylabel(r'$\sigma_{QoI}$ $(m^3)$')
+ax7.set_ylabel(r'$\sigma$ Q$(m^3)$')
 at = AnchoredText('h', prop=dict(size=14), frameon=True, loc='upper left')
 ax7.add_artist(at)
 

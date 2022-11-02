@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import argparse
+from decimal import Decimal
 import os
 from pathlib import Path
 from configobj import ConfigObj
@@ -304,7 +305,7 @@ ax5.semilogy(sigma_conv_c1['ind'],
 ax5.plot(sigma_conv_c1['ind2'],
          np.exp(sigma_conv_c1['slope'] * sigma_conv_c1['ind2'] + sigma_conv_c1['inter']),
          color=colors[0], alpha=0.5, linewidth=3,
-        label='slope =' + str(round(sigma_conv_c1['slope'], 5)) + '\n' +r' $R^2$=' + str(round(sigma_conv_c1['result'].rvalue**2, 3)))
+        label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c1['sigma_full'])) + '\n' +r' $R^2$=' + str(round(sigma_conv_c1['result'].rvalue**2, 3)))
 
 ax5.semilogy(sigma_conv_c2['ind'],
              np.abs(np.diff(sigma_conv_c2['sig']))/np.diff(sigma_conv_c2['eignum']), linewidth=1.5,
@@ -312,7 +313,7 @@ ax5.semilogy(sigma_conv_c2['ind'],
 ax5.plot(sigma_conv_c2['ind2'],
          np.exp(sigma_conv_c2['slope'] * sigma_conv_c2['ind2'] + sigma_conv_c2['inter']), linewidth=3,
          color=colors[1], alpha=0.5,
-        label='slope =' + str(round(sigma_conv_c2['slope'], 5)) + '\n' + r' $R^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
+        label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) + '\n' + r' $R^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
 
 
 ax5.grid(True, which="both", ls="-")

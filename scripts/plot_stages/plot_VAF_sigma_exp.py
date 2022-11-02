@@ -333,5 +333,4 @@ at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 plt.tight_layout()
-plt.savefig(os.path.join(plot_path, 'results_Qoi_path_experiments.png'),
-            bbox_inches='tight', dpi=150)
+plt.savefig(os.path.join(plot_path, 'results_Qoi_path_experiments.pdf'))

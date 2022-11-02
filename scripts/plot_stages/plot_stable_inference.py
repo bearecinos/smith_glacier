@@ -173,13 +173,13 @@ fig = plt.figure(figsize=(12,12))
 ax = fig.add_subplot(2, 1, 1)
 
 ax.plot(to_plot_testing_zero_std.step, to_plot_testing_zero_std.J, '-o',
-        color=color_array[2],
+        color=color_palette[0],
         markersize=15, lw=3, label='Validating against upper cell points')
 ax.plot(to_plot_testing_middle_std.step, to_plot_testing_middle_std.J, '-*',
-        color=sns.xkcd_rgb["dark orange"],
-        markersize=10, lw=2, label='Validating against middle cell points')
+        color=color_palette[0],
+        markersize=15, lw=3, label='Validating against middle cell points')
 
-ax.set_ylabel('J')
+ax.set_ylabel(r'$J_{c}$')
 ax.set_xlim(0,11)
 ax.ticklabel_format(axis='y', style='scientific', scilimits=(4,4))
 ax.grid()

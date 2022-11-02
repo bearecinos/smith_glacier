@@ -1,3 +1,4 @@
+import sys
 import salem
 import pyproj
 import xarray as xr
@@ -35,6 +36,7 @@ configuration = ConfigObj(os.path.expanduser(config_file))
 # Define main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
+
 
 # Paths to data
 sub_plot_dir = args.sub_plot_dir
@@ -322,5 +324,5 @@ at = AnchoredText('f', prop=dict(size=14), frameon=True, loc='upper left')
 ax5.add_artist(at)
 
 plt.tight_layout()
-plt.savefig(os.path.join(plot_path, 'results_inversion_diff.png'),
+plt.savefig(os.path.join(plot_path, 'sliding_differences.png'),
             bbox_inches='tight')

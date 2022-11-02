@@ -272,7 +272,7 @@ spec = gridspec.GridSpec(2, 4, hspace=0.7, wspace=0.7, width_ratios=[2, 2, 1.5, 
 ax0 = plt.subplot(spec[0])
 ax0.tick_params(**tick_options_mesh)
 graphics.plot_field_in_contour_plot(x, y, t, v_alpha_min, r'Sliding parameter $\alpha$' +
-                                    '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/3}$]',
+                                    '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/2}$]',
                                ax=ax0, vmin=min_alpha, vmax=max_alpha, cmap=cmap_params_alpha, add_mesh=True)
 ax0.set_title(r'$\gamma_{\alpha} = $'+ str(np.min(gamma_alpha['gamma_alpha'])), fontsize=18)
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
@@ -281,7 +281,7 @@ ax0.add_artist(at)
 ax1 = plt.subplot(spec[1])
 ax1.tick_params(**tick_options_mesh)
 graphics.plot_field_in_contour_plot(x, y, t, v_alpha_max, r'Sliding parameter $\alpha$' +
-                                    '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/3}$]',
+                                    '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/2}$]',
                                ax=ax1, vmin=min_alpha, vmax=max_alpha, cmap=cmap_params_alpha, add_mesh=True)
 ax1.set_title(r'$\gamma_{\alpha} = $'+ str(np.max(gamma_alpha['gamma_alpha'])), fontsize=18)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')

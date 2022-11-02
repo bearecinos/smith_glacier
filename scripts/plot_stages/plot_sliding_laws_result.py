@@ -205,7 +205,7 @@ smap.set_vmax(maxv)
 smap.set_extend('both')
 smap.visualize(ax=ax0, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal", ticks=ticks,
-                         label='Sliding parameter prior STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^1/2$]')
+                         label='Sliding parameter STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^1/2$]')
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
@@ -230,7 +230,7 @@ smap.set_vmax(maxv)
 smap.set_extend('both')
 smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal", ticks=ticks,
-                         label='Sliding parameter prior STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/2}$]')
+                         label='Sliding parameter STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/2}$]')
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
 ax1.add_artist(at)
 

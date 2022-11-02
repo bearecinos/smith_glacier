@@ -237,7 +237,7 @@ ax2.set_aspect('equal')
 divider = make_axes_locatable(ax2)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
 minv = 0
-maxv = 40
+maxv = 30
 levels = np.linspace(minv,maxv,200)
 ticks = np.linspace(minv,maxv,3)
 c = ax2.tricontourf(x_n, y_n, sigma_params_dict_c1['t'], sigma_beta_c1, levels=levels,

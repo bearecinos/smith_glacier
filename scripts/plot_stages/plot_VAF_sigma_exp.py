@@ -16,6 +16,7 @@ from matplotlib.offsetbox import AnchoredText
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import glob
+from decimal import Decimal
 
 rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 18
@@ -244,7 +245,7 @@ ax2.semilogy(sigma_conv_c2['ind'],
 ax2.plot(sigma_conv_c2['ind2'],
          np.exp(sigma_conv_c2['slope'] * sigma_conv_c2['ind2'] + sigma_conv_c2['inter']),
          linewidth=3, color=color_prior[0], alpha=0.5,
-         label=r'$\sigma^{est}_{full}$ =' + "{:.2e}".format(str(round(sigma_conv_c2['sigma_full'], 5))) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) +
                r' $R^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
 
 ax2.semilogy(sigma_conv_gold['ind'],
@@ -262,7 +263,7 @@ ax2.semilogy(sigma_conv_c4['ind'],
 ax2.plot(sigma_conv_c4['ind2'],
          np.exp(sigma_conv_c4['slope'] * sigma_conv_c4['ind2'] + sigma_conv_c4['inter']),
          linewidth=3, color=color_prior[2], alpha=0.5)
-         # label=r'$\sigma^{est}_{full}$ =' + "{:.2e}".format(str(round(sigma_conv_c4['sigma_full'], 5))) +
+         # label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c4['sigma_full'])) +
          #        r' $R^2$=' + str(round(sigma_conv_c4['result'].rvalue**2, 3)))
 
 ax2.semilogy(sigma_conv_c1['ind'],
@@ -271,7 +272,7 @@ ax2.semilogy(sigma_conv_c1['ind'],
 ax2.plot(sigma_conv_c1['ind2'],
          np.exp(sigma_conv_c1['slope'] * sigma_conv_c1['ind2'] + sigma_conv_c1['inter']),
          color=color_prior[3], alpha=0.5, linewidth=3)
-         # label=r'$\sigma^{est}_{full}$ =' + "{:.2e}".format(str(round(sigma_conv_c1['sigma_full'], 5))) +
+         # label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c1['sigma_full'])) +
          #       r' $R^2$=' + str(round(sigma_conv_c1['result'].rvalue**2, 3)))
 
 ax2.semilogy(sigma_conv_c3['ind'],
@@ -280,7 +281,7 @@ ax2.semilogy(sigma_conv_c3['ind'],
 ax2.plot(sigma_conv_c3['ind2'],
          np.exp(sigma_conv_c3['slope'] * sigma_conv_c3['ind2'] + sigma_conv_c3['inter']),
          linewidth=3, color=color_prior[4], alpha=0.5,
-         label=r'$\sigma^{est}_{full}$ =' + "{:.2e}".format(str(round(sigma_conv_c3['sigma_full'], 5))) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c3['sigma_full'])) +
                r' $R^2$=' + str(round(sigma_conv_c3['result'].rvalue**2, 3)))
 
 [xmin01, xmax01, ymin01, ymax01] = ax2.axis()
@@ -301,7 +302,7 @@ ax3.semilogy(sigma_conv_c8['ind'],
 ax3.plot(sigma_conv_c8['ind2'],
          np.exp(sigma_conv_c8['slope'] * sigma_conv_c8['ind2'] + sigma_conv_c8['inter']),
          linewidth=3, color=vel_color[0], alpha=0.5,
-         label=r'$\sigma^{est}_{full}$ =' + "{:.2e}".format(str(round(sigma_conv_c8['sigma_full'], 5))) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c8['sigma_full'])) +
                r' $R^2$=' + str(round(sigma_conv_c8['result'].rvalue**2, 3)))
 
 ax3.semilogy(sigma_conv_c7['ind'],
@@ -310,7 +311,7 @@ ax3.semilogy(sigma_conv_c7['ind'],
 ax3.plot(sigma_conv_c7['ind2'],
          np.exp(sigma_conv_c7['slope'] * sigma_conv_c7['ind2'] + sigma_conv_c7['inter']),
          linewidth=3, color=vel_color[1], alpha=0.5,
-         label=r'$\sigma^{est}_{full}$ =' + "{:.2e}".format(str(round(sigma_conv_c7['sigma_full'], 5))) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c7['sigma_full'])) +
                r' $R^2$=' + str(round(sigma_conv_c7['result'].rvalue**2, 3)))
 
 ax3.semilogy(sigma_conv_c6['ind'],
@@ -319,7 +320,7 @@ ax3.semilogy(sigma_conv_c6['ind'],
 ax3.plot(sigma_conv_c6['ind2'],
          np.exp(sigma_conv_c6['slope'] * sigma_conv_c6['ind2'] + sigma_conv_c6['inter']),
          color=vel_color[2], alpha=0.5, linewidth=3,
-         label=r'$\sigma^{est}_{full}$ =' + "{:.2e}".format(str(round(sigma_conv_c6['sigma_full'], 5))) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c6['sigma_full'])) +
                r' $R^2$=' + str(round(sigma_conv_c6['result'].rvalue**2, 3)))
 
 ax3.grid(True, which="both", ls="-")

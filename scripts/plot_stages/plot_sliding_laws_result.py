@@ -178,7 +178,7 @@ rcParams['legend.fontsize'] = 14
 g=1.2
 
 fig1 = plt.figure(figsize=(14*g, 12*g))
-spec = gridspec.GridSpec(2, 3, wspace=0.26, hspace=0.02, width_ratios=[1, 1, 1], height_ratios=[1, 0.5])
+spec = gridspec.GridSpec(2, 3, wspace=0.3, hspace=0.02, width_ratios=[1, 1, 1], height_ratios=[1, 0.5])
 
 colors = sns.color_palette()
 
@@ -206,8 +206,8 @@ smap.set_vmax(maxv)
 smap.set_extend('both')
 smap.visualize(ax=ax0, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal", ticks=ticks,
-                         label='Sliding parameter STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^1/2$]')
-at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
+                         label='Sliding parameter STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/2}$]')
+at = AnchoredText('a', prop=dict(size=16), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
 ax1 = plt.subplot(spec[1])
@@ -232,7 +232,7 @@ smap.set_extend('both')
 smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal", ticks=ticks,
                          label='Sliding parameter STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/2}$]')
-at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('b', prop=dict(size=16), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
 ax2 = plt.subplot(spec[2])
@@ -258,7 +258,7 @@ smap.set_extend('both')
 smap.visualize(ax=ax2, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal", ticks=ticks,
                          label='Ice stiffness parameter STD' + r'($\beta$)' + '\n [Pa$^{1/2}$. yr$^{1/6}$]')
-at = AnchoredText('c', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('c', prop=dict(size=16), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
 ax3 = plt.subplot(spec[3])
@@ -277,7 +277,7 @@ plt.legend(handles = [p1, p2],
                      'Cornford'],frameon=True, fontsize=14)
 ax3.set_ylabel(r'Q$(m^3)$')
 
-at = AnchoredText('d', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('d', prop=dict(size=16), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 ax4 = plt.subplot(spec[4])
@@ -295,7 +295,7 @@ ax4.set_ylabel(r'$\sigma$ Q$(m^3)$')
 plt.legend(handles = [p1_prior, p1_post],
            labels = ['Prior',
                      'Posterior'],frameon=True, fontsize=15)
-at = AnchoredText('e', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('e', prop=dict(size=16), frameon=True, loc='upper left')
 ax4.add_artist(at)
 
 ax5 = plt.subplot(spec[5])
@@ -321,7 +321,7 @@ plt.legend(loc='upper right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=13)
 ax5.set_xlabel('No. of Eigen values')
 ax5.set_ylabel(r'$\delta$$\sigma$ Q$(m^3)$')
-at = AnchoredText('f', prop=dict(size=14), frameon=True, loc='upper left')
+at = AnchoredText('f', prop=dict(size=16), frameon=True, loc='upper left')
 ax5.add_artist(at)
 
 plt.tight_layout()

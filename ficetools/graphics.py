@@ -420,7 +420,8 @@ def get_data_for_sigma_path_from_toml(toml, main_dir_path):
     sp_c = 2 * sigma_prior_interp_c
 
     qoi_dict = {'x': x_c, 'y': y_c,
-                'sigma_post': s_c, 'sigma_prior': sp_c}
+                'sigma_post': s_c, 'sigma_prior': sp_c,
+                'sigma_t':sigma_t_c}
 
     return qoi_dict
 

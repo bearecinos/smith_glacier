@@ -200,7 +200,7 @@ plt.legend(handles = [p2_prior, p5_prior, p4_prior, p1_prior, p3_prior],
                      'Strong prior'],frameon=True, fontsize=15)
 
 [xmin01, xmax01, ymin01, ymax01] = ax0.axis()
-at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
 ####################################### axes 1 ###########################################################
@@ -234,7 +234,7 @@ ax1.set_xlabel('Time [yrs]')
 ax1.set_ylabel(r'$\sigma^2$ $Q_{T}$ [$m^3$]')
 plt.legend(loc='lower right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=15)
-at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
 ####################################### axes 2 ###########################################################
@@ -290,7 +290,7 @@ plt.legend(loc='lower left', ncol=1,
             borderaxespad=0, frameon=True, fontsize=15)
 ax2.set_xlabel('Eigenvalue index')
 ax2.set_ylabel(r'$\delta$ $\sigma^2$ $Q_{T}$ [$m^3$]')
-at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
 ####################################### axes 3 ###########################################################
@@ -329,7 +329,7 @@ ax3.set_xlabel('Eigenvalue index')
 ax3.set_ylabel(r'$\delta$ $\sigma^2$ $Q_{T}$ [$m^3$]')
 plt.legend(loc='lower right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=14)
-at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
+at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 plt.tight_layout()

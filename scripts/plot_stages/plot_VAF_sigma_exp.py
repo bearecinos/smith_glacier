@@ -152,7 +152,7 @@ colors = sns.color_palette()
 color_prior = sns.color_palette("rocket_r")
 
 ####################################### axes 0 ###########################################################
-ax0 = plt.subplot(spec[0])
+ax0 = plt.subplot(spec[1])
 # Plot in the order of prior strength
 p2_prior, = ax0.semilogy(qoi_dict_c2['x'],
                          qoi_dict_c2['sigma_prior'],
@@ -205,7 +205,7 @@ ax0.add_artist(at)
 
 ####################################### axes 1 ###########################################################
 
-ax1 = plt.subplot(spec[1])
+ax1 = plt.subplot(spec[0])
 vel_color = sns.color_palette("mako")
 # Oder in terms of data density
 
@@ -238,7 +238,7 @@ at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
 ####################################### axes 2 ###########################################################
-ax2 = plt.subplot(spec[2])
+ax2 = plt.subplot(spec[3])
 ax2.semilogy(sigma_conv_c2['ind'],
              np.abs(np.diff(sigma_conv_c2['sig']))/np.diff(sigma_conv_c2['eignum']),
              linewidth=1.5, color=color_prior[0])
@@ -294,7 +294,7 @@ at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
 ####################################### axes 3 ###########################################################
-ax3 = plt.subplot(spec[3])
+ax3 = plt.subplot(spec[2])
 
 ax3.semilogy(sigma_conv_c8['ind'],
              np.abs(np.diff(sigma_conv_c8['sig']))/np.diff(sigma_conv_c8['eignum']),

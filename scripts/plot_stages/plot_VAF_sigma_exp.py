@@ -190,7 +190,7 @@ p3_post, = ax0.semilogy(qoi_dict_c3['x'], qoi_dict_c3['sigma_post'],
 
 ax0.grid(True, which="both", ls="-")
 ax0.set_xlabel('Time [yrs]')
-ax0.set_ylabel(r'$\sigma^2$ $Q_{T}$ [$m^3$]')
+ax0.set_ylabel(r'$\sigma$ $Q_{T}$ [$m^3$]')
 
 plt.legend(handles = [p2_prior, p5_prior, p4_prior, p1_prior, p3_prior],
            labels = ['Weak prior',
@@ -231,7 +231,7 @@ p6_post, = ax1.semilogy(qoi_dict_c6['x'],
 ax1.set_ylim(bottom=ymin01, top=ymax01)
 ax1.grid(True, which="both", ls="-")
 ax1.set_xlabel('Time [yrs]')
-ax1.set_ylabel(r'$\sigma^2$ $Q_{T}$ [$m^3$]')
+ax1.set_ylabel(r'$\sigma$ $Q_{T}$ [$m^3$]')
 plt.legend(loc='lower right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=15)
 at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
@@ -289,7 +289,7 @@ ax2.grid(True, which="both", ls="-")
 plt.legend(loc='lower left', ncol=1,
             borderaxespad=0, frameon=True, fontsize=15)
 ax2.set_xlabel('Eigenvalue index')
-ax2.set_ylabel(r'$\delta$ $\sigma^2$ $Q_{T}$ [$m^3$]')
+ax2.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
 at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
@@ -326,7 +326,7 @@ ax3.plot(sigma_conv_c6['ind2'],
 ax3.grid(True, which="both", ls="-")
 ax3.set_ylim(bottom=ymin01, top=ymax01)
 ax3.set_xlabel('Eigenvalue index')
-ax3.set_ylabel(r'$\delta$ $\sigma^2$ $Q_{T}$ [$m^3$]')
+ax3.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
 plt.legend(loc='lower right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=14)
 at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')

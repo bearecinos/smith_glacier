@@ -120,6 +120,9 @@ sigma_conv_gold = graphics.get_data_for_sigma_convergence_from_toml(toml_gold,
 toml_config6 = dv.iloc[0].path_to_toml
 toml_config7  = dv.iloc[1].path_to_toml
 toml_config8 = dv.iloc[2].path_to_toml
+print(toml_config8)
+print(toml_config7)
+print(toml_config6)
 toml_config9 = dv.iloc[3].path_to_toml
 
 qoi_dict_c6 = graphics.get_data_for_sigma_path_from_toml(toml_config6, main_dir_path=Path(MAIN_PATH))

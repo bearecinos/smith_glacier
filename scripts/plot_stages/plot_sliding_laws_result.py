@@ -292,7 +292,7 @@ p2_post, = ax4.semilogy(qoi_dict_c2['x'], qoi_dict_c2['sigma_post'],
              color=colors[1], label='', linewidth=3)
 ax4.grid(True, which="both", ls="-")
 ax4.set_xlabel('Time [yrs]')
-ax4.set_ylabel(r'$\sigma$ $Q_{T}$ [$m^3$]')
+ax4.set_ylabel(r'$2\sigma$ $Q_{T}$ [$m^3$]')
 plt.legend(handles = [p1_prior, p1_post],
            labels = ['Prior',
                      'Posterior'],frameon=True, fontsize=15)
@@ -321,7 +321,7 @@ ax5.grid(True, which="both", ls="-")
 plt.legend(loc='upper right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=13)
 ax5.set_xlabel('Eigenvalue index')
-ax5.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
+ax5.set_ylabel(r'$\delta$ $2\sigma$ $Q_{T}$ [$m^3$]')
 at = AnchoredText('f', prop=dict(size=16), frameon=True, loc='upper left')
 ax5.add_artist(at)
 

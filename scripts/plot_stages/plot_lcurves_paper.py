@@ -343,7 +343,7 @@ ax7.semilogy(x_qoi_m, s_m, color=colors[4], label='posterior MEaSUREs')
 ax7.legend(bbox_to_anchor=(1.1, 1.05))
 ax7.grid(True, which="major", ls="-")
 ax7.set_xlabel('Time [yrs]')
-ax7.set_ylabel(r'$\sigma$ $Q_{T}$ [$m^3$]')
+ax7.set_ylabel(r'$2\sigma$ $Q_{T}$ [$m^3$]')
 at = AnchoredText('h', prop=dict(size=14), frameon=True, loc='upper left')
 ax7.add_artist(at)
 

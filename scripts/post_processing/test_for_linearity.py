@@ -201,8 +201,8 @@ for n in num_sens:
     fwd_v_alpha_il[f'{nametosum}{n}'].append(dq_dalpha_il)
     fwd_v_beta_il[f'{nametosum}{n}'].append(dq_dbeta_il)
 
-    results_dot_alpha.append(dq_dalpha_il)
-    results_dot_beta.append(dq_dbeta_il)
+    results_dot_alpha.append(dot_alpha_il)
+    results_dot_beta.append(dot_beta_il)
 
 ## Now we get the rest of the information for sigma Q plot
 qoi_dict_il = graphics.get_data_for_sigma_path_from_toml(tomlf_workflow, main_dir_path=Path(MAIN_PATH))

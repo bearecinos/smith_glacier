@@ -534,7 +534,8 @@ def get_data_for_sigma_convergence_from_toml(toml, main_dir_path, startind=3000)
     slope = result.slope
     inter = result.intercept
 
-    sigma_full = np.abs(diffs[-1]) / (1 - np.exp(slope))
+    #sigma_full = np.abs(diffs[-1]) / (1 - np.exp(slope))
+    sigma_full = sig[-1] - np.exp(inter + slope * ind[-1]) / (1 - np.exp(slope))
 
     qoi_conv_dict = {'eignum': eignum,
                      'sig': sig,

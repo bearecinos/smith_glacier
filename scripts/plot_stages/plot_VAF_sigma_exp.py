@@ -248,7 +248,7 @@ ax2.semilogy(sigma_conv_c2['ind'],
 ax2.plot(sigma_conv_c2['ind2'],
          np.exp(sigma_conv_c2['slope'] * sigma_conv_c2['ind2'] + sigma_conv_c2['inter']),
          linewidth=3, color=color_prior[0], alpha=0.5,
-         label=r'$2\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) +
                r' $r^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
 
 ax2.semilogy(sigma_conv_gold['ind'],

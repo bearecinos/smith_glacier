@@ -106,7 +106,8 @@ def plot_field_in_tricontourf(data_array,
                               num_eigen=int,
                               ticks=None,
                               levels=None,
-                              add_text=True):
+                              add_text=True,
+                              add_colorbar=False):
     """
 
     :param data_array: field to plot (e.g. eigenvector)
@@ -128,10 +129,15 @@ def plot_field_in_tricontourf(data_array,
     cax = divider.append_axes("bottom", size="5%", pad=0.1)
     c = ax.tricontourf(x, y, t, data_array, levels=levels, cmap=cmap)
     #ax.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-    cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal", extend="both")
-    cbar.ax.set_xlabel('dE '+f'{varname}')
+    if add_colorbar:
+        cbar = plt.colorbar(c, cax=cax, ticks=ticks, orientation="horizontal", extend="both")
+        if varname == 'alpha':
+            varname_label = r'$v_{\alpha}$'
+        else:
+            varname_label = r'$v_{\beta}$'
+        cbar.ax.set_xlabel(f'{varname_label}')
     if add_text:
-        n_text = AnchoredText('eigenvector = ' + str(num_eigen),
+        n_text = AnchoredText('eigenvector No. ' + str(num_eigen),
                               prop=dict(size=12), frameon=True, loc='upper right')
         ax.add_artist(n_text)
 

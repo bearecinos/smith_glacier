@@ -243,7 +243,7 @@ graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[3]}
                                     varname='alpha',
                                     num_eigen=num_eigen[3],
                                     ticks=ticks,
-                                    levels=levels)
+                                    levels=levels, add_colorbar=True)
 at = AnchoredText('g', prop=dict(size=14), frameon=True, loc='upper left')
 ax6.add_artist(at)
 
@@ -256,7 +256,7 @@ graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[3]}'
                                     varname='beta',
                                     num_eigen=num_eigen[3],
                                     ticks=ticks,
-                                    levels=levels, add_text=False)
+                                    levels=levels, add_text=False, add_colorbar=True)
 at = AnchoredText('h', prop=dict(size=14), frameon=True, loc='upper left')
 ax7.add_artist(at)
 

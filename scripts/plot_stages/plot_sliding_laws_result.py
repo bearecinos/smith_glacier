@@ -306,7 +306,7 @@ ax5.semilogy(sigma_conv_c1['ind'],
 ax5.plot(sigma_conv_c1['ind2'],
          np.exp(sigma_conv_c1['slope'] * sigma_conv_c1['ind2'] + sigma_conv_c1['inter']),
          color=colors[0], alpha=0.5, linewidth=3,
-        label=r'$2 \sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c1['sigma_full'])) + '\n' +r' $r^2$=' + str(round(sigma_conv_c1['result'].rvalue**2, 3)))
+        label=r'$ \sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c1['sigma_full'])) + '\n' +r' $r^2$=' + str(round(sigma_conv_c1['result'].rvalue**2, 3)))
 
 ax5.semilogy(sigma_conv_c2['ind'],
              np.abs(np.diff(sigma_conv_c2['sig']))/np.diff(sigma_conv_c2['eignum']), linewidth=1.5,
@@ -314,14 +314,14 @@ ax5.semilogy(sigma_conv_c2['ind'],
 ax5.plot(sigma_conv_c2['ind2'],
          np.exp(sigma_conv_c2['slope'] * sigma_conv_c2['ind2'] + sigma_conv_c2['inter']), linewidth=3,
          color=colors[1], alpha=0.5,
-        label=r'$2 \sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) + '\n' + r' $r^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
+        label=r'$ \sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) + '\n' + r' $r^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
 
 
 ax5.grid(True, which="both", ls="-")
 plt.legend(loc='upper right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=13)
 ax5.set_xlabel('Eigenvalue index')
-ax5.set_ylabel(r'$\delta$ $2\sigma$ $Q_{T}$ [$m^3$]')
+ax5.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
 at = AnchoredText('f', prop=dict(size=16), frameon=True, loc='upper left')
 ax5.add_artist(at)
 

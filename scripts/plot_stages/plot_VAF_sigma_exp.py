@@ -284,7 +284,7 @@ ax2.semilogy(sigma_conv_c3['ind'],
 ax2.plot(sigma_conv_c3['ind2'],
          np.exp(sigma_conv_c3['slope'] * sigma_conv_c3['ind2'] + sigma_conv_c3['inter']),
          linewidth=3, color=color_prior[4], alpha=0.5,
-         label=r'$2\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c3['sigma_full'])) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c3['sigma_full'])) +
                r' $r^2$=' + str(round(sigma_conv_c3['result'].rvalue**2, 3)))
 
 [xmin01, xmax01, ymin01, ymax01] = ax2.axis()
@@ -292,7 +292,7 @@ ax2.grid(True, which="both", ls="-")
 plt.legend(loc='lower left', ncol=1,
             borderaxespad=0, frameon=True, fontsize=15)
 ax2.set_xlabel('Eigenvalue index')
-ax2.set_ylabel(r'$\delta$ $2\sigma$ $Q_{T}$ [$m^3$]')
+ax2.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
 at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
@@ -305,7 +305,7 @@ ax3.semilogy(sigma_conv_c8['ind'],
 ax3.plot(sigma_conv_c8['ind2'],
          np.exp(sigma_conv_c8['slope'] * sigma_conv_c8['ind2'] + sigma_conv_c8['inter']),
          linewidth=3, color=vel_color[0], alpha=0.5,
-         label=r'$2\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c8['sigma_full'])) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c8['sigma_full'])) +
                r' $r^2$=' + str(round(sigma_conv_c8['result'].rvalue**2, 3)))
 
 ax3.semilogy(sigma_conv_c7['ind'],
@@ -314,7 +314,7 @@ ax3.semilogy(sigma_conv_c7['ind'],
 ax3.plot(sigma_conv_c7['ind2'],
          np.exp(sigma_conv_c7['slope'] * sigma_conv_c7['ind2'] + sigma_conv_c7['inter']),
          linewidth=3, color=vel_color[1], alpha=0.5,
-         label=r'$2\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c7['sigma_full'])) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c7['sigma_full'])) +
                r' $r^2$=' + str(round(sigma_conv_c7['result'].rvalue**2, 3)))
 
 ax3.semilogy(sigma_conv_c6['ind'],
@@ -323,13 +323,13 @@ ax3.semilogy(sigma_conv_c6['ind'],
 ax3.plot(sigma_conv_c6['ind2'],
          np.exp(sigma_conv_c6['slope'] * sigma_conv_c6['ind2'] + sigma_conv_c6['inter']),
          color=vel_color[2], alpha=0.5, linewidth=3,
-         label=r'$2\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c6['sigma_full'])) +
+         label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c6['sigma_full'])) +
                r' $r^2$=' + str(round(sigma_conv_c6['result'].rvalue**2, 3)))
 
 ax3.grid(True, which="both", ls="-")
 ax3.set_ylim(bottom=ymin01, top=ymax01)
 ax3.set_xlabel('Eigenvalue index')
-ax3.set_ylabel(r'$\delta$ $2\sigma$ $Q_{T}$ [$m^3$]')
+ax3.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
 plt.legend(loc='lower right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=14)
 at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')

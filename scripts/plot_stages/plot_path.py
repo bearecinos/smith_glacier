@@ -132,14 +132,20 @@ else:
     V =  fice_mesh.get_periodic_space(params, mesh_in, dim=2)
 
 
+exp_outdir_inv = utils_funcs.define_stage_output_paths(params, 'inversion', diagnostics=True)
 exp_outdir_invsigma = utils_funcs.define_stage_output_paths(params, 'inv_sigma')
 file_names_invsigma = utils_funcs.get_file_names_for_invsigma_plot(params)
 
 path_alphas = exp_outdir_invsigma / file_names_invsigma[0]
 path_betas = exp_outdir_invsigma / file_names_invsigma[1]
 
+file_float = "_".join((params.io.run_name + params.inversion.phase_suffix, 'float.xml'))
+
+path_float = exp_outdir_inv / file_float
+
 assert path_alphas.is_file()
 assert path_betas.is_file()
+assert path_float.is_file()
 
 alpha_sigma = Function(M, str(path_alphas))
 alpha_sig = project(alpha_sigma, M)
@@ -148,6 +154,12 @@ sigma_alpha = alpha_sig.compute_vertex_values(mesh_in)
 beta_sigma = Function(M, str(path_betas))
 beta_sig = project(beta_sigma, M)
 sigma_beta = beta_sig.compute_vertex_values(mesh_in)
+
+float_fun = Function(M, str(path_float))
+float_pro = project(float_fun, M)
+float_v = float_pro.compute_vertex_values(mesh_in)
+
+sigma_alpha[float_v > 0] = 0
 
 ######## Load grid for latitude and longitude ##################
 import pyproj
@@ -217,7 +229,7 @@ ax0.plot(x_qoi, y_qoi, color=colors[3], label='QoI projection')
 ax0.fill_between(x_qoi, y_qoi-s, y_qoi+s, facecolor=colors[3], alpha=0.3)
 
 ax0.set_xlabel('Time (yrs)')
-ax0.set_ylabel(r'$Q$ $(m^4)$')
+ax0.set_ylabel(r'$Q$ $(m^3)$')
 ax0.legend(loc='lower left')
 at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper right')
 ax0.add_artist(at)
@@ -228,8 +240,9 @@ ax1.semilogy(x_qoi, sp, color=colors[3], linestyle='dashed', label='prior')
 ax1.semilogy(x_qoi, s, color=colors[3], label='posterior')
 
 ax1.legend()
+ax1.grid(True, which="both", ls="-", color='grey', alpha=0.7)
 ax1.set_xlabel('Time (yrs)')
-ax1.set_ylabel(r'$\sigma$ $(m^4)$')
+ax1.set_ylabel(r'$\sigma$ $(m^3)$')
 at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper right')
 ax1.add_artist(at)
 
@@ -258,7 +271,7 @@ colorsea = sns.color_palette()
 ax0.plot(x_qoi, y_qoi, color=colors[3], label='QoI projection')
 ax0.fill_between(x_qoi, y_qoi-s, y_qoi+s, facecolor=colors[3], alpha=0.3)
 ax0.set_xlabel('Time (yrs)')
-ax0.set_ylabel(r'$Q$ $(m^4)$')
+ax0.set_ylabel(r'$Q$ $(m^3)$')
 ax0.legend(loc='lower left')
 at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper right')
 ax0.add_artist(at)
@@ -289,7 +302,7 @@ smap.set_vmax(maxv)
 smap.set_extend('both')
 smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)
 cbar = smap.colorbarbase(cax=cax, orientation="horizontal", ticks=ticks,
-                         label='Sliding parameter STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$]')
+                         label='Sliding parameter STD' + r'($\alpha$)'  +  '\n [m$^{-1/6}$ yr$^{1/6}$ Pa$^{1/2}$]')
 at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
@@ -300,7 +313,8 @@ ax2.semilogy(x_qoi, sp, color=colors[3], linestyle='dashed', label='prior')
 ax2.semilogy(x_qoi, s, color=colors[3], label='posterior')
 ax2.legend()
 ax2.set_xlabel('Time (yrs)')
-ax2.set_ylabel(r'$\sigma$ $(m^4)$')
+ax2.grid(True, which="both", ls="-", color='grey', alpha=0.7)
+ax2.set_ylabel(r'$\sigma$ $(m^3)$')
 at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper right')
 ax2.add_artist(at)
 

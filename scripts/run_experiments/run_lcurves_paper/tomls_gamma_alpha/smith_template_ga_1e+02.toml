@@ -1,10 +1,10 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_cloud_itslive"
-input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_VAF_exp/output"
-diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_VAF_exp/diagnostics"
+run_name = "smith_lcurve_paper"
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_workflow"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/08_lcurves_paper/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/08_lcurves_paper/diagnostics"
 
 write_diagnostics = true
 
@@ -14,8 +14,8 @@ bed_data_file = "smith_bedmachine.h5"
 smb_data_file = "smith_smb.h5"
 bglen_data_file = "smith_bglen.h5"
 
-melt_depth_therm_data_file = "smith_melt_depth_params.h5"
-melt_max_data_file = "smith_melt_depth_params.h5"
+melt_depth_therm_data_file = "smith_melt_depth_params.h5" # This must be a constant melt with melt_depth_therm 600 m!
+melt_max_data_file = "smith_melt_depth_params.h5" # and melt_max 30
 
 bglenmask_data_file = "smith_bglen.h5"
 bglen_field_name = "bglen"
@@ -24,7 +24,9 @@ bglenmask_field_name = "bglenmask"
 melt_depth_therm_field_name = "melt_depth_therm"
 melt_max_field_name = "melt_max"
 
-log_level = "info" #This is default
+log_level = "error" #This is default
+
+output_var_format = "xml"
 
 [constants]
 
@@ -63,12 +65,20 @@ max_iter = 500
 alpha_active = true
 beta_active = true
 
-# old strong priors
-gamma_alpha = 1e2
-delta_alpha = 1e-5
-gamma_beta = 1.0e2
-delta_beta = 1e-5
-delta_beta_gnd = 3e-5
+# Dan priors
+gamma_alpha = 1.0E+2
+delta_alpha = 1.9e-07
+gamma_beta = 9.4
+delta_beta = 9.4e-06
+delta_beta_gnd = 9.4e-06
+
+# All rounded to 2 digits
+#C0_alpha = 250000.0
+#C0_alpha**2 = 500.0
+#L0_alpha = 3000.0
+#C0_beta = 900.0
+#C0_beta**2 = 30.0
+#L0_beta = 1000.0
 
 ftol = 1e-8
 gtol = 1e-12
@@ -82,7 +92,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = 'gamma_alpha_1E+2'
 
 [ice_dynamics]
 
@@ -98,7 +108,7 @@ linear_solver = "cg"
 preconditioner = "hypre_amg"
 maximum_iterations = 200
 absolute_tolerance = 1.0e-0
-relative_tolerance = 1.0e-3
+relative_tolerance = 1.0e-4
 convergence_criterion = "incremental"
 error_on_nonconvergence =  false
 
@@ -109,7 +119,7 @@ linear_solver = "bicgstab" # gmres?  try direct too. [cg with icc]  [gmres, sor]
 preconditioner = "hypre_amg" # doesn't work so well on unstructured mesh?
 maximum_iterations = 25
 absolute_tolerance = 1.0e-7
-relative_tolerance = 1.0e-8
+relative_tolerance = 1.0e-7
 convergence_criterion = "incremental"
 error_on_nonconvergence = true
 [momsolve.newton_params.newton_solver.krylov_solver]
@@ -130,33 +140,32 @@ total_steps = 960
 #dt = 0.033333333
 num_sens = 15 #TODO rename
 
-save_frequency = 5
+save_frequency = 0
 
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
-
+phase_suffix = 'gamma_alpha_1E+2'
 
 [eigendec]
 
-num_eig = 5000
+num_eig = 10000
 eig_algo = "slepc"
 misfit_only = true
 
-#test_ed = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
+#eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = 'gamma_alpha_1E+2'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = 'gamma_alpha_1E+2'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = 'gamma_alpha_1E+2'
 
 [melt]
 
@@ -168,6 +177,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = 'gamma_alpha_1E+2'
 sample_posterior = true
 num_eigenvals = 10

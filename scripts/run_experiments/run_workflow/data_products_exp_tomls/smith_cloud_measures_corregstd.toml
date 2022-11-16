@@ -1,7 +1,7 @@
 [io] #Directory specification
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
-run_name = "smith_cloud_itslive"
+run_name = "smith_cloud_measures_coregistration"
 input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
 output_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_VAF_exp/output"
 diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/03_run_inv_VAF_exp/diagnostics"
@@ -54,7 +54,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_itslive-comp_itslive-cloud_error-factor-1E+0.h5"
+vel_file = "smith_obs_vel_measures-comp_measures-cloud-interpolated-itslive-grid-coregistration_error-factor-1E+0.h5"
 
 [inversion]
 
@@ -82,7 +82,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = '_inv_with_cloud_measures_coregistrationstd_l0b_3000_c0b_80_l0a_3000_c0a_80_'
 
 [ice_dynamics]
 
@@ -132,7 +132,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 5
 
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = '_inv_with_cloud_measures_coregistrationstd_l0b_3000_c0b_80_l0a_3000_c0a_80_'
 
 
 [eigendec]
@@ -145,18 +145,19 @@ misfit_only = true
 #power_iter = 1 <- not used yet, saving in case
 precondition_by = "prior" #prior by default
 
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = '_inv_with_cloud_measures_coregistrationstd_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = '_inv_with_cloud_measures_coregistrationstd_l0b_3000_c0b_80_l0a_3000_c0a_80_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = '_inv_with_cloud_measures_coregistrationstd_l0b_3000_c0b_80_l0a_3000_c0a_80_'
 
 [melt]
 
@@ -168,6 +169,7 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_inv_with_cloud_itslive_original_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+phase_suffix = '_inv_with_cloud_measures_coregistrationstd_l0b_3000_c0b_80_l0a_3000_c0a_80_'
+
 sample_posterior = true
 num_eigenvals = 10

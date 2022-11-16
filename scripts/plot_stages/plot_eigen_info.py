@@ -30,7 +30,7 @@ from matplotlib import rcParams
 from matplotlib.offsetbox import AnchoredText
 import matplotlib.gridspec as gridspec
 
-rcParams['axes.labelsize'] = 14
+rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 14
 rcParams['ytick.labelsize'] = 14
 rcParams['lines.markersize'] = 12
@@ -149,10 +149,10 @@ tick_options = {'axis':'both','which':'both','bottom':False,
 levels = np.linspace(minva, maxva, 100)
 ticks = np.linspace(minva, maxva, 3)
 
-g=1.2
+g=1.1
 
-fig1 = plt.figure(figsize=(6*g, 13*g))#, constrained_layout=True)
-spec = gridspec.GridSpec(4, 2, wspace=0.15, hspace=0.15)
+fig1 = plt.figure(figsize=(6.5*g, 12*g))#, constrained_layout=True)
+spec = gridspec.GridSpec(4, 2, wspace=0.15, hspace=0.02)
 
 ax0 = plt.subplot(spec[0])
 ax0.set_aspect('equal')

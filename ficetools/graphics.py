@@ -138,7 +138,7 @@ def plot_field_in_tricontourf(data_array,
     if remove_colorbar:
         cbar.remove()
     if add_text:
-        n_text = AnchoredText('eigenvector No. ' + str(num_eigen),
+        n_text = AnchoredText('eigenvector No. ' + str(num_eigen+1),
                               prop=dict(size=12), frameon=True, loc='upper right')
         ax.add_artist(n_text)
 

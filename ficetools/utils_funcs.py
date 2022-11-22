@@ -267,13 +267,18 @@ def normalise_data_array(array):
     first_norm = 2 * first_n - 1
     return first_norm
 
-def normalize(array):
+def normalize(array, percentile=None):
     """
+    :param array: array to normalise
+    :param percentile: percentile to normalise
+                        if none normalises to maximum
+    :return: normedarray
+    """
+    if percentile is not None:
+        absmax = np.percentile(array, percentile)
+    else:
+        absmax = np.max(np.abs(array))
 
-    :param array:
-    :return:
-    """
-    absmax = np.max(np.abs(array))
     normedarray = array / absmax
 
     return normedarray

@@ -533,7 +533,7 @@ def get_prior_information_from_toml(toml):
 
     return df
 
-def compute_vertex_for_dQ_dalpha_component(params, n_sen=int):
+def compute_vertex_for_dQ_dalpha_component(params, n_sen=int, mult_mmatrix=False):
     """
     Compute sensitivities for VAF trajectories
     :params configuration parser from fenics ice
@@ -594,7 +594,11 @@ def compute_vertex_for_dQ_dalpha_component(params, n_sen=int):
     this_action = function_new(dQ, name=f"M_inv_action")
     M_solver.solve(this_action.vector(), dQ.vector())
 
-    dQ_alpha, dQ_beta = this_action.split(deepcopy=True)
+    if mult_mmatrix:
+        dQ_alpha, dQ_beta = this_action.split(deepcopy=True)
+    else:
+        dQ_alpha, dQ_beta = dQ.split(deepcopy=True)
+
 
     va = dQ_alpha.compute_vertex_values(mesh_in)
 

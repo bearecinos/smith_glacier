@@ -275,7 +275,7 @@ def normalize(array, percentile=None):
     :return: normedarray
     """
     if percentile is not None:
-        absmax = np.percentile(array, percentile)
+        absmax = percentile
     else:
         absmax = np.max(np.abs(array))
 
@@ -606,5 +606,6 @@ def compute_vertex_for_dQ_dalpha_component(params, n_sen=int, mult_mmatrix=False
 
 
     va = dQ_alpha.compute_vertex_values(mesh_in)
+    vb = dQ_beta.compute_vertex_values(mesh_in)
 
-    return va
+    return va, vb

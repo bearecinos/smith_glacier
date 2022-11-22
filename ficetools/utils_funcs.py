@@ -15,7 +15,7 @@ import pandas as pd
 from decimal import Decimal
 from functools import reduce
 import operator
-from .backend import MPI, Mesh, XDMFFile, Function, FunctionSpace \
+from .backend import MPI, Mesh, XDMFFile, Function, FunctionSpace, \
     project, sqrt, HDF5File, Measure, TestFunction, TrialFunction, assemble, inner
 from dolfin import KrylovSolver
 from tlm_adjoint.interface import function_new

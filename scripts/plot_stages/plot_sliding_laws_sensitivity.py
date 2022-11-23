@@ -64,8 +64,12 @@ t_sens = np.flip(np.linspace(params_budd.time.run_length, 0, params_budd.time.nu
 t_zero = np.round(t_sens[n_sens[0]])
 print(t_zero)
 
-valpha_B, vbeta_B = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_budd, n_sen=n_zero, mult_mmatrix=True)
-valpha_C, vbeta_C = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_corn, n_sen=n_zero, mult_mmatrix=True)
+valpha_B, vbeta_B = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_budd,
+                                                                       n_sen=n_zero,
+                                                                       mult_mmatrix=True)
+valpha_C, vbeta_C = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_corn,
+                                                                       n_sen=n_zero,
+                                                                       mult_mmatrix=True)
 
 print('Get data for Time')
 n_last = num_sens[n_sens[-1]]
@@ -73,14 +77,23 @@ print(n_last)
 t_last = np.round(t_sens[n_sens[-1]])
 print(t_last)
 
-valpha_B_40, vbeta_B_40 = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_budd, n_sen=n_last, mult_mmatrix=True)
-valpha_C_40, vbeta_C_40 = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_corn, n_sen=n_last, mult_mmatrix=True)
+valpha_B_40, vbeta_B_40 = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_budd,
+                                                                             n_sen=n_last,
+                                                                             mult_mmatrix=True)
+valpha_C_40, vbeta_C_40 = utils_funcs.compute_vertex_for_dQ_dalpha_component(params_corn,
+                                                                             n_sen=n_last,
+                                                                             mult_mmatrix=True)
 
 # We get rid of negative sensitivities
 valpha_C[valpha_C < 0] = 0
 valpha_C_40[valpha_C_40 < 0] = 0
 valpha_B_40[valpha_B_40 < 0] = 0
 valpha_B[valpha_B < 0] = 0
+
+vbeta_C[vbeta_C < 0] = 0
+vbeta_C_40[vbeta_C_40 < 0] = 0
+vbeta_B_40[vbeta_B_40 < 0] = 0
+vbeta_B[vbeta_B < 0] = 0
 
 perc_C_40 = np.percentile(valpha_C_40, 90)
 valpha_C_norm = utils_funcs.normalize(valpha_C, percentile=perc_C_40)
@@ -89,6 +102,14 @@ valpha_C_40_norm = utils_funcs.normalize(valpha_C_40, percentile=perc_C_40)
 perc_B_40 = np.percentile(valpha_B_40, 90)
 valpha_B_norm = utils_funcs.normalize(valpha_B, percentile=perc_B_40)
 valpha_B_40_norm = utils_funcs.normalize(valpha_B_40, percentile=perc_B_40)
+
+percbeta_C_40 = np.percentile(vbeta_C_40, 90)
+vbeta_C_norm = utils_funcs.normalize(vbeta_C, percentile=percbeta_C_40)
+vbeta_C_40_norm = utils_funcs.normalize(vbeta_C_40, percentile=percbeta_C_40)
+
+percbeta_B_40 = np.percentile(vbeta_B_40, 90)
+vbeta_B_norm = utils_funcs.normalize(vbeta_B, percentile=percbeta_B_40)
+vbeta_B_40_norm = utils_funcs.normalize(vbeta_B_40, percentile=percbeta_B_40)
 
 #Read common data and get mesh information
 mesh_in = fice_mesh.get_mesh(params_budd)
@@ -130,7 +151,8 @@ std_vy_s = velocity.crop_velocity_data_to_extend(std_vy, smith_bbox,return_xarra
 vv = (vx_s**2 + vy_s**2)**0.5
 std = (std_vx_s**2 + std_vy_s**2)**0.5
 
-# Lets define our salem grid. (but we modified things cuz fabi's code only works for the North! TODO: ask fabien)
+# Lets define our salem grid.
+# (but we modified things cuz fabi's code only works for the North! TODO: ask fabien)
 
 proj = pyproj.Proj('EPSG:3413')
 y_grid = vx_s.y
@@ -284,4 +306,137 @@ ax2.title.set_text('Cornford')
 ax3.title.set_text('Cornford')
 
 plt.tight_layout()
-plt.savefig(os.path.join(plot_path, 'sliding_sensitivities.png'), bbox_inches='tight', dpi=150)
+plt.savefig(os.path.join(plot_path, 'sliding_sensitivities_alpha.png'), bbox_inches='tight', dpi=150)
+
+################################# Beta plot ###################################################
+
+fig1 = plt.figure(figsize=(10*r, 10*r))#, constrained_layout=True)
+spec = gridspec.GridSpec(2, 2, wspace=0.1, hspace=0.3)
+
+ax0 = plt.subplot(spec[0])
+ax0.set_aspect('equal')
+divider = make_axes_locatable(ax0)
+cax = divider.append_axes("bottom", size="5%", pad=0.5)
+smap = salem.Map(gv, countries=False)
+x_n, y_n = smap.grid.transform(x, y,
+                              crs=gv.proj)
+minv = 0
+maxv = 2.0
+levels = np.linspace(minv,maxv,200)
+ticks = np.linspace(minv,maxv,3)
+c = ax0.tricontourf(x_n, y_n, t, vbeta_B_norm, levels = levels, cmap=cmap_sen, extend="both")
+smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
+out = graphics.get_projection_grid_labels(smap)
+smap.xtick_pos = out[0]
+smap.xtick_val = out[1]
+smap.ytick_pos = out[2]
+smap.ytick_val = out[3]
+smap.set_vmin(minv)
+smap.set_vmax(maxv)
+smap.set_extend('both')
+smap.set_cmap(cmap_sen)
+#ax0.triplot(x_n, y_n, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
+smap.visualize(ax=ax0, orientation='horizontal', addcbar=False)
+cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
+                         label='')
+cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
+n_text = AnchoredText('year '+ str(t_zero+1), prop=dict(size=18), frameon=True, loc='upper right')
+ax0.add_artist(n_text)
+at = AnchoredText('a', prop=dict(size=18), frameon=True, loc='upper left')
+ax0.add_artist(at)
+
+ax1 = plt.subplot(spec[1])
+ax1.set_aspect('equal')
+divider = make_axes_locatable(ax1)
+cax = divider.append_axes("bottom", size="5%", pad=0.5)
+minv = 0
+maxv = 2.0
+levels = np.linspace(minv,maxv,200)
+ticks = np.linspace(minv,maxv,3)
+c = ax1.tricontourf(x_n, y_n, t, vbeta_B_40_norm, levels = levels, cmap=cmap_sen, extend="both")
+smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
+out = graphics.get_projection_grid_labels(smap)
+smap.xtick_pos = out[0]
+smap.xtick_val = out[1]
+smap.ytick_pos = out[2]
+smap.ytick_val = out[3]
+smap.set_vmin(minv)
+smap.set_vmax(maxv)
+smap.set_extend('both')
+smap.set_cmap(cmap_sen)
+#ax0.triplot(x_n, y_n, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
+smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)
+cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
+                         label='')
+cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
+n_text = AnchoredText('year '+ str(t_last), prop=dict(size=18), frameon=True, loc='upper right')
+ax1.add_artist(n_text)
+at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
+ax1.add_artist(at)
+
+
+ax2 = plt.subplot(spec[2])
+ax2.set_aspect('equal')
+divider = make_axes_locatable(ax2)
+cax = divider.append_axes("bottom", size="5%", pad=0.5)
+minv = 0
+maxv = 2.0
+levels = np.linspace(minv,maxv,200)
+ticks = np.linspace(minv,maxv,3)
+c = ax2.tricontourf(x_n, y_n, t, vbeta_C_norm, levels = levels, cmap=cmap_sen, extend="both")
+smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
+out = graphics.get_projection_grid_labels(smap)
+smap.xtick_pos = out[0]
+smap.xtick_val = out[1]
+smap.ytick_pos = out[2]
+smap.ytick_val = out[3]
+smap.set_vmin(minv)
+smap.set_vmax(maxv)
+smap.set_extend('both')
+smap.set_cmap(cmap_sen)
+#ax0.triplot(x_n, y_n, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
+smap.visualize(ax=ax2, orientation='horizontal', addcbar=False)
+cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
+                         label='')
+cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
+n_text = AnchoredText('year '+ str(t_zero+1), prop=dict(size=18), frameon=True, loc='upper right')
+ax2.add_artist(n_text)
+at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
+ax2.add_artist(at)
+
+
+ax3 = plt.subplot(spec[3])
+ax3.set_aspect('equal')
+divider = make_axes_locatable(ax3)
+cax = divider.append_axes("bottom", size="5%", pad=0.5)
+minv = 0
+maxv = 2.0
+levels = np.linspace(minv,maxv,200)
+ticks = np.linspace(minv,maxv,3)
+c = ax3.tricontourf(x_n, y_n, t, vbeta_C_40_norm, levels = levels, cmap=cmap_sen, extend="both")
+smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
+out = graphics.get_projection_grid_labels(smap)
+smap.xtick_pos = out[0]
+smap.xtick_val = out[1]
+smap.ytick_pos = out[2]
+smap.ytick_val = out[3]
+smap.set_vmin(minv)
+smap.set_vmax(maxv)
+smap.set_extend('both')
+smap.set_cmap(cmap_sen)
+smap.visualize(ax=ax3, orientation='horizontal', addcbar=False)
+cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
+                         label='')
+cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
+n_text = AnchoredText('year '+ str(t_last), prop=dict(size=18), frameon=True, loc='upper right')
+ax3.add_artist(n_text)
+at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
+ax3.add_artist(at)
+
+ax0.title.set_text('Weertman–Budd')
+ax1.title.set_text('Weertman–Budd')
+ax2.title.set_text('Cornford')
+ax3.title.set_text('Cornford')
+
+plt.tight_layout()
+plt.savefig(os.path.join(plot_path, 'sliding_sensitivities_beta.png'), bbox_inches='tight', dpi=150)

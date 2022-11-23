@@ -325,6 +325,10 @@ ax5.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
 at = AnchoredText('f', prop=dict(size=16), frameon=True, loc='upper left')
 ax5.add_artist(at)
 
+ax0.title.set_text('Weertman–Budd')
+ax1.title.set_text('Cornford')
+ax2.title.set_text('Weertman–Budd')
+
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'sliding_differences.png'),
             bbox_inches='tight')

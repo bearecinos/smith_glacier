@@ -30,7 +30,7 @@ from matplotlib import rcParams
 from matplotlib.offsetbox import AnchoredText
 import matplotlib.gridspec as gridspec
 
-rcParams['axes.labelsize'] = 14
+rcParams['axes.labelsize'] = 18
 rcParams['xtick.labelsize'] = 14
 rcParams['ytick.labelsize'] = 14
 rcParams['lines.markersize'] = 12
@@ -149,10 +149,10 @@ tick_options = {'axis':'both','which':'both','bottom':False,
 levels = np.linspace(minva, maxva, 100)
 ticks = np.linspace(minva, maxva, 3)
 
-g=1.2
+g=1.1
 
-fig1 = plt.figure(figsize=(6*g, 13*g))#, constrained_layout=True)
-spec = gridspec.GridSpec(4, 2, wspace=0.15, hspace=0.15)
+fig1 = plt.figure(figsize=(6.5*g, 12*g))#, constrained_layout=True)
+spec = gridspec.GridSpec(4, 2, wspace=0.15, hspace=0.02)
 
 ax0 = plt.subplot(spec[0])
 ax0.set_aspect('equal')
@@ -163,7 +163,7 @@ graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[0]}
                                     varname='alpha',
                                     num_eigen=num_eigen[0],
                                     ticks=ticks,
-                                    levels=levels)
+                                    levels=levels, remove_colorbar=True)
 at = AnchoredText('a', prop=dict(size=14), frameon=True, loc='upper left')
 ax0.add_artist(at)
 
@@ -176,7 +176,7 @@ graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[0]}'
                                     varname='beta',
                                     num_eigen=num_eigen[0],
                                     ticks=ticks,
-                                    levels=levels, add_text=False)
+                                    levels=levels, add_text=False, remove_colorbar=True)
 at = AnchoredText('b', prop=dict(size=14), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
@@ -189,7 +189,7 @@ graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[1]}
                                     varname='alpha',
                                     num_eigen=num_eigen[1],
                                     ticks=ticks,
-                                    levels=levels)
+                                    levels=levels, remove_colorbar=True)
 at = AnchoredText('c', prop=dict(size=14), frameon=True, loc='upper left')
 ax2.add_artist(at)
 
@@ -202,7 +202,7 @@ graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[1]}'
                                     varname='beta',
                                     num_eigen=num_eigen[1],
                                     ticks=ticks,
-                                    levels=levels, add_text=False)
+                                    levels=levels, add_text=False, remove_colorbar=True)
 at = AnchoredText('d', prop=dict(size=14), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
@@ -216,7 +216,7 @@ graphics.plot_field_in_tricontourf(eigen_v_alpha['eigen_vector'+f'{num_eigen[2]}
                                     varname='alpha',
                                     num_eigen=num_eigen[2],
                                     ticks=ticks,
-                                    levels=levels)
+                                    levels=levels, remove_colorbar=True)
 at = AnchoredText('e', prop=dict(size=14), frameon=True, loc='upper left')
 ax4.add_artist(at)
 
@@ -229,7 +229,7 @@ graphics.plot_field_in_tricontourf(eigen_v_beta['eigen_vector'+f'{num_eigen[2]}'
                                     varname='beta',
                                     num_eigen=num_eigen[2],
                                     ticks=ticks,
-                                    levels=levels, add_text=False)
+                                    levels=levels, add_text=False, remove_colorbar=True)
 at = AnchoredText('f', prop=dict(size=14), frameon=True, loc='upper left')
 ax5.add_artist(at)
 

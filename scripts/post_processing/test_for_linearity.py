@@ -232,12 +232,12 @@ p2, = ax.plot(qoi_dict_il['x'], dot_alpha_line, color=color_palette[0], label=''
 p3, = ax.plot(qoi_dict_il['x'], dot_beta_line, color=color_palette[1], label='', linewidth=3)
 ax.axhline(y=0, color='k', linewidth=2.5)
 plt.legend(handles = [p1, p2, p3],
-           labels = [r'$\Delta$ abs($VAF_{ITSLIVE}$ - $VAF_{MEaSUREs}$)',
+           labels = [r'$\Delta$ abs($Q^{ITSLIVE}_{T}$ - $Q^{MEaSUREs}_{T}$)',
                      r'$\delta Q / \delta \alpha$ . ($\alpha_{ITSLIVE}$ - $\alpha_{MEaSUREs}$)',
                      r'$\delta Q / \delta \beta$ . ($\beta_{ITSLIVE}$ - $\beta_{MEaSUREs}$)'],
            frameon=True, fontsize=18)
 
-ax.set_ylabel(r'$\Delta$ abs(Q$_{I}$ - Q$_{M}$) [$m^3$]')
+ax.set_ylabel(r'\Delta Q_{T} [$m^3$]')
 ax.set_xlabel('Time [yrs]')
 
 plt.tight_layout()

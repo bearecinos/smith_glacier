@@ -237,7 +237,7 @@ plt.legend(handles = [p1, p2, p3],
                      r'$\delta Q / \delta \beta$ . ($\beta_{ITSLIVE}$ - $\beta_{MEaSUREs}$)'],
            frameon=True, fontsize=18)
 
-ax.set_ylabel(r'\Delta Q_{T} [$m^3$]')
+ax.set_ylabel(r'$\Delta$ $Q_{T}$ [$m^3$]')
 ax.set_xlabel('Time [yrs]')
 
 plt.tight_layout()

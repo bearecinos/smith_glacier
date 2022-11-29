@@ -72,25 +72,19 @@ run_name = params.io.run_name
 exp_outdir = Path(diag_il) / phase_name / phase_suffix_il
 
 file_u = "_".join((params.io.run_name+phase_suffix_il, 'U.xml'))
-file_uvobs = "_".join((params.io.run_name+phase_suffix_il, 'uv_cloud.xml'))
 file_alpha = "_".join((params.io.run_name+phase_suffix_il, 'alpha.xml'))
 file_bglen = "_".join((params.io.run_name+phase_suffix_il, 'beta.xml'))
-file_bed = "_".join((params.io.run_name+phase_suffix_il, 'bed.xml'))
-file_h = "_".join((params.io.run_name+phase_suffix_il, 'thick.xml'))
+file_float_c1 = "_".join((params.io.run_name + params.inversion.phase_suffix, 'float.xml'))
 
 U = exp_outdir / file_u
-uv_obs = exp_outdir / file_uvobs
 alpha = exp_outdir / file_alpha
 bglen = exp_outdir / file_bglen
-bed = exp_outdir / file_bed
-H = exp_outdir / file_h
+path_float_c1 = exp_outdir / file_float_c1
 
 assert U.is_file(), "File not found"
-assert uv_obs.is_file(), "File not found"
 assert alpha.is_file(), "File not found"
 assert bglen.is_file(), "File not found"
-assert bed.is_file(), "File not found"
-assert H.is_file(), "File not found"
+assert path_float_c1.is_file(), "File not found"
 
 # Define function spaces for alpha only and uv_comp
 alpha_f = Function(Qp, str(alpha))
@@ -101,39 +95,90 @@ beta_f = Function(Qp, str(bglen))
 beta_p = project(beta_f, M)
 beta_v = beta_p.compute_vertex_values(mesh_in)
 
-# Velocity observations
-uv = Function(M, str(uv_obs))
-uv_obs_f = project(uv, Q)
-uv_obs_v = uv_obs_f.compute_vertex_values(mesh_in)
-
 # Model velocities
 U_v =  utils_funcs.compute_vertex_for_velocity_field(str(U), V, Q, mesh_in)
 
-#Bed
-bed_f = Function(Qp, str(bed))
-bed_p = project(bed_f, M)
-bed_v = bed_p.compute_vertex_values(mesh_in)
-
-#Thickness
-thick_f = Function(M, str(H))
-thick_p = project(thick_f, Q)
-thick_v = thick_p.compute_vertex_values(mesh_in)
+# Where the floating ice ise in Fenics_ice
+float_fun_c1 = Function(M, str(path_float_c1))
+float_pro_c1 = project(float_fun_c1, M)
+float_v_c1 = float_pro_c1.compute_vertex_values(mesh_in)
 
 # Get mesh triangulation
 x, y, t = graphics.read_fenics_ice_mesh(mesh_in)
-trim = tri.Triangulation(x, y, t)
 
-path_dan_grid = os.path.join(MAIN_PATH, 'scripts/post_processing/grid_for_bea.npy')
+alpha_v[float_v_c1 > 0] = 0
+
+
+# We load Bedmachine already cropped to the smith glacier domain
+path_bm = Path(os.path.join(params.io.input_dir, 'smith_bedmachine.h5'))
+f_bm = h5py.File(path_bm, 'r')
+x_bm = f_bm['x'][:]
+y_bm = f_bm['y'][:]
+
+surf = f_bm['surf'][:]
+thick = f_bm['thick'][:]
+
+bed = f_bm['bed'][:]
+
+x_grid_bm, y_grid_bm = np.meshgrid(x_bm, y_bm)
+
+### We load now itslive original data
+path_vel = Path(os.path.join(params.io.input_dir, params.obs.vel_file))
+f_vel = h5py.File(path_vel, 'r')
+x_cloud = f_vel['x_cloud'][:]
+y_cloud = f_vel['y_cloud'][:]
+
+u_cloud = f_vel['u_cloud'][:]
+v_cloud = f_vel['v_cloud'][:]
+
+u_cloud_std = f_vel['u_cloud_std'][:]
+v_cloud_std = f_vel['v_cloud_std'][:]
+
+path_dan_grid = os.path.join(MAIN_PATH, 'scripts/post_processing/grid_for_bea_500.npy')
 
 D = np.load(path_dan_grid)
 X = D[0]
 Y = D[1]
 
-print('Only need to do the interpolations')
-uv_obs_int = griddata((x, y), uv_obs_v.ravel(),
+# Interpolate bed machine stuff
+bed_int = griddata((x_grid_bm.ravel(), y_grid_bm.ravel()), bed.ravel(),
+                   (X, Y),
+                   method='nearest', fill_value=np.nan)
+thick_int = griddata((x_grid_bm.ravel(), y_grid_bm.ravel()), thick.ravel(),
+                   (X, Y),
+                   method='nearest', fill_value=np.nan)
+surf_int = griddata((x_grid_bm.ravel(), y_grid_bm.ravel()), surf.ravel(),
                    (X, Y),
                    method='nearest', fill_value=np.nan)
 
+array_new = ma.masked_where(surf_int == 0, surf_int)
+
+# Interpolate itslive stuff
+u_obs_int = griddata((x_cloud, y_cloud), u_cloud,
+                   (X, Y),
+                   method='nearest', fill_value=np.nan)
+
+v_obs_int = griddata((x_cloud, y_cloud), v_cloud,
+                   (X, Y),
+                   method='nearest', fill_value=np.nan)
+
+u_std_int = griddata((x_cloud, y_cloud), u_cloud_std,
+                   (X, Y),
+                   method='nearest', fill_value=np.nan)
+
+v_std_int = griddata((x_cloud, y_cloud), v_cloud_std,
+                   (X, Y),
+                   method='nearest', fill_value=np.nan)
+
+u_obs_int[array_new.mask] = np.nan
+v_obs_int[array_new.mask] = np.nan
+u_std_int[array_new.mask] = np.nan
+v_std_int[array_new.mask] = np.nan
+
+vv = (u_obs_int**2 + v_obs_int**2)**0.5
+vv[array_new.mask] = np.nan
+
+## Now we interpolate fenics_ice data
 alpha_int = griddata((x, y), alpha_v.ravel(),
                    (X, Y),
                    method='nearest', fill_value=np.nan)
@@ -146,16 +191,12 @@ U_int = griddata((x, y), U_v.ravel(),
                    (X, Y),
                    method='nearest', fill_value=np.nan)
 
-bed_int = griddata((x, y), bed_v.ravel(),
-                   (X, Y),
-                   method='nearest', fill_value=np.nan)
+alpha_int[array_new.mask] = np.nan
+beta_int[array_new.mask] = np.nan
+U_int[array_new.mask] = np.nan
 
-thick_int = griddata((x, y), thick_v.ravel(),
-                   (X, Y),
-                   method='nearest', fill_value=np.nan)
-
-assert uv_obs_int.shape == X.shape
-assert uv_obs_int.shape == Y.shape
+assert vv.shape == X.shape
+assert vv.shape == Y.shape
 assert alpha_int.shape == X.shape
 assert alpha_int.shape == Y.shape
 assert beta_int.shape == X.shape
@@ -166,42 +207,25 @@ assert bed_int.shape == X.shape
 assert bed_int.shape == Y.shape
 assert thick_int.shape == X.shape
 assert thick_int.shape == Y.shape
+assert surf_int.shape == X.shape
+assert surf_int.shape == Y.shape
 
-## Get rid of interpolated values in the ocean using bedmachine mask
-input_dir = params.io.input_dir
-file_bm = Path(input_dir) / params.io.bed_data_file
-
-BM_file = h5py.File(file_bm, 'r')
-
-bm_x = BM_file['x'][:]
-bm_y = BM_file['y'][:]
-
-bmxx, bmyy = np.meshgrid(bm_x, bm_y)
-
-bm_surf = BM_file['surf'][:]
-
-bm_surf_int = griddata((bmxx.ravel(), bmyy.ravel()), bm_surf.ravel(),
-                       (X, Y), method='nearest', fill_value=np.nan)
-
-array_new = ma.masked_where(bm_surf_int == 0, bm_surf_int)
-
-uv_obs_int[array_new.mask] = np.nan
-alpha_int[array_new.mask] = np.nan
-beta_int[array_new.mask] = np.nan
-U_int[array_new.mask] = np.nan
-bed_int[array_new.mask] = np.nan
-thick_int[array_new.mask] = np.nan
 
 output_local_dir = os.path.join(MAIN_PATH, 'output/07_post_processing_model/'+ phase_suffix_il)
 if not os.path.exists(output_local_dir):
     os.makedirs(output_local_dir)
 
-np.savez(os.path.join(output_local_dir, 'fenics_ice_output_gridded'),
+np.savez(os.path.join(output_local_dir, 'fenics_ice_output_gridded_500'),
          X=X,
          Y=Y,
-         vel_obs=uv_obs_int,
+         vel_obs=vv,
+         u_obs = u_obs_int,
+         v_obs = v_obs_int,
+         u_obs_std = u_std_int,
+         v_obs_std = v_std_int,
          vel_model=U_int,
          alpha=alpha_int,
          beta=beta_int,
          bed=bed_int,
-         thick=thick_int)
+         thick=thick_int,
+         surf=surf_int)

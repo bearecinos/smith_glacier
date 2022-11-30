@@ -28,6 +28,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-conf", type=str, default="../../../config.ini", help="pass config file")
 parser.add_argument("-toml_path", type=str, default="../run_experiments/run_workflow/smith_cloud.toml",
                     help="pass .toml file")
+parser.add_argument("-alpha_zero",
+                    action="store_true",
+                    help="If true computes sets alpha values to zero over floating ice")
 
 args = parser.parse_args()
 config_file = args.conf
@@ -106,7 +109,8 @@ float_v_c1 = float_pro_c1.compute_vertex_values(mesh_in)
 # Get mesh triangulation
 x, y, t = graphics.read_fenics_ice_mesh(mesh_in)
 
-alpha_v[float_v_c1 > 0] = 0
+if args.alpha_zero:
+    alpha_v[float_v_c1 > 0] = 0
 
 
 # We load Bedmachine already cropped to the smith glacier domain
@@ -210,12 +214,16 @@ assert thick_int.shape == Y.shape
 assert surf_int.shape == X.shape
 assert surf_int.shape == Y.shape
 
+if args.alpha_zero:
+    new_suffix = phase_suffix_il+'_alpha_to_zero_'
+else:
+    new_suffix = phase_suffix_il
 
-output_local_dir = os.path.join(MAIN_PATH, 'output/07_post_processing_model/'+ phase_suffix_il)
+output_local_dir = os.path.join(MAIN_PATH, 'output/07_post_processing_model/' + new_suffix)
 if not os.path.exists(output_local_dir):
     os.makedirs(output_local_dir)
 
-np.savez(os.path.join(output_local_dir, 'fenics_ice_output_gridded_500'),
+np.savez(os.path.join(output_local_dir, 'fenics_ice_output_gridded_500'+new_suffix),
          X=X,
          Y=Y,
          vel_obs=vv,

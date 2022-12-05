@@ -27,13 +27,15 @@ import pandas as pd
 from fenics_ice import model, solver, inout
 from fenics_ice import mesh as fice_mesh
 from fenics_ice.config import ConfigParser
+import pickle
+import numpy as np
 from IPython import embed
 
 import datetime
 
 def run_fwds(config_file_itslive, config_file_measures):
     """Run the forward part of the simulation with a
-    modified alpha and beta"""
+    modified alpha and beta and save ONLY THE QOI"""
 
     # Read configuration files from measures
     params_m = ConfigParser(config_file_measures)
@@ -41,36 +43,40 @@ def run_fwds(config_file_itslive, config_file_measures):
     # Load the static model data (geometry, smb, etc)
     input_data_m = inout.InputData(params_m)
 
-    # Get model mesh
+    # Get model mesh, This does not really matter as the mesh is the same!
     mesh_m = fice_mesh.get_mesh(params_m)
 
-    # Define the model
+    # Define the model object for MEaSUREs
     mdl_m = model.model(mesh_m, input_data_m, params_m)
 
     mdl_m.alpha_from_inversion()
     mdl_m.beta_from_inversion()
 
-    # Read run config file
+    # Read run config file from ITSLIVE
     params_i = ConfigParser(config_file_itslive)
     log_i = inout.setup_logging(params_i)
     inout.log_preamble("forward", params_i)
 
+    # We need this for the output
     outdir_i = params_i.io.output_dir
     diag_dir_i = params_i.io.diagnostics_dir
     phase_name_i = params_i.time.phase_name
 
     # Load the static model data (geometry, smb, etc)
+    # Input data should be the same as measures but just in case
+    # I define new objects with ITSLive toml
     input_data_i = inout.InputData(params_i)
 
     # Get model mesh
     mesh_i = fice_mesh.get_mesh(params_i)
 
-    # Define the model
+    # Define the model object for ITSLIVE
     mdl_i = model.model(mesh_i, input_data_i, params_i)
 
     mdl_i.alpha_from_inversion()
     mdl_i.beta_from_inversion()
 
+    # TODO: help here is needed! can I replace mdl_i.alpha via this:
     mdl_i.alpha = mdl_i.alpha + (mdl_m.alpha - mdl_i.alpha)*1/100
     function_update_state(mdl_i.alpha)
 
@@ -81,35 +87,28 @@ def run_fwds(config_file_itslive, config_file_measures):
     slvr = solver.ssa_solver(mdl_i, mixed_space=params_i.inversion.dual)
     slvr.save_ts_zero()
 
-    cntrl = slvr.get_control()
-
     qoi_func = slvr.get_qoi_func()
-
-    # TODO here - cntrl now returns a list - so compute_gradient returns a list of tuples
 
     # Run the forward model
     Q = slvr.timestep(adjoint_flag=1, qoi_func=qoi_func)
-    # Run the adjoint model, computing gradient of Qoi w.r.t cntrl
-    dQ_ts = compute_gradient(Q, cntrl)  # Isaac 27
 
-    # Output model variables in ParaView+Fenics friendly format
-    # Output QOI & DQOI (needed for next steps)
-    inout.write_qval(slvr.Qval_ts, params_i)
-    inout.write_dqval(dQ_ts, [var.name() for var in cntrl], params_i)
+    #Now we save the new QoI as pickle
+    # Lets gather the data and the file output directory
+    run_length = params_i.time.run_length
+    num_sens = params_i.time.num_sens
+    t_sens = np.flip(np.linspace(run_length, 0, num_sens))
 
-    # Output final velocity, surface & thickness (visualisation)
-    inout.write_variable(slvr.U, params_i, name="U_fwd",
-                         outdir=diag_dir_i, phase_name=phase_name_i,
-                         phase_suffix=params_i.time.phase_suffix)
-    inout.write_variable(mdl_i.surf, params_i, name="surf_fwd",
-                         outdir=diag_dir_i, phase_name=phase_name_i,
-                         phase_suffix=params_i.time.phase_suffix)
+    out_dir = Path(outdir_i)/phase_name_i
 
-    H = project(mdl_i.H, mdl_i.Q)
-    inout.write_variable(H, params_i, name="H_fwd",
-                         outdir=diag_dir_i, phase_name=phase_name_i,
-                         phase_suffix=params_i.time.phase_suffix)
-    return mdl_i
+    qoi_file = os.path.join(str(out_dir),
+                                 "_".join((params_i.io.run_name,
+                                           params_i.time.phase_suffix +
+                                           "qoi_only.p")))
+
+    with open(qoi_file, 'wb') as pfile:
+        pickle.dump([Q, t_sens], pfile)
+
+    return Q
 
 
 

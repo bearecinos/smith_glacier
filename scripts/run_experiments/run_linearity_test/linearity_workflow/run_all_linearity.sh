@@ -45,3 +45,5 @@ echo $OUT | mail -s "run inv finish config2" beatriz.recinos@ed.ac.uk
 #mpirun -n $1 python $RUN_CONFIG_DIR/run_linearity_test/run_linearity_fwd.py $2 $3 |& tee $path_logs/log_tom2_fwd.txt
 #OUT=$(tail "$path_logs/log_tom2_fwd.txt")
 #echo $OUT | mail -s "run fwd finish config1" beatriz.recinos@ed.ac.uk
+
+#nohup bash $RUN_CONFIG_DIR/run_linearity_test/linearity_workflow/run_all_linearity.sh 24 $RUN_CONFIG_DIR/run_linearity_test/linearity_workflow/smith_itslive-std-original-complete_C0a2-8_L0a-3200_C0b2-28_L0b-1000.toml $RUN_CONFIG_DIR/run_linearity_test/linearity_workflow/smith_measures-std-original-complete_C0a2-8_L0a-3200_C0b2-28_L0b-1000.toml >/dev/null 2>&1

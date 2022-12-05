@@ -76,7 +76,7 @@ def run_fwds(config_file_itslive, config_file_measures):
     mdl_i.alpha_from_inversion()
     mdl_i.beta_from_inversion()
 
-    # TODO: help here is needed! can I replace mdl_i.alpha via this:
+    # TODO: help here is needed, can I replace mdl_i.alpha via this?:
     mdl_i.alpha = mdl_i.alpha + (mdl_m.alpha - mdl_i.alpha)*1/100
     function_update_state(mdl_i.alpha)
 

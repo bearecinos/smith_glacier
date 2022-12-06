@@ -73,13 +73,13 @@ for f in file_names:
 print(paths_itslive)
 
 assert '_0000.nc' in paths_itslive[2]
-assert '_2014.nc' in paths_itslive[3]
+assert '_2014.nc' in paths_itslive[4]
 
 # Define paths for MEaSUREs
 path_measures = os.path.join(MAIN_PATH, config['measures_cloud'])
 
 # Open itslive data
-di = xr.open_dataset(paths_itslive[3])
+di = xr.open_dataset(paths_itslive[4])
 
 # Open measures cloud data
 dm = xr.open_dataset(path_measures)

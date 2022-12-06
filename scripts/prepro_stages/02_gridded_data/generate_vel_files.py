@@ -86,7 +86,7 @@ if args.composite == 'itslive':
     print(paths_itslive)
 
     assert '_0000.nc' in paths_itslive[2]
-    assert '_2014.nc' in paths_itslive[3]
+    assert '_2014.nc' in paths_itslive[4]
 
     dv = xr.open_dataset(paths_itslive[2])
 
@@ -126,8 +126,8 @@ if args.composite == 'itslive':
               'point data its ITSlive 2014')
         # Opening files with salem slower than rasterio
         # but they end up more organised in xr.DataArrays
-        print(paths_itslive[3])
-        dv = xr.open_dataset(paths_itslive[3])
+        print(paths_itslive[4])
+        dv = xr.open_dataset(paths_itslive[4])
 
         vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv, error_factor=args.error_factor)
 

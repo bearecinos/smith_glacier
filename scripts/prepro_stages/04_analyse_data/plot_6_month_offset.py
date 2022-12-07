@@ -96,6 +96,9 @@ toplot = np.sqrt((vx_it2018-vx_it2014)**2+(vy_it2018-vy_it2014)**2)/8.
 # Calculate the difference between data sets
 toplot_2 = np.sqrt((vx_it2014-vx_mi_s)**2+(vy_it2014-vy_mi_s)**2)
 
+# Ratio bigger number over smaller number
+ratio_itslive = np.sqrt((vx_mi_s-vx_it2014)**2+(vy_mi_s-vy_it2014)**2) / np.sqrt((vx_std_it2014)**2+(vy_std_it2014)**2)
+
 ## Get grid for lat and lon from MEaSUREs original data
 import pyproj
 
@@ -178,7 +181,7 @@ ax1.set_aspect('equal')
 divider = make_axes_locatable(ax1)
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
 smap = salem.Map(gv, countries=False)
-smap.set_data(toplot_2.data)
+smap.set_data(ratio_itslive.data)
 smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
 out = graphics.get_projection_grid_labels(smap)
 smap.xtick_pos = out[0]
@@ -186,7 +189,7 @@ smap.xtick_val = out[1]
 smap.ytick_pos = out[2]
 smap.ytick_val = out[3]
 smap.set_vmin(0)
-smap.set_vmax(200)
+smap.set_vmax(10)
 smap.set_cmap('viridis')
 smap.set_extend('both')
 smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)
@@ -196,7 +199,7 @@ at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
 ax0.title.set_text('ITS_LIVE 6 month offset')
-ax1.title.set_text('ITS_LIVE - MEaSUREs')
+ax1.title.set_text('MEaSUREs-ITS_LIVE / ITS_LIVE 2014')
 
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'offset.png'), bbox_inches='tight', dpi=150)

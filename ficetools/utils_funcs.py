@@ -15,12 +15,13 @@ import pandas as pd
 from decimal import Decimal
 from functools import reduce
 import operator
-from .backend import MPI, Mesh, XDMFFile, Function, \
+from .backend import MPI, Mesh, XDMFFile, Function, FunctionSpace, \
     project, sqrt, HDF5File, Measure, TestFunction, TrialFunction, assemble, inner
 from dolfin import KrylovSolver
 from tlm_adjoint.interface import function_new
 import h5py
-from fenics_ice import config
+from fenics_ice import config, mesh,inout, model, solver
+from ufl import finiteelement
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -266,13 +267,18 @@ def normalise_data_array(array):
     first_norm = 2 * first_n - 1
     return first_norm
 
-def normalize(array):
+def normalize(array, percentile=None):
     """
+    :param array: array to normalise
+    :param percentile: percentile to normalise
+                        if none normalises to maximum
+    :return: normedarray
+    """
+    if percentile is not None:
+        absmax = percentile
+    else:
+        absmax = np.max(np.abs(array))
 
-    :param array:
-    :return:
-    """
-    absmax = np.max(np.abs(array))
     normedarray = array / absmax
 
     return normedarray
@@ -531,3 +537,75 @@ def get_prior_information_from_toml(toml):
     df = df.drop(df.index[0])
 
     return df
+
+def compute_vertex_for_dQ_dalpha_component(params, n_sen=int, mult_mmatrix=False):
+    """
+    Compute sensitivities for VAF trajectories
+    :params configuration parser from fenics ice
+    returns
+    --------
+    va: dq/da^2
+    """
+    # Read common data and get mesh information
+    mesh_in = mesh.get_mesh(params)
+
+    el = finiteelement.FiniteElement("Lagrange", mesh_in.ufl_cell(), 1)
+    mixedElem = el * el
+
+    Q = FunctionSpace(mesh_in, mixedElem)
+    dQ = Function(Q)
+
+    # Reading the sensitivity output
+    outdir = params.io.output_dir
+    phase_name_fwd = params.time.phase_name
+    run_name = params.io.run_name
+    phase_suffix = params.time.phase_suffix
+
+    fwd_outdir = Path(outdir) / phase_name_fwd / phase_suffix
+    file_qts = "_".join((run_name + phase_suffix, 'dQ_ts.h5'))
+    hdffile = fwd_outdir / file_qts
+    assert hdffile.is_file(), "File not found"
+
+    hdf5data = HDF5File(MPI.comm_world, str(hdffile), 'r')
+    name_field = 'dQdalphaXbeta' + '/vector_'
+    hdf5data.read(dQ, f'{name_field}{n_sen}')
+
+    # Reading inversion output
+    input_data = inout.InputData(params)
+    # Define the model
+    mdl = model.model(mesh_in, input_data, params)
+    mdl.alpha_from_inversion()
+    mdl.beta_from_inversion()
+
+    # Solve
+    slvr = solver.ssa_solver(mdl, mixed_space=params.inversion.dual)
+    cntrl = slvr.get_control()
+
+    dQ.vector()[:] = dQ.vector()[:] / (2.0 * cntrl[0].vector()[:])
+    dQ.vector().apply("insert")
+
+    dx = Measure('dx', domain=mesh_in)
+
+    Q = dQ.function_space()
+    Qp_test, Qp_trial = TestFunction(Q), TrialFunction(Q)
+
+    # Mass matrix solver
+    M_mat = assemble(inner(Qp_trial, Qp_test) * dx)
+
+    M_solver = KrylovSolver(M_mat.copy(), "cg", "sor")  # DOLFIN KrylovSolver object
+    M_solver.parameters.update({"relative_tolerance": 1.0e-14,
+                                "absolute_tolerance": 1.0e-32})
+
+    this_action = function_new(dQ, name=f"M_inv_action")
+    M_solver.solve(this_action.vector(), dQ.vector())
+
+    if mult_mmatrix:
+        dQ_alpha, dQ_beta = this_action.split(deepcopy=True)
+    else:
+        dQ_alpha, dQ_beta = dQ.split(deepcopy=True)
+
+
+    va = dQ_alpha.compute_vertex_values(mesh_in)
+    vb = dQ_beta.compute_vertex_values(mesh_in)
+
+    return va, vb

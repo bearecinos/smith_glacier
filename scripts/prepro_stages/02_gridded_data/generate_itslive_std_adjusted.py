@@ -87,7 +87,7 @@ for f in file_names:
 print(paths_itslive)
 
 assert '_0000.nc' in paths_itslive[2]
-assert '_2014.nc' in paths_itslive[3]
+assert '_2014.nc' in paths_itslive[4]
 
 dv = xr.open_dataset(paths_itslive[2])
 
@@ -127,7 +127,7 @@ vy_m = dm.VY
 std_vx_m = dm.STDX
 std_vy_m = dm.STDY
 
-dv = xr.open_dataset(paths_itslive[3])
+dv = xr.open_dataset(paths_itslive[4])
 vx, vy, std_vx, std_vy = vel_tools.process_itslive_netcdf(dv)
 
 fpath = os.path.join(os.path.dirname(os.path.abspath(path_measures)),

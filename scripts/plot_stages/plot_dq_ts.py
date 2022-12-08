@@ -143,8 +143,8 @@ cax = divider.append_axes("bottom", size="5%", pad=0.1)
 c = ax0.tricontourf(x, y, t, valpha_first_std, levels=levelsaf, cmap=plt.get_cmap('RdBu'),  extend="both") # levels = levelsa
 ax0.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
 cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal", extend="both") #ticks=ticksa
-cbar.ax.set_xlabel(r'$\frac{dQ}{d\alpha}$')
-n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
+cbar.ax.set_xlabel(r'$\frac{\delta Q}{\delta \alpha}$')
+n_text = AnchoredText('year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
 ax0.add_artist(n_text)
 at = AnchoredText('a', prop=dict(size=16), frameon=True, loc='upper left')
 ax0.add_artist(at)
@@ -158,8 +158,8 @@ cax = divider.append_axes("bottom", size="5%", pad=0.1)
 c = ax1.tricontourf(x, y, t, vbeta_first_std, levels=levelsbf, cmap=plt.get_cmap('RdBu'),  extend="both") #levels = levelsb,
 ax1.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
 cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal",  extend="both") # ticks=ticksb,
-cbar.ax.set_xlabel(r'$\frac{dQ}{d\beta}$')
-n_text = AnchoredText('after year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
+cbar.ax.set_xlabel(r'$\frac{\delta Q}{\delta \beta}$')
+n_text = AnchoredText('year '+ str(t_zero), prop=dict(size=12), frameon=True, loc='upper right')
 ax1.add_artist(n_text)
 at = AnchoredText('b', prop=dict(size=16), frameon=True, loc='upper left')
 ax1.add_artist(at)
@@ -173,8 +173,8 @@ cax = divider.append_axes("bottom", size="5%", pad=0.1)
 c = ax2.tricontourf(x, y, t, valpha_last_std, levels=levelsaf, cmap=plt.get_cmap('RdBu'),  extend="both") #  levels = levelsa,
 ax2.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
 cbar = plt.colorbar(c, cax=cax, ticks=ticksaf, orientation="horizontal",  extend="both") #ticks=ticksa
-cbar.ax.set_xlabel(r'$\frac{dQ}{d\alpha}$')
-n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
+cbar.ax.set_xlabel(r'$\frac{\delta Q}{\delta \alpha}$')
+n_text = AnchoredText('year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
 ax2.add_artist(n_text)
 at = AnchoredText('c', prop=dict(size=16), frameon=True, loc='upper left')
 ax2.add_artist(at)
@@ -187,13 +187,13 @@ cax = divider.append_axes("bottom", size="5%", pad=0.1)
 c = ax3.tricontourf(x, y, t, vbeta_last_std, levels=levelsbf, cmap=plt.get_cmap('RdBu'),  extend="both") # levels = levelsb,
 ax3.triplot(x, y, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
 cbar = plt.colorbar(c, cax=cax, ticks=ticksbf, orientation="horizontal", extend="both") #ticks=ticksb,
-cbar.ax.set_xlabel(r'$\frac{dQ}{d\beta}$')
-n_text = AnchoredText('after year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
+cbar.ax.set_xlabel(r'$\frac{\delta Q}{\delta \beta}$')
+n_text = AnchoredText('year '+ str(t_last), prop=dict(size=12), frameon=True, loc='upper right')
 ax3.add_artist(n_text)
 at = AnchoredText('d', prop=dict(size=16), frameon=True, loc='upper left')
 ax3.add_artist(at)
 
 plt.tight_layout()
-plt.savefig(os.path.join(plot_path, 'dq_ts_output_vaf'+
+plt.savefig(os.path.join(plot_path, 'dq_ts_output_vaf'+ run_name +
                          str(n_zero)+'_'+str(n_last)+'.png'),
             bbox_inches='tight')

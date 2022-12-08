@@ -174,10 +174,10 @@ ax = fig.add_subplot(2, 1, 1)
 
 ax.plot(to_plot_testing_zero_std.step, to_plot_testing_zero_std.J, '-o',
         color=color_palette[0],
-        markersize=15, lw=3, label='Validating against upper cell points')
+        markersize=15, lw=3, label='Validation against upper cell points')
 ax.plot(to_plot_testing_middle_std.step, to_plot_testing_middle_std.J, '-*',
         color=color_palette[0],
-        markersize=15, lw=3, label='Validating against middle cell points')
+        markersize=15, lw=3, label='Validation against middle cell points')
 
 ax.set_ylabel(r'$J_{c}$')
 ax.set_xlim(0,11)

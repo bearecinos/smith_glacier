@@ -275,7 +275,8 @@ ax3.fill_between(qoi_dict_c2['x'],
 plt.legend(handles = [p1, p2],
            labels = ['Weertman–Budd',
                      'Cornford'],frameon=True, fontsize=14)
-ax3.set_ylabel(r'Q$(m^3)$')
+ax3.set_ylabel(r'$Q_{T}$ [$m^3$]')
+ax3.set_xlabel('Time [yrs]')
 
 at = AnchoredText('d', prop=dict(size=16), frameon=True, loc='upper left')
 ax3.add_artist(at)
@@ -290,8 +291,8 @@ p2_prior, = ax4.semilogy(qoi_dict_c2['x'], qoi_dict_c2['sigma_prior'], linewidth
 p2_post, = ax4.semilogy(qoi_dict_c2['x'], qoi_dict_c2['sigma_post'],
              color=colors[1], label='', linewidth=3)
 ax4.grid(True, which="both", ls="-")
-ax4.set_xlabel('Time (yrs)')
-ax4.set_ylabel(r'$\sigma$ Q$(m^3)$')
+ax4.set_xlabel('Time [yrs]')
+ax4.set_ylabel(r'$2\sigma$ $Q_{T}$ [$m^3$]')
 plt.legend(handles = [p1_prior, p1_post],
            labels = ['Prior',
                      'Posterior'],frameon=True, fontsize=15)
@@ -305,7 +306,7 @@ ax5.semilogy(sigma_conv_c1['ind'],
 ax5.plot(sigma_conv_c1['ind2'],
          np.exp(sigma_conv_c1['slope'] * sigma_conv_c1['ind2'] + sigma_conv_c1['inter']),
          color=colors[0], alpha=0.5, linewidth=3,
-        label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c1['sigma_full'])) + '\n' +r' $R^2$=' + str(round(sigma_conv_c1['result'].rvalue**2, 3)))
+        label=r'$ \sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c1['sigma_full'])) + '\n' +r' $r^2$=' + str(round(sigma_conv_c1['result'].rvalue**2, 3)))
 
 ax5.semilogy(sigma_conv_c2['ind'],
              np.abs(np.diff(sigma_conv_c2['sig']))/np.diff(sigma_conv_c2['eignum']), linewidth=1.5,
@@ -313,16 +314,20 @@ ax5.semilogy(sigma_conv_c2['ind'],
 ax5.plot(sigma_conv_c2['ind2'],
          np.exp(sigma_conv_c2['slope'] * sigma_conv_c2['ind2'] + sigma_conv_c2['inter']), linewidth=3,
          color=colors[1], alpha=0.5,
-        label=r'$\sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) + '\n' + r' $R^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
+        label=r'$ \sigma^{est}_{full}$ =' + "{:.1E}".format(Decimal(sigma_conv_c2['sigma_full'])) + '\n' + r' $r^2$=' + str(round(sigma_conv_c2['result'].rvalue**2, 3)))
 
 
 ax5.grid(True, which="both", ls="-")
 plt.legend(loc='upper right', ncol=1,
             borderaxespad=0, frameon=True, fontsize=13)
-ax5.set_xlabel('No. of Eigen values')
-ax5.set_ylabel(r'$\delta$$\sigma$ Q$(m^3)$')
+ax5.set_xlabel('Eigenvalue index')
+ax5.set_ylabel(r'$\delta$ $\sigma$ $Q_{T}$ [$m^3$]')
 at = AnchoredText('f', prop=dict(size=16), frameon=True, loc='upper left')
 ax5.add_artist(at)
+
+ax0.title.set_text('Weertman–Budd')
+ax1.title.set_text('Cornford')
+ax2.title.set_text('Weertman–Budd')
 
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'sliding_differences.png'),

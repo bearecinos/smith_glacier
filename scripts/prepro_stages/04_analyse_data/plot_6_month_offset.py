@@ -189,7 +189,7 @@ smap.xtick_val = out[1]
 smap.ytick_pos = out[2]
 smap.ytick_val = out[3]
 smap.set_vmin(0)
-smap.set_vmax(10)
+smap.set_vmax(5)
 smap.set_cmap('viridis')
 smap.set_extend('both')
 smap.visualize(ax=ax1, orientation='horizontal', addcbar=False)

@@ -2,9 +2,9 @@
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
 run_name = "smith_measures_exp_paper"
-input_dir = "" # We need to work with the same input data. I will use Dan inputs.
-output_dir = "" # The main output should have this format /scratch/local/brecinos/smith_glacier/output/06_Itslive_exp/output
-diagnostics_dir = "" # The main output should have this format /scratch/local/brecinos/smith_glacier/output/06_Itslive_exp/diagnostics
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_workflow" # We need to work with the same input data. I will use Dan inputs.
+output_dir = "/scratch/local/brecinos/smith_glacier/output/11_original_data_weak_prior/output" # The main output should have this format /scratch/local/brecinos/smith_glacier/output/06_Itslive_exp/output
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/11_original_data_weak_prior/diagnostics" # The main output should have this format /scratch/local/brecinos/smith_glacier/output/06_Itslive_exp/diagnostics
 
 # We will put the spefics of each config. in the phase suffix!
 

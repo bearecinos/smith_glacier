@@ -17,3 +17,4 @@ scripts/run_experiments/run_lcurves_paper/tomls_gamma_alpha/log__*
 scripts/run_experiments/run_lcurves_paper/tomls_gamma_beta/log__*
 scripts/run_experiments/run_lcurves_paper/lcurve_workflow/log_*
 scripts/run_experiments/run_cornford_sliding_law/log_*
+scripts/run_experiments/run_original_data_weak_priors/log_*

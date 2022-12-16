@@ -16,7 +16,7 @@
 # along with tlm_adjoint.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-
+from fenics import Function
 import sys
 from pathlib import Path
 from fenics_ice import model, solver, inout
@@ -58,16 +58,24 @@ def run_fwds(config_file_itslive, config_file_measures):
     # I define new objects with ITSLive toml
     input_data_i = inout.InputData(params_i)
 
+    # Get model mesh
+    mesh_i = fice_mesh.get_mesh(params_i)
+
     # Define the model object for ITSLIVE
-    mdl_i = model.model(mesh_m, input_data_i, params_i)
+    mdl_i = model.model(mesh_i, input_data_i, params_i)
 
     mdl_i.alpha_from_inversion()
     mdl_i.beta_from_inversion()
 
-    # TODO: help here is needed, can I replace mdl_i.alpha via this?:
-    mdl_i.alpha.assign(mdl_i.alpha + (mdl_m.alpha - mdl_i.alpha)*1/100)
+    mdl_m_alpha = Function(mdl_i.alpha.function_space())
+    mdl_m_alpha.interpolate(mdl_m.alpha)
+    mdl_i.alpha.assign(mdl_i.alpha + (mdl_m_alpha - mdl_i.alpha) * 0.01)
+    del mdl_m_alpha
 
-    mdl_i.beta.assign(mdl_i.beta + (mdl_m.beta - mdl_i.beta)*1/100)
+    mdl_m_beta = Function(mdl_i.beta.function_space())
+    mdl_m_beta.interpolate(mdl_m.beta)
+    mdl_i.beta.assign(mdl_i.beta + (mdl_m_beta - mdl_i.beta) * 0.01)
+    del mdl_m_beta
 
     # Solve
     slvr = solver.ssa_solver(mdl_i, mixed_space=params_i.inversion.dual)

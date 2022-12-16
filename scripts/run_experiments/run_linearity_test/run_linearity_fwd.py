@@ -14,24 +14,17 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with tlm_adjoint.  If not, see <https://www.gnu.org/licenses/>.
-from fenics_ice.backend import *
-from fenics_ice.backend import HDF5File, project
 
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 import sys
 from pathlib import Path
-import pandas as pd
 from fenics_ice import model, solver, inout
 from fenics_ice import mesh as fice_mesh
 from fenics_ice.config import ConfigParser
 import pickle
 import numpy as np
-from IPython import embed
 
-import datetime
 
 def run_fwds(config_file_itslive, config_file_measures):
     """Run the forward part of the simulation with a
@@ -54,12 +47,10 @@ def run_fwds(config_file_itslive, config_file_measures):
 
     # Read run config file from ITSLIVE
     params_i = ConfigParser(config_file_itslive)
-    log_i = inout.setup_logging(params_i)
     inout.log_preamble("forward", params_i)
 
     # We need this for the output
     outdir_i = params_i.io.output_dir
-    diag_dir_i = params_i.io.diagnostics_dir
     phase_name_i = params_i.time.phase_name
 
     # Load the static model data (geometry, smb, etc)
@@ -67,21 +58,16 @@ def run_fwds(config_file_itslive, config_file_measures):
     # I define new objects with ITSLive toml
     input_data_i = inout.InputData(params_i)
 
-    # Get model mesh
-    mesh_i = fice_mesh.get_mesh(params_i)
-
     # Define the model object for ITSLIVE
-    mdl_i = model.model(mesh_i, input_data_i, params_i)
+    mdl_i = model.model(mesh_m, input_data_i, params_i)
 
     mdl_i.alpha_from_inversion()
     mdl_i.beta_from_inversion()
 
     # TODO: help here is needed, can I replace mdl_i.alpha via this?:
-    mdl_i.alpha = mdl_i.alpha + (mdl_m.alpha - mdl_i.alpha)*1/100
-    function_update_state(mdl_i.alpha)
+    mdl_i.alpha.assign(mdl_i.alpha + (mdl_m.alpha - mdl_i.alpha)*1/100)
 
-    mdl_i.beta = mdl_i.beta + (mdl_m.beta - mdl_i.beta)*1/100
-    function_update_state(mdl_i.beta)
+    mdl_i.beta.assign(mdl_i.beta + (mdl_m.beta - mdl_i.beta)*1/100)
 
     # Solve
     slvr = solver.ssa_solver(mdl_i, mixed_space=params_i.inversion.dual)
@@ -92,7 +78,7 @@ def run_fwds(config_file_itslive, config_file_measures):
     # Run the forward model
     Q = slvr.timestep(adjoint_flag=1, qoi_func=qoi_func)
 
-    #Now we save the new QoI as pickle
+    # Now we save the new QoI as pickle
     # Lets gather the data and the file output directory
     run_length = params_i.time.run_length
     num_sens = params_i.time.num_sens
@@ -101,9 +87,9 @@ def run_fwds(config_file_itslive, config_file_measures):
     out_dir = Path(outdir_i)/phase_name_i
 
     qoi_file = os.path.join(str(out_dir),
-                                 "_".join((params_i.io.run_name,
-                                           params_i.time.phase_suffix +
-                                           "qoi_only.p")))
+                            "_".join((params_i.io.run_name,
+                                      params_i.time.phase_suffix +
+                                      "qoi_only.p")))
 
     with open(qoi_file, 'wb') as pfile:
         pickle.dump([Q, t_sens], pfile)
@@ -111,8 +97,6 @@ def run_fwds(config_file_itslive, config_file_measures):
     return Q
 
 
-
 if __name__ == "__main__":
     assert len(sys.argv) == 3, "Expected two configuration files (*.toml)"
     run_fwds(sys.argv[1], sys.argv[2])
-

@@ -62,17 +62,19 @@ def run_fwds(config_file_itslive, config_file_measures):
     mesh_i = fice_mesh.get_mesh(params_i)
 
     # Define the model object for ITSLIVE
-    mdl_i = model.model(mesh_i, input_data_i, params_i)
+    mdl_i = model.model(mesh_m, input_data_i, params_i)
 
     mdl_i.alpha_from_inversion()
     mdl_i.beta_from_inversion()
 
     mdl_m_alpha = Function(mdl_i.alpha.function_space())
+    #mdl_m_alpha.set_allow_extrapolation(True)
     mdl_m_alpha.interpolate(mdl_m.alpha)
     mdl_i.alpha.assign(mdl_i.alpha + (mdl_m_alpha - mdl_i.alpha) * 0.01)
     del mdl_m_alpha
 
     mdl_m_beta = Function(mdl_i.beta.function_space())
+    #mdl_m_beta.set_allow_extrapolation(True)
     mdl_m_beta.interpolate(mdl_m.beta)
     mdl_i.beta.assign(mdl_i.beta + (mdl_m_beta - mdl_i.beta) * 0.01)
     del mdl_m_beta
@@ -85,22 +87,8 @@ def run_fwds(config_file_itslive, config_file_measures):
 
     # Run the forward model
     Q = slvr.timestep(adjoint_flag=1, qoi_func=qoi_func)
-
-    # Now we save the new QoI as pickle
-    # Lets gather the data and the file output directory
-    run_length = params_i.time.run_length
-    num_sens = params_i.time.num_sens
-    t_sens = np.flip(np.linspace(run_length, 0, num_sens))
-
-    out_dir = Path(outdir_i)/phase_name_i
-
-    qoi_file = os.path.join(str(out_dir),
-                            "_".join((params_i.io.run_name,
-                                      params_i.time.phase_suffix +
-                                      "qoi_only.p")))
-
-    with open(qoi_file, 'wb') as pfile:
-        pickle.dump([Q, t_sens], pfile)
+    
+    inout.write_qval(slvr.Qval_ts, params_i)
 
     return Q
 

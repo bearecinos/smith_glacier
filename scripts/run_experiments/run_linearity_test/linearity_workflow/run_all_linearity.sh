@@ -31,19 +31,19 @@ toml set --toml-path $3 io.input_dir "$input_run_inv"
 toml set --toml-path $3 io.output_dir "$run_inv_output_dir/output"
 toml set --toml-path $3 io.diagnostics_dir "$run_inv_output_dir/diagnostics"
 
-echo $(date -u) "Run inversion stages started"
+#echo $(date -u) "Run inversion stages started"
 
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $2 |& tee $path_logs/log_tom2_inv.txt
-OUT=$(tail "$path_logs/log_tom2_inv.txt")
-echo $OUT | mail -s "run inv finish config1" beatriz.recinos@ed.ac.uk
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $2 |& tee $path_logs/log_tom2_inv.txt
+#OUT=$(tail "$path_logs/log_tom2_inv.txt")
+#echo $OUT | mail -s "run inv finish config1" beatriz.recinos@ed.ac.uk
 
-mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $3 |& tee $path_logs/log_tom3_inv.txt
-OUT=$(tail "$path_logs/log_tom3_inv.txt")
-echo $OUT | mail -s "run inv finish config2" beatriz.recinos@ed.ac.uk
+#mpirun -n $1 python $FENICS_ICE_BASE_DIR/runs/run_inv.py $3 |& tee $path_logs/log_tom3_inv.txt
+#OUT=$(tail "$path_logs/log_tom3_inv.txt")
+#echo $OUT | mail -s "run inv finish config2" beatriz.recinos@ed.ac.uk
 
-#echo $(date -u) "Run forward linearity stage started"
-#mpirun -n $1 python $RUN_CONFIG_DIR/run_linearity_test/run_linearity_fwd.py $2 $3 |& tee $path_logs/log_tom2_fwd.txt
-#OUT=$(tail "$path_logs/log_tom2_fwd.txt")
-#echo $OUT | mail -s "run fwd finish config1" beatriz.recinos@ed.ac.uk
+echo $(date -u) "Run forward linearity stage started"
+mpirun -n $1 python $RUN_CONFIG_DIR/run_linearity_test/run_linearity_fwd.py $2 $3 |& tee $path_logs/log_tom2_fwd.txt
+OUT=$(tail "$path_logs/log_tom2_fwd.txt")
+echo $OUT | mail -s "run fwd finish config1" beatriz.recinos@ed.ac.uk
 
 #nohup bash $RUN_CONFIG_DIR/run_linearity_test/linearity_workflow/run_all_linearity.sh 24 $RUN_CONFIG_DIR/run_linearity_test/linearity_workflow/smith_itslive-std-original-complete_C0a2-8_L0a-3200_C0b2-28_L0b-1000.toml $RUN_CONFIG_DIR/run_linearity_test/linearity_workflow/smith_measures-std-original-complete_C0a2-8_L0a-3200_C0b2-28_L0b-1000.toml >/dev/null 2>&1

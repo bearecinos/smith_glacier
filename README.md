@@ -2,7 +2,7 @@
 
 This repository consist of several experiments with [Fenics_ice](https://github.com/EdiGlacUQ/fenics_ice) over Smith, Pope, and Kohler Glaciers. They are three narrow ∼ 10 km wide interconnected West Antarctic ice streams.
 
-> **Note**: this repository and its documentation is a work in progress :construction_worker: 
+> **Note**: this repository documentation is a work in progress :construction_worker: 
 
 The code has been developed to: 
 

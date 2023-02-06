@@ -18,12 +18,13 @@ And to carry out the following experiments with the model:
 Repository structure:
 ---------------------
 
-- `ficetools`: A set of tools for mesh and input data generation.
+- `ficetools`: inner python module that host various useful functions for the pre-processing stages, handling files and plotting routines.
 - `scripts`: Python and bash scripts to run each data processing stage.
    - `prepro_stages`: Python scripts to generate the input data cropped to the study region for all the model stages.
    - `run_experiments`: Bash scrips and `.toml` configuration files for each run experiment and stage of fenics_ice.
    - `plot_stages`: An alternative to Paraview to visualize the model input and output data with matplotlib.
-- `config.ini`: Configuration file for paths to input and output data.
+   - `post_processing`: Python scripts to re-grid the Fenics_ice output to a rectangular mesh.
+- `config.ini`: Local configuration file for paths to input and output data.
 - `setpaths.sh`: Global paths to repository and repository directories.
 
 Installation and usage

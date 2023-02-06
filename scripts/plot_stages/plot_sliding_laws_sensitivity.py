@@ -310,8 +310,8 @@ plt.savefig(os.path.join(plot_path, 'sliding_sensitivities_alpha.png'), bbox_inc
 
 ################################# Beta plot ###################################################
 
-fig1 = plt.figure(figsize=(10*r, 10*r))#, constrained_layout=True)
-spec = gridspec.GridSpec(2, 2, wspace=0.1, hspace=0.3)
+fig1 = plt.figure(figsize=(10*r, 5*r))#, constrained_layout=True)
+spec = gridspec.GridSpec(1, 2, wspace=0.2, hspace=0.3)
 
 ax0 = plt.subplot(spec[0])
 ax0.set_aspect('equal')
@@ -375,68 +375,68 @@ at = AnchoredText('b', prop=dict(size=18), frameon=True, loc='upper left')
 ax1.add_artist(at)
 
 
-ax2 = plt.subplot(spec[2])
-ax2.set_aspect('equal')
-divider = make_axes_locatable(ax2)
-cax = divider.append_axes("bottom", size="5%", pad=0.5)
-minv = 0
-maxv = 2.0
-levels = np.linspace(minv,maxv,200)
-ticks = np.linspace(minv,maxv,3)
-c = ax2.tricontourf(x_n, y_n, t, vbeta_C_norm, levels = levels, cmap=cmap_sen, extend="both")
-smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
-out = graphics.get_projection_grid_labels(smap)
-smap.xtick_pos = out[0]
-smap.xtick_val = out[1]
-smap.ytick_pos = out[2]
-smap.ytick_val = out[3]
-smap.set_vmin(minv)
-smap.set_vmax(maxv)
-smap.set_extend('both')
-smap.set_cmap(cmap_sen)
-#ax0.triplot(x_n, y_n, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
-smap.visualize(ax=ax2, orientation='horizontal', addcbar=False)
-cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
-                         label='')
-cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
-n_text = AnchoredText('year '+ str(t_zero+1), prop=dict(size=18), frameon=True, loc='upper right')
-ax2.add_artist(n_text)
-at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
-ax2.add_artist(at)
+# ax2 = plt.subplot(spec[2])
+# ax2.set_aspect('equal')
+# divider = make_axes_locatable(ax2)
+# cax = divider.append_axes("bottom", size="5%", pad=0.5)
+# minv = 0
+# maxv = 2.0
+# levels = np.linspace(minv,maxv,200)
+# ticks = np.linspace(minv,maxv,3)
+# c = ax2.tricontourf(x_n, y_n, t, vbeta_C_norm, levels = levels, cmap=cmap_sen, extend="both")
+# smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
+# out = graphics.get_projection_grid_labels(smap)
+# smap.xtick_pos = out[0]
+# smap.xtick_val = out[1]
+# smap.ytick_pos = out[2]
+# smap.ytick_val = out[3]
+# smap.set_vmin(minv)
+# smap.set_vmax(maxv)
+# smap.set_extend('both')
+# smap.set_cmap(cmap_sen)
+# #ax0.triplot(x_n, y_n, trim.triangles, '-', color='grey', lw=0.2, alpha=0.5)
+# smap.visualize(ax=ax2, orientation='horizontal', addcbar=False)
+# cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
+#                          label='')
+# cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
+# n_text = AnchoredText('year '+ str(t_zero+1), prop=dict(size=18), frameon=True, loc='upper right')
+# ax2.add_artist(n_text)
+# at = AnchoredText('c', prop=dict(size=18), frameon=True, loc='upper left')
+# ax2.add_artist(at)
+#
+#
+# ax3 = plt.subplot(spec[3])
+# ax3.set_aspect('equal')
+# divider = make_axes_locatable(ax3)
+# cax = divider.append_axes("bottom", size="5%", pad=0.5)
+# minv = 0
+# maxv = 2.0
+# levels = np.linspace(minv,maxv,200)
+# ticks = np.linspace(minv,maxv,3)
+# c = ax3.tricontourf(x_n, y_n, t, vbeta_C_40_norm, levels = levels, cmap=cmap_sen, extend="both")
+# smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
+# out = graphics.get_projection_grid_labels(smap)
+# smap.xtick_pos = out[0]
+# smap.xtick_val = out[1]
+# smap.ytick_pos = out[2]
+# smap.ytick_val = out[3]
+# smap.set_vmin(minv)
+# smap.set_vmax(maxv)
+# smap.set_extend('both')
+# smap.set_cmap(cmap_sen)
+# smap.visualize(ax=ax3, orientation='horizontal', addcbar=False)
+# cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
+#                          label='')
+# cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
+# n_text = AnchoredText('year '+ str(t_last), prop=dict(size=18), frameon=True, loc='upper right')
+# ax3.add_artist(n_text)
+# at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
+# ax3.add_artist(at)
 
-
-ax3 = plt.subplot(spec[3])
-ax3.set_aspect('equal')
-divider = make_axes_locatable(ax3)
-cax = divider.append_axes("bottom", size="5%", pad=0.5)
-minv = 0
-maxv = 2.0
-levels = np.linspace(minv,maxv,200)
-ticks = np.linspace(minv,maxv,3)
-c = ax3.tricontourf(x_n, y_n, t, vbeta_C_40_norm, levels = levels, cmap=cmap_sen, extend="both")
-smap.set_lonlat_contours(xinterval=1.0, yinterval=0.5, add_tick_labels=False, linewidths=1.5, alpha=0.3)
-out = graphics.get_projection_grid_labels(smap)
-smap.xtick_pos = out[0]
-smap.xtick_val = out[1]
-smap.ytick_pos = out[2]
-smap.ytick_val = out[3]
-smap.set_vmin(minv)
-smap.set_vmax(maxv)
-smap.set_extend('both')
-smap.set_cmap(cmap_sen)
-smap.visualize(ax=ax3, orientation='horizontal', addcbar=False)
-cbar = smap.colorbarbase(cax=cax, orientation="horizontal",
-                         label='')
-cbar.set_label(r'$\frac{\delta Q}{\delta \beta^{2}}$', fontsize=22)
-n_text = AnchoredText('year '+ str(t_last), prop=dict(size=18), frameon=True, loc='upper right')
-ax3.add_artist(n_text)
-at = AnchoredText('d', prop=dict(size=18), frameon=True, loc='upper left')
-ax3.add_artist(at)
-
-ax0.title.set_text('Weertman–Budd')
-ax1.title.set_text('Weertman–Budd')
-ax2.title.set_text('Cornford')
-ax3.title.set_text('Cornford')
+# ax0.title.set_text('Weertman–Budd')
+# ax1.title.set_text('Weertman–Budd')
+# ax2.title.set_text('Cornford')
+# ax3.title.set_text('Cornford')
 
 plt.tight_layout()
 plt.savefig(os.path.join(plot_path, 'sliding_sensitivities_beta.png'), bbox_inches='tight', dpi=150)

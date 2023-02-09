@@ -1,9 +1,9 @@
 [io] #Directory specification
 
 run_name = "smith_training_"
-input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_inv"
-output_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/output"
-diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/05_stable_inference/diagnostics"
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_workflow"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/14_stable_inference_test/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/14_stable_inference_test/diagnostics"
 
 write_diagnostics = true
 
@@ -64,11 +64,11 @@ max_iter = 500
 alpha_active = true
 beta_active = true
 
-gamma_alpha = 1e1
-delta_alpha = 1e-6
-gamma_beta = 1e1
-delta_beta = 1e-5
-delta_beta_gnd = 1e-5
+gamma_alpha = 1.7
+delta_alpha = 1.9e-07
+gamma_beta = 9.4
+delta_beta = 9.4e-06
+delta_beta_gnd = 9.4e-06
 
 ftol = 1e-8
 gtol = 1e-12

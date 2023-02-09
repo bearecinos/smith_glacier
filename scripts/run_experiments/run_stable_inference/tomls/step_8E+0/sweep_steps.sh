@@ -1,5 +1,5 @@
 # Create run_input directory for the inversion run
-input_run_inv=$INPUT_DIR/input_run_inv
+input_run_inv=$INPUT_DIR/input_run_workflow
 if [ ! -d $input_run_inv ]
 then
   echo "Creating run input directory $input_run_inv"
@@ -9,7 +9,7 @@ else
 fi
 
 # Create output directory for inversion output
-export run_inv_output_dir=$OUTPUT_DIR/05_stable_inference_original_measures_std
+export run_inv_output_dir=$OUTPUT_DIR/14_stable_inference_test
 if [ ! -d $run_inv_output_dir ]
 then
   echo "Creating run directory $run_inv_output_dir"

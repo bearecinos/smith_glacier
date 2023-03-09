@@ -14,6 +14,7 @@ import shapely
 import gmsh
 import meshio
 import subprocess
+import pandas as pd
 import tempfile
 from .backend import MPI, Mesh, MeshFunction, MeshValueCollection, XDMFFile
 from scipy.interpolate import RegularGridInterpolator
@@ -219,7 +220,7 @@ def poly_inside_bbox(geom, bbox):
     """Use a bounding box to cut a shapely geometry"""
 
     geoms = ops.split(geom, bbox.boundary)
-    geom = [g for g in geoms if bbox.contains(g)]
+    geom = [g for g in geoms.geoms if bbox.contains(g)]
     assert(len(geom) == 1)
     return geom[0]
 
@@ -309,7 +310,17 @@ def generate_boundary(mask, transform, simplify_tol=None, bbox=None):
 
     all_bits = []
     all_bits.extend(ocean_simp)
-    all_bits.extend([g for g in ice_only.geoms])
+    # Convert this into a series of geometries
+    # In case that is only one ice boundary
+    ice_only = pd.Series(ice_only)
+    all_bits.extend(ice_only)
+
+    ls = [v.geom_type for i, v in enumerate(all_bits)]
+
+    if 'MultiLineString' in ls:
+        index = ls.index('MultiLineString')
+        all_bits.extend([lines for lines in all_bits[index]])
+        all_bits.remove(all_bits[index])
 
     # Merge all sections back into LinearRing
     full_ring = shapely.geometry.LinearRing(shapely.ops.linemerge(all_bits))

@@ -108,7 +108,7 @@ if use_bedmachine:
     #
     # 0 -> 0
     # 1,2,3,4 -> 1
-    mask = (mask >= 1).astype(np.int)
+    mask = (mask >= 1).astype(np.int64)
 
 else:
 

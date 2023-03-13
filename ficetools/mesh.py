@@ -319,7 +319,10 @@ def generate_boundary(mask, transform, simplify_tol=None, bbox=None):
 
     if 'MultiLineString' in ls:
         index = ls.index('MultiLineString')
-        all_bits.extend([lines for lines in all_bits[index]])
+        line = all_bits[index]
+        for i, geo in enumerate(line.geoms):
+            all_bits.extend(pd.Series(geo))
+
         all_bits.remove(all_bits[index])
 
     # Merge all sections back into LinearRing
@@ -580,8 +583,8 @@ def map_lines_to_tris(line_cells, tri_cells):
     assert np.all(tri_cells[:, 0] < tri_cells[:, 1])
     assert np.all(tri_cells[:, 1] < tri_cells[:, 2])
 
-    elem_nos = np.zeros(nlines, dtype=np.int)
-    local_idx = np.zeros(nlines, dtype=np.int)
+    elem_nos = np.zeros(nlines, dtype=np.int64)
+    local_idx = np.zeros(nlines, dtype=np.int64)
 
     # Lines are number by the vertex they *don't* contain
     idx_map = [(0, 1, 2),

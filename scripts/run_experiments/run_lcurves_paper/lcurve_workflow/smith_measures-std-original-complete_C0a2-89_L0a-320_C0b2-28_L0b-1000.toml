@@ -2,9 +2,9 @@
 
 #gamma_alpha =/= 1e6 (discrete cost func) but equivalent to initial test case
 run_name = "smith_lcurve_paper"
-input_dir = ""
-output_dir = ""
-diagnostics_dir = ""
+input_dir = "/scratch/local/brecinos/smith_glacier/input_data/input_run_workflow"
+output_dir = "/scratch/local/brecinos/smith_glacier/output/09_lcurve_workflow/output"
+diagnostics_dir = "/scratch/local/brecinos/smith_glacier/output/09_lcurve_workflow/diagnostics"
 
 write_diagnostics = true
 
@@ -56,7 +56,7 @@ flow_bc = "calving"
 
 [obs]
 
-vel_file = "smith_obs_vel_itslive-comp_itslive-cloud_error-factor-1E+0.h5"
+vel_file = "smith_obs_vel_measures-comp_measures-cloud_error-factor-1E+0.h5"
 
 [inversion]
 
@@ -67,15 +67,15 @@ beta_active = true
 
 # Dan priors
 gamma_alpha = 1.0 # after doing gamma-alpha and gamma-beta l-curve
-delta_alpha = 1e-4
+delta_alpha = 1e-5
 gamma_beta = 10.0
 delta_beta = 1e-5
 delta_beta_gnd = 3e-5
 
 # All rounded to 2 digits
-#C0_alpha = 80.0
-#C0_alpha**2 = 8.9
-#L0_alpha = 3200.0
+#C0_alpha = 8000.0
+#C0_alpha**2 = 89.0
+#L0_alpha = 320.0
 #C0_beta = 800.0
 #C0_beta**2 = 28.0
 #L0_beta = 1000.0
@@ -92,7 +92,7 @@ initial_guess_alpha = 15.0
 
 use_cloud_point_velocities = true
 
-phase_suffix = '_std-original-complete_C0a2-28_L0a-100_C0b2-28_L0b-1000_'
+phase_suffix = 'measures_std-original-complete_C0a2-89_L0a-320_C0b2-28_L0b-1000_'
 
 [ice_dynamics]
 
@@ -142,7 +142,7 @@ num_sens = 15 #TODO rename
 
 save_frequency = 0
 
-phase_suffix = '_std-original-complete_C0a2-28_L0a-100_C0b2-28_L0b-1000_'
+phase_suffix = 'measures_std-original-complete_C0a2-89_L0a-320_C0b2-28_L0b-1000_'
 
 
 [eigendec]
@@ -155,18 +155,18 @@ misfit_only = true
 precondition_by = "prior" #prior by default
 #eigenvalue_thresh = 1.0e-1
 
-phase_suffix = '_std-original-complete_C0a2-28_L0a-100_C0b2-28_L0b-1000_'
+phase_suffix = 'measures_std-original-complete_C0a2-89_L0a-320_C0b2-28_L0b-1000_'
 
 [errorprop]
 
 qoi = 'vaf'
-phase_suffix = '_std-original-complete_C0a2-28_L0a-100_C0b2-28_L0b-1000_'
+phase_suffix = 'measures_std-original-complete_C0a2-89_L0a-320_C0b2-28_L0b-1000_'
 
 [invsigma]
 
 patch_downscale = 0.1
 # npatches = 100
-phase_suffix = '_std-original-complete_C0a2-28_L0a-100_C0b2-28_L0b-1000_'
+phase_suffix = 'measures_std-original-complete_C0a2-89_L0a-320_C0b2-28_L0b-1000_'
 
 [melt]
 
@@ -178,6 +178,6 @@ sample_size = 2
 sample_alpha = true
 sample_beta = true
 phase_name = 'sample'
-phase_suffix = '_std-original-complete_C0a2-28_L0a-100_C0b2-28_L0b-1000_'
+phase_suffix = 'measures_std-original-complete_C0a2-89_L0a-320_C0b2-28_L0b-1000_'
 sample_posterior = true
 num_eigenvals = 10

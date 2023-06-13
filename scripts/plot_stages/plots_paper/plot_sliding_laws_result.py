@@ -275,7 +275,7 @@ ax3.fill_between(qoi_dict_c2['x'],
 plt.legend(handles = [p1, p2],
            labels = ['Weertman–Budd',
                      'Cornford'],frameon=True, fontsize=14)
-ax3.set_ylabel(r'$Q_{T}$ [$m^3$]')
+ax3.set_ylabel(r'$Q_{T} - Q_{0}$ [$m^3$]')
 ax3.set_xlabel('Time [yrs]')
 
 at = AnchoredText('d', prop=dict(size=16), frameon=True, loc='upper left')

@@ -179,7 +179,7 @@ ax.plot(to_plot_testing_middle_std.step, to_plot_testing_middle_std.J, '-*',
         color=color_palette[0],
         markersize=15, lw=3, label='Validation against middle cell points')
 
-ax.set_ylabel(r'$J_{c}$')
+ax.set_ylabel(r'$J^{c}_{mis}$')
 ax.set_xlim(0,11)
 ax.ticklabel_format(axis='y', style='scientific', scilimits=(4,4))
 ax.grid()

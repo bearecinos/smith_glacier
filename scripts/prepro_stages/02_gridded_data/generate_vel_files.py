@@ -100,19 +100,24 @@ if args.composite == 'itslive':
 
     x_grid, y_grid = np.meshgrid(x_s, y_s)
 
-    vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
-    vy_int = vel_tools.interpolate_missing_data(vy_s, x_grid, y_grid)
-    stdvx_int = vel_tools.interpolate_missing_data(vx_std_s, x_grid, y_grid)
-    stdvy_int = vel_tools.interpolate_missing_data(vy_std_s, x_grid, y_grid)
+    array_ma = np.ma.masked_invalid(vx_s)
+
+    # get only the valid values
+    x_nona = x_grid[~array_ma.mask].ravel()
+    y_nona = y_grid[~array_ma.mask].ravel()
+    vx_nona = vx_s[~array_ma.mask].ravel()
+    vy_nona = vy_s[~array_ma.mask].ravel()
+    stdvx_nona = vx_std_s[~array_ma.mask].ravel()
+    stdvy_nona = vy_std_s[~array_ma.mask].ravel()
 
     # Ravel all arrays so they can be stored with
     # a tuple shape (values, )
-    composite_dict = {'x_comp': x_grid.ravel(),
-                      'y_comp': y_grid.ravel(),
-                      'vx_comp': vx_int,
-                      'vy_comp': vy_int,
-                      'std_vx_comp': stdvx_int,
-                      'std_vy_comp': stdvy_int}
+    composite_dict = {'x_comp': x_nona.ravel(),
+                      'y_comp': y_nona.ravel(),
+                      'vx_comp': vx_nona,
+                      'vy_comp': vy_nona,
+                      'std_vx_comp': stdvx_nona,
+                      'std_vy_comp': stdvy_nona}
 
     cloud_dict = {'x_cloud': None,
                   'y_cloud': None,
@@ -182,21 +187,26 @@ else:
     std_vx_s = vel_tools.crop_velocity_data_to_extend(std_vx, smith_bbox)
     std_vy_s = vel_tools.crop_velocity_data_to_extend(std_vy, smith_bbox)
 
-    # Mask arrays and interpolate nan with nearest neighbor
     x_grid, y_grid = np.meshgrid(x_s, y_s)
-    vx_int = vel_tools.interpolate_missing_data(vx_s, x_grid, y_grid)
-    vy_int = vel_tools.interpolate_missing_data(vy_s, x_grid, y_grid)
-    stdvx_int = vel_tools.interpolate_missing_data(std_vx_s, x_grid, y_grid)
-    stdvy_int = vel_tools.interpolate_missing_data(std_vy_s, x_grid, y_grid)
+
+    array_ma = np.ma.masked_invalid(vx_s)
+
+    # get only the valid values
+    x_nona = x_grid[~array_ma.mask].ravel()
+    y_nona = y_grid[~array_ma.mask].ravel()
+    vx_nona = vx_s[~array_ma.mask].ravel()
+    vy_nona = vy_s[~array_ma.mask].ravel()
+    stdvx_nona = std_vx_s[~array_ma.mask].ravel()
+    stdvy_nona = std_vy_s[~array_ma.mask].ravel()
 
     # Ravel all arrays so they can be stored with
     # a tuple shape (values, )
-    composite_dict = {'x_comp': x_grid.ravel(),
-                      'y_comp': y_grid.ravel(),
-                      'vx_comp': vx_int,
-                      'vy_comp': vy_int,
-                      'std_vx_comp': stdvx_int,
-                      'std_vy_comp': stdvy_int}
+    composite_dict = {'x_comp': x_nona.ravel(),
+                      'y_comp': y_nona.ravel(),
+                      'vx_comp': vx_nona,
+                      'vy_comp': vy_nona,
+                      'std_vx_comp': stdvx_nona,
+                      'std_vy_comp': stdvy_nona}
 
     cloud_dict = {'x_cloud': None,
                   'y_cloud': None,

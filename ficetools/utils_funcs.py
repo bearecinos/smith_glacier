@@ -609,3 +609,27 @@ def compute_vertex_for_dQ_dalpha_component(params, n_sen=int, mult_mmatrix=False
     vb = dQ_beta.compute_vertex_values(mesh_in)
 
     return va, vb
+
+def find_itslive_file(year, path):
+    """
+    year: string indicating the year
+    path: general path to itslive data
+    """
+    name = 'ANT_G0240_' + year + '.nc'
+
+    for root, dirs, files in os.walk(path):
+        if name in files:
+            print(name)
+            return os.path.join(root, name)
+
+def find_measures_file(year_one, year_two, path):
+    """
+    year: string indicating the year
+    path: general path to measures data
+    """
+    name = 'Antarctica_ice_velocity_' + year_one + '_' + year_two + '_1km_v01.nc'
+
+    for root, dirs, files in os.walk(path):
+        if name in files:
+            print(name)
+            return os.path.join(root, name)

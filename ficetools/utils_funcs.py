@@ -625,7 +625,7 @@ def find_itslive_file(year, path):
 def find_measures_file(year_one, year_two, path):
     """
     year: string indicating the year
-    path: general path to itslive data
+    path: general path to measures data
     """
     name = 'Antarctica_ice_velocity_' + year_one + '_' + year_two + '_1km_v01.nc'
 

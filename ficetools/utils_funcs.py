@@ -612,21 +612,25 @@ def compute_vertex_for_dQ_dalpha_component(params, n_sen=int, mult_mmatrix=False
 
 def find_itslive_file(year, path):
     """
-    year: string indicating the year
+    year: float indicating the year
     path: general path to itslive data
     """
-    name = 'ANT_G0240_' + year + '.nc'
+    name = 'ANT_G0240_' + str(year) + '.nc'
 
     for root, dirs, files in os.walk(path):
         if name in files:
             print(name)
             return os.path.join(root, name)
 
-def find_measures_file(year_one, year_two, path):
+def find_measures_file(year, path):
     """
-    year: string indicating the year
+    year: float indicating the year for measures this will be the
+          year that indicates the end of the observational period
     path: general path to measures data
     """
+    year_two = str(year)
+    year_one = str(year-1)
+
     name = 'Antarctica_ice_velocity_' + year_one + '_' + year_two + '_1km_v01.nc'
 
     for root, dirs, files in os.walk(path):

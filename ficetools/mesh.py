@@ -11,6 +11,7 @@ import rasterio.transform
 from shapely import ops
 from shapely.geometry import shape, Polygon
 import shapely
+from shapelysmooth import chaikin_smooth
 import gmsh
 import meshio
 import subprocess
@@ -224,7 +225,32 @@ def poly_inside_bbox(geom, bbox):
     assert(len(geom) == 1)
     return geom[0]
 
-def generate_boundary(mask, transform, simplify_tol=None, bbox=None):
+def sinuosity(geom):
+    """
+    Calculates the sinuosity of a line.
+    We dont want to smooth the square edges of the domain
+    That compose the ice-ice boundary. So we use this function
+    to identify what is a straight line from a rectangle.
+    geom: geometry from which we will calculate the sinuosity
+
+    return:
+    sinuosity: length / straight_dist
+
+    """
+    assert geom.geom_type == "LineString", geom.geom_type
+    length = geom.length
+    start_pt = geom.interpolate(0)
+    end_pt = geom.interpolate(1, normalized=True)
+    straight_dist = start_pt.distance(end_pt)
+    if straight_dist == 0.0:
+        if length == 0.0:
+            return 0.0
+        return float("inf")
+    return length / straight_dist
+
+def generate_boundary(mask,
+                      transform,
+                      simplify_tol=None, bbox=None, smooth_front=False):
     """
     Produce a GMSH-ready glacier boundary from a categorical raster ('mask')
 
@@ -235,6 +261,7 @@ def generate_boundary(mask, transform, simplify_tol=None, bbox=None):
     mask: the categorical raster describing ice/rock/ocean etc
     transform: tuple defining the array row/col -> real coords transform
     simplify_tol: how much to simplify the rastery edges of the calving front
+    smooth_front : smooth the calving front if true
 
     Returns:
 
@@ -325,8 +352,20 @@ def generate_boundary(mask, transform, simplify_tol=None, bbox=None):
 
         all_bits.remove(all_bits[index])
 
-    # Merge all sections back into LinearRing
-    full_ring = shapely.geometry.LinearRing(shapely.ops.linemerge(all_bits))
+    if smooth_front:
+        new_all_bits = []
+        for line in all_bits:
+            if 5.0 > sinuosity(line) > 1.0:
+                line_new = chaikin_smooth(line, keep_ends=True)
+            else:
+                print('we do nothing')
+                line_new = line
+            new_all_bits.append(line_new)
+
+        full_ring = shapely.geometry.LinearRing(shapely.ops.linemerge(new_all_bits))
+    else:
+        # Merge all sections back into LinearRing
+        full_ring = shapely.geometry.LinearRing(shapely.ops.linemerge(all_bits))
 
     assert full_ring.is_simple  # check no overlaps
 
@@ -363,7 +402,10 @@ def generate_boundary(mask, transform, simplify_tol=None, bbox=None):
     return full_ring, ice_labels, ocean_labels
 
 
-def build_gmsh_domain(domain_ring, ice_labels, ocean_labels, lc=1000.0):
+def build_gmsh_domain(domain_ring, ice_labels, ocean_labels,
+                      lc=1000.0,
+                      mesh_size_min=None,
+                      mesh_size_max=None):
     """
     Initialize gmsh api and create the domain
 
@@ -374,6 +416,9 @@ def build_gmsh_domain(domain_ring, ice_labels, ocean_labels, lc=1000.0):
     domain_ring - Shapely LinearRing defining the domain exterior
     ice_labels - list of lines which define ice BCs
     ocean_labels - list of lists of lines which define ocean BCs
+    lc - number of elements for gmsh initial mesh
+    mesh_size_min - minimum cell size
+    mesh_size_max - maximum cell size
 
     Returns:
 
@@ -394,6 +439,10 @@ def build_gmsh_domain(domain_ring, ice_labels, ocean_labels, lc=1000.0):
     y = y[:-1]
 
     npts = len(x)
+
+    if mesh_size_min:
+        gmsh.option.setNumber("Mesh.MeshSizeMin", mesh_size_min)
+        gmsh.option.setNumber("Mesh.MeshSizeMax", mesh_size_max)
 
     for i, (xx, yy) in enumerate(zip(x, y)):
         print(f"Point {i+1}")

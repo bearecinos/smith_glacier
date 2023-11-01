@@ -11,6 +11,8 @@ import pandas as pd
 import netCDF4
 import os
 import h5py
+import pyproj
+import salem
 
 # Module logger
 log = logging.getLogger(__name__)
@@ -480,6 +482,48 @@ def drop_nan_from_xarray(ds, return_coords=False):
         return x_nonan, y_nonan, ds_nonan
     return ds_nonan
 
+def define_salem_grid_from_measures(fp_vel, model_extend):
+    """
+    Define a Salem grid according to MEaSUREs mosaic
+    velocity file.
+    It crops the data to the model domain and defines a
+    salem grid to plot the data.
+
+    :param fp_vel: path to MEaSUREs file
+    :param model_extend: extend of the model where to crop
+    the data
+    :return: salem.Grid as g
+    """
+
+    dv = xr.open_dataset(fp_vel)
+
+    vx = dv.VX
+    vy = dv.VY
+    std_vx = dv.STDX
+    std_vy = dv.STDY
+
+    # Crop velocity data to the Smith Glacier extend
+    vx_s = crop_velocity_data_to_extend(vx, model_extend, return_xarray=True)
+
+    # Lets define our salem grid. (but we modified things cuz
+    # fabi's code only works for the North! TODO: ask fabien)
+
+    proj = pyproj.Proj('EPSG:3413')
+    y_grid = vx_s.y
+    x_grid = vx_s.x
+
+    dy = abs(y_grid[0] - y_grid[1])
+    dx = abs(x_grid[0] - x_grid[1])
+
+    # Pixel corner
+    origin_y = y_grid[0] + dy * 0.5
+    origin_x = x_grid[0] - dx * 0.5
+
+    gv = salem.Grid(nxny=(len(x_grid), len(y_grid)), dxdy=(dx, -1 * dy),
+                    # We use -dy as this is the Sout Hemisphere somehow salem
+                    x0y0=(origin_x, origin_y), proj=proj)  # is not picking that up!
+
+    return gv
 
 def write_velocity_tuple_h5file(comp_dict, cloud_dict, fpath=str):
     """

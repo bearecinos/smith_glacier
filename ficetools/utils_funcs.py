@@ -12,6 +12,7 @@ import math
 import fnmatch
 import re
 import pandas as pd
+import pickle
 from decimal import Decimal
 from functools import reduce
 import operator
@@ -637,3 +638,110 @@ def find_measures_file(year, path):
         if name in files:
             print(name)
             return os.path.join(root, name)
+
+def get_vel_ob_sens_dict(params):
+    """
+    This function gets the dictionary of the output from the
+    vel_obs_sens model task, which calculates QoI sensitivities
+    to velocity observations (dQ_du and dQ_dv).
+
+    :params Config params for the specific experiment
+    returns
+    --------
+    out: out python dictionary with the results of the simulation
+    """
+    ## Reading the data
+    phase_name = params.obs_sens.phase_name
+    phase_suffix = params.obs_sens.phase_suffix
+
+    outdir = params.io.diagnostics_dir
+    path_to_file = Path(outdir) / phase_name / phase_suffix
+
+    # We have to define this as it is not defined in fenics_ice
+    file_name = 'vel_sens.pkl'
+
+    full_path = os.path.join(path_to_file, file_name)
+
+    with open(full_path, 'rb') as f:
+        out = pickle.load(f)
+
+    return out
+
+def project_dq_dc_to_mesh(array, M, vtx_M, wts_M, mesh_in):
+    """
+    This function projects each derivative into the
+    mesh coordinates and computes the vertex values
+    in order to plot them on a map
+
+    :params array, array to interpolate into a function
+    :params M function space
+    :params vtx_M, x coordinates of the new space in the mesh
+    :params wts_M,  y coordinates of the new space in the mesh
+    :params mesh_in, model mesh
+
+    returns
+    --------
+    dq_dc: derivatives as functions projected to the model mesh
+    """
+    dQ_dC = []
+
+    dQ_dC.append(Function(M, static=True))
+
+    dQ_dC[0].vector()[:] = model.interpolate(array, vtx_M, wts_M)
+
+    dq_dc = dQ_dC[0].compute_vertex_values(mesh_in)
+    # dq_dc[dq_dc < 0] = 0.0
+
+    return dq_dc
+
+def convert_vel_sens_output_into_functions(out,
+                                           M_coords,
+                                           M,
+                                           periodic_bc,
+                                           mesh_in):
+    """
+    Converts vel obs sens output into functions by
+    interpolating the data back in to the model mesh
+    TODO by Dan: this should be done by Dan script during the run.
+
+    :params out, python dictonary containing the output of vel_sens.pkl
+    :params M_coords, Model function space coordinates
+    :params M function space
+    :params vtx_M, x coordinates of the new space in the mesh
+    :params wts_M,  y coordinates of the new space in the mesh
+    :params mesh_in, model mesh
+
+    returns
+    --------
+    output_copy: a copy of the vel_sens.pkl directory but with all the
+    arrays converted into functions that have been interpolated
+    to the model mesh coordinates.
+    """
+
+    # only do the M space
+    vtx_M, wts_M = model.interp_weights(out['uv_obs_pts'],
+                                        M_coords,
+                                        periodic_bc)
+
+    ## Process first velocity components from the observations
+    U = []
+    V = []
+
+    U.append(Function(M, static=True))
+    V.append(Function(M, static=True))
+
+    U[0].vector()[:] = model.interpolate(out['u_obs'], vtx_M, wts_M)
+    V[0].vector()[:] = model.interpolate(out['v_obs'], vtx_M, wts_M)
+
+    out_copy = out.copy()
+
+    out_copy['u_obs'] = U[0].compute_vertex_values(mesh_in)
+    out_copy['v_obs'] = V[0].compute_vertex_values(mesh_in)
+
+    ## Process each derivative for every n_sens
+    for n_sen in np.arange(15):
+        # get the derivative to process
+        out_copy['dObsU'][n_sen] = project_dq_dc_to_mesh(out['dObsU'][n_sen], M, vtx_M, wts_M, mesh_in)
+        out_copy['dObsV'][n_sen] = project_dq_dc_to_mesh(out['dObsV'][n_sen], M, vtx_M, wts_M, mesh_in)
+
+    return out_copy

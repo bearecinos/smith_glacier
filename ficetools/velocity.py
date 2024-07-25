@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import xarray as xr
 from scipy.interpolate import griddata
+from collections import defaultdict
 import pandas as pd
 import netCDF4
 import os
@@ -617,6 +618,99 @@ def write_velocity_tuple_h5file(comp_dict, cloud_dict, fpath=str):
             data = outty.create_dataset("y_cloud", y_cloud.shape, dtype='f')
             data[:] = y_cloud
 
+
+def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=False):
+    """
+    Function to merge each mesasures vel obs sens data
+    to the same amount of velocity points as the itslive data set
+    dig_il: dictionary with vel obs sens data for a simulation with itslive
+    dig_me: dictionary with vel obs sens data for a simulation with measures
+    return_df_merge: default is False if you dont want the Pandas dataframe merged
+    """
+    xm, ym = np.split(dic_me['uv_obs_pts'], 2, axis=1)
+    xi, yi = np.split(dic_il['uv_obs_pts'], 2, axis=1)
+
+    d_il = {'xi': xi.ravel(),
+            'yi': yi.ravel(),
+            'u_obs_i': dic_il['u_obs'],
+            'v_obs_i': dic_il['v_obs']}
+
+    df_il = pd.DataFrame(data=d_il)
+
+    d_me = {'xm': xm.ravel(),
+            'ym': ym.ravel(),
+            'u_obs_m': dic_me['u_obs'],
+            'v_obs_m': dic_me['v_obs']}
+
+    df_me = pd.DataFrame(data=d_me)
+
+    df_merge = pd.merge(df_il,
+                        df_me,
+                        how='inner',
+                        left_on=['xi', 'yi'],
+                        right_on=['xm', 'ym'])
+
+    # we will save all dataframes on a dict
+    all_dfs = defaultdict(list)
+
+    for n_sen in np.arange(15):
+        dict_me = {'xm': xm.ravel(),
+                   'ym': ym.ravel(),
+                   'dObsU_me': dic_me['dObsU'][n_sen],
+                   'dObsV_me': dic_me['dObsV'][n_sen]}
+
+        df_measures = pd.DataFrame(data=dict_me)
+
+        dict_il = {'xi': xi.ravel(),
+                   'yi': yi.ravel(),
+                   'dObsU_il': dic_il['dObsU'][n_sen],
+                   'dObsV_il': dic_il['dObsV'][n_sen]}
+
+        df_itslive = pd.DataFrame(data=dict_il)
+
+        df_merge_dqdo = pd.merge(df_itslive,
+                                 df_measures,
+                                 how='inner',
+                                 left_on=['xi', 'yi'],
+                                 right_on=['xm', 'ym'])
+
+        # print(df_merge_dqdo.keys())
+        assert df_merge_dqdo.shape == df_merge.shape
+
+        all_dfs[n_sen] = df_merge_dqdo
+
+    if return_df_merge:
+        return all_dfs, df_merge
+    else:
+        return all_dfs
+
+
+def dot_product_per_pair(all_dfs, df_obs):
+    """
+    Compute derivatives dot product, per pair of data sets (itslive or measures)
+    :param all_dfs: dataframe containing itslive and measures vel obs sens data
+    :df_obs: dataframe with velocity observations
+    """
+    dot_product_U_me = []
+    dot_product_V_me = []
+
+    for n_sen in np.arange(15):
+        dq_du_me = all_dfs[n_sen]['dObsU_me']
+        dq_dv_me = all_dfs[n_sen]['dObsV_me']
+
+        u_il = df_obs['u_obs_il']
+        v_il = df_obs['v_obs_il']
+
+        u_me = df_obs['u_obs_me']
+        v_me = df_obs['v_obs_me']
+
+        dq_du_dot_me = np.dot(dq_du_me, u_me - u_il)
+        dq_dv_dot_me = np.dot(dq_dv_me, v_me - v_il)
+
+        dot_product_U_me.append(dq_du_dot_me)
+        dot_product_V_me.append(dq_dv_dot_me)
+
+    return dot_product_U_me, dot_product_V_me
 
 class ncDataset(netCDF4.Dataset):
     """Wrapper around netCDF4 setting auto_mask to False"""

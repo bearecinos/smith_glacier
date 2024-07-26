@@ -698,14 +698,17 @@ def dot_product_per_pair(all_dfs, df_obs):
         dq_du_me = all_dfs[n_sen]['dObsU_me']
         dq_dv_me = all_dfs[n_sen]['dObsV_me']
 
-        u_il = df_obs['u_obs_il']
-        v_il = df_obs['v_obs_il']
+        u_il = df_obs['u_obs_i']
+        v_il = df_obs['v_obs_i']
 
-        u_me = df_obs['u_obs_me']
-        v_me = df_obs['v_obs_me']
+        u_me = df_obs['u_obs_m']
+        v_me = df_obs['v_obs_m']
 
-        dq_du_dot_me = np.dot(dq_du_me, u_me - u_il)
-        dq_dv_dot_me = np.dot(dq_dv_me, v_me - v_il)
+        diff_velu = u_me - u_il
+        diff_velv = v_me - v_il
+
+        dq_du_dot_me = np.dot(dq_du_me, diff_velu)
+        dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
 
         dot_product_U_me.append(dq_du_dot_me)
         dot_product_V_me.append(dq_dv_dot_me)

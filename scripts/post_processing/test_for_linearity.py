@@ -7,6 +7,7 @@ from fenics import *
 from fenics_ice import config as conf
 from fenics_ice import mesh as fice_mesh
 import argparse
+from IPython import embed
 
 #Plotting imports
 from matplotlib import pyplot as plt
@@ -28,6 +29,8 @@ parser.add_argument("-toml_path_workflow_m", type=str,
                     help="pass .toml file")
 parser.add_argument("-sub_plot_dir", type=str,
                     default="temp", help="pass sub plot directory to store the plots")
+parser.add_argument("-sub_plot_name", type=str,
+                    default="temp", help="pass filename")
 args = parser.parse_args()
 config_file = args.conf
 configuration = ConfigObj(os.path.expanduser(config_file))
@@ -35,6 +38,8 @@ configuration = ConfigObj(os.path.expanduser(config_file))
 #Load main repository path
 MAIN_PATH = configuration['main_path']
 sys.path.append(MAIN_PATH)
+fice_tools = configuration['ficetoos_path']
+sys.path.append(fice_tools)
 
 from ficetools import graphics, utils_funcs
 
@@ -55,6 +60,7 @@ params_workflow_m = conf.ConfigParser(tomlf_workflow_m)
 #Reading mesh
 mesh_in = fice_mesh.get_mesh(params_workflow)
 x, y, t = graphics.read_fenics_ice_mesh(mesh_in)
+
 
 # Compute the function spaces from the Mesh
 Q = FunctionSpace(mesh_in, 'Lagrange',1)
@@ -127,6 +133,9 @@ out_il = params_workflow.io.output_dir
 phase_name = params_workflow.time.phase_name
 run_name = params_workflow.io.run_name
 
+phase_suffix_il = params_workflow.time.phase_suffix
+phase_suffix_me = params_workflow_m.time.phase_suffix
+
 fwd_outdir_il = Path(out_il) / phase_name / phase_suffix_il
 fwd_outdir_me = Path(out_il) / phase_name / phase_suffix_me
 
@@ -189,11 +198,11 @@ for n in num_sens:
                                                                        mult_mmatrix=False)
 
 
-    dot_alpha_il = np.dot(dq_dalpha_il, alpha_v_il - alpha_v_me)
-    dot_beta_il = np.dot(dq_dbeta_il, beta_v_il - beta_v_me)
+    dot_alpha_me = np.dot(dq_dalpha_me, alpha_v_il - alpha_v_me)
+    dot_beta_me = np.dot(dq_dbeta_me, beta_v_il - beta_v_me)
 
-    print('%.2E' % Decimal(dot_alpha_il))
-    print('%.2E' % Decimal(dot_beta_il))
+    print('%.2E' % Decimal(dot_alpha_me))
+    print('%.2E' % Decimal(dot_beta_me))
 
     fwd_v_alpha_me[f'{nametosum}{n}'].append(dq_dalpha_me)
     fwd_v_beta_me[f'{nametosum}{n}'].append(dq_dbeta_me)
@@ -201,18 +210,19 @@ for n in num_sens:
     fwd_v_alpha_il[f'{nametosum}{n}'].append(dq_dalpha_il)
     fwd_v_beta_il[f'{nametosum}{n}'].append(dq_dbeta_il)
 
-    results_dot_alpha.append(dot_alpha_il)
-    results_dot_beta.append(dot_beta_il)
+    results_dot_alpha.append(dot_alpha_me)
+    results_dot_beta.append(dot_beta_me)
+
 
 ## Now we get the rest of the information for sigma Q plot
 qoi_dict_il = graphics.get_data_for_sigma_path_from_toml(tomlf_workflow, main_dir_path=Path(MAIN_PATH))
 qoi_dict_m = graphics.get_data_for_sigma_path_from_toml(tomlf_workflow_m, main_dir_path=Path(MAIN_PATH))
 
 print('We get x and sigma_t (years) to interpolate')
-print(qoi_dict_il.keys())
+print(qoi_dict_m.keys())
 
-dot_alpha_line = np.interp(qoi_dict_il['x'], qoi_dict_il['sigma_t'], results_dot_alpha)
-dot_beta_line = np.interp(qoi_dict_il['x'], qoi_dict_il['sigma_t'], results_dot_beta)
+dot_alpha_line = np.interp(qoi_dict_m['x'], qoi_dict_m['sigma_t'], results_dot_alpha)
+dot_beta_line = np.interp(qoi_dict_m['x'], qoi_dict_m['sigma_t'], results_dot_beta)
 
 ########### Now we plot things ####################################
 color_palette = sns.color_palette("deep")
@@ -226,19 +236,18 @@ sns.set_context('poster')
 fig = plt.figure(figsize=(12,10))
 ax = fig.add_subplot(1, 1, 1)
 
-p1, = ax.plot(qoi_dict_il['x'], np.abs(qoi_dict_il['y']-qoi_dict_m['y']),
+p1, = ax.plot(qoi_dict_il['x'], (qoi_dict_il['y']-qoi_dict_m['y']),
               linestyle='dashed', color=color_palette[3], label='', linewidth=3)
-p2, = ax.plot(qoi_dict_il['x'], dot_alpha_line, color=color_palette[0], label='', linewidth=3)
-p3, = ax.plot(qoi_dict_il['x'], dot_beta_line, color=color_palette[1], label='', linewidth=3)
+#p2, = ax.plot(qoi_dict_il['x'], dot_alpha_line, color=color_palette[0], label='', linewidth=3)
+p3, = ax.plot(qoi_dict_il['x'], dot_alpha_line+dot_beta_line, color=color_palette[1], label='', linewidth=3)
 ax.axhline(y=0, color='k', linewidth=2.5)
-plt.legend(handles = [p1, p2, p3],
+plt.legend(handles = [p1, p3],
            labels = [r'$\Delta$ abs($Q^{ITSLIVE}_{T}$ - $Q^{MEaSUREs}_{T}$)',
-                     r'$\delta Q / \delta \alpha$ . ($\alpha_{ITSLIVE}$ - $\alpha_{MEaSUREs}$)',
-                     r'$\delta Q / \delta \beta$ . ($\beta_{ITSLIVE}$ - $\beta_{MEaSUREs}$)'],
+                     r'$\delta Q / \delta \beta$ . ($\beta_{ITSLIVE}$ - $\beta_{MEaSUREs}$)+$\delta Q / \delta \alpha$ . ($\alpha_{ITSLIVE}$ - $\alpha_{MEaSUREs}$)'],
            frameon=True, fontsize=18)
 
 ax.set_ylabel(r'$\Delta$ $Q_{T}$ [$m^3$]')
 ax.set_xlabel('Time [yrs]')
 
 plt.tight_layout()
-plt.savefig(os.path.join(plot_path, 'linearity_test.png'), bbox_inches='tight')
+plt.savefig(os.path.join(plot_path, args.sub_plot_name+'.png'), bbox_inches='tight')

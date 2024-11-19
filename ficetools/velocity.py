@@ -715,6 +715,61 @@ def dot_product_per_pair(all_dfs, df_obs):
 
     return dot_product_U_me, dot_product_V_me
 
+def interp_enveo_to_compatible_grid(dim, dmm, extend):
+    """
+    Interpolate velocity data to measures and itslive grid,
+    for velocity comparisons
+
+    :param dv: Enveo velocity data set
+    :param dm: measures velocity data set already interpolated
+    to a common grid with itslive
+    :extend: ase_extend for coordinates
+    """
+
+    # Get measures arrays
+
+    vxmm = dmm.vx
+    vymm = dmm.vy
+
+    # Crop velocity data to the ase Glacier extend
+    vxmm_s, xmm_s, ymm_s = crop_velocity_data_to_extend(vxmm,
+                                                        extend,
+                                                        return_coords=True)
+
+    vymm_s = crop_velocity_data_to_extend(vymm, extend)
+
+    new_x = xmm_s
+    new_y = ymm_s
+
+    # Just take one var data
+
+    vxim = dim[0, :, :]
+    vyim = dim[1, :, :]
+
+    nodata = dim.nodatavals[0]
+
+    non_valid_vx = (vxim.data == nodata)
+    non_valid_vy = (vyim.data == nodata)
+
+    vxim.data[non_valid_vx] = np.nan
+    vyim.data[non_valid_vy] = np.nan
+
+
+    vx_new = vxim.interp(x=new_x, y=new_y)
+    vy_new = vyim.interp(x=new_x, y=new_y)
+
+    assert vx_new.data.shape == vxmm_s.data.shape
+    assert vy_new.data.shape == vymm_s.data.shape
+
+    #  Creating a new data set
+    ds = xr.Dataset({'vx': (['y', 'x'], vx_new.data),
+                     'vy': (['y', 'x'], vy_new.data)
+                     },
+                    coords={'y': (['y'], vx_new.y.values),
+                            'x': (['x'], vx_new.x.values)}
+                    )
+    return ds
+
 class ncDataset(netCDF4.Dataset):
     """Wrapper around netCDF4 setting auto_mask to False"""
 

@@ -633,14 +633,18 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
     d_il = {'xi': xi.ravel(),
             'yi': yi.ravel(),
             'u_obs_i': dic_il['u_obs'],
-            'v_obs_i': dic_il['v_obs']}
+            'v_obs_i': dic_il['v_obs'],
+            'u_obs_i_std': dic_il['u_std'],
+            'v_obs_i_std': dic_il['v_std']}
 
     df_il = pd.DataFrame(data=d_il)
 
     d_me = {'xm': xm.ravel(),
             'ym': ym.ravel(),
             'u_obs_m': dic_me['u_obs'],
-            'v_obs_m': dic_me['v_obs']}
+            'v_obs_m': dic_me['v_obs'],
+            'u_obs_m_std': dic_me['u_std'],
+            'v_obs_m_std': dic_me['v_std']}
 
     df_me = pd.DataFrame(data=d_me)
 
@@ -685,7 +689,58 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
         return all_dfs
 
 
-def dot_product_per_pair(all_dfs, df_obs):
+def merge_measures_and_enveo_vel_obs_sens(dic_env, dic_me, return_df_merge=False):
+    """
+    Function to merge each mesasures vel obs sens data
+    to the same amount of velocity points as the itslive data set
+    dig_il: dictionary with vel obs sens data for a simulation with itslive
+    dig_me: dictionary with vel obs sens data for a simulation with measures
+    return_df_merge: default is False if you dont want the Pandas dataframe merged
+    """
+    xm, ym = np.split(dic_me['uv_obs_pts'], 2, axis=1)
+    xe, ye = np.split(dic_env['uv_obs_pts'], 2, axis=1)
+
+    d_env = {'xe': xe.ravel(),
+             'ye': ye.ravel(),
+             'u_obs_e': dic_env['u_obs'],
+             'v_obs_e': dic_env['v_obs']
+             }
+
+    df_env = pd.DataFrame(data=d_env)
+
+    d_me = {'xm': xm.ravel(),
+            'ym': ym.ravel(),
+            'u_obs_m': dic_me['u_obs'],
+            'v_obs_m': dic_me['v_obs'],
+            'u_obs_m_std': dic_me['u_std'],
+            'v_obs_m_std': dic_me['v_std']}
+
+    df_me = pd.DataFrame(data=d_me)
+
+    df_merge = pd.merge(df_env,
+                        df_me,
+                        how='inner',
+                        left_on=['xe', 'ye'],
+                        right_on=['xm', 'ym'])
+
+    # we will save all dataframes on a dict
+    all_dfs = defaultdict(list)
+
+    for n_sen in np.arange(15):
+        dict_me = {'xm': xm.ravel(),
+                   'ym': ym.ravel(),
+                   'dObsU_me': dic_me['dObsU'][n_sen],
+                   'dObsV_me': dic_me['dObsV'][n_sen]}
+
+        all_dfs[n_sen] = pd.DataFrame(data=dict_me)
+
+    if return_df_merge:
+        return all_dfs, df_merge
+    else:
+        return all_dfs
+
+
+def dot_product_per_pair(all_dfs, df_obs, add_std=False):
     """
     Compute derivatives dot product, per pair of data sets (itslive or measures)
     :param all_dfs: dataframe containing itslive and measures vel obs sens data
@@ -699,13 +754,56 @@ def dot_product_per_pair(all_dfs, df_obs):
         dq_dv_me = all_dfs[n_sen]['dObsV_me']
 
         u_il = df_obs['u_obs_i']
+        u_il_std = df_obs['u_obs_i_std']
+
         v_il = df_obs['v_obs_i']
+        v_il_std = df_obs['v_obs_i_std']
+
+        u_me = df_obs['u_obs_m']
+        u_me_std = df_obs['u_obs_m_std']
+
+        v_me = df_obs['v_obs_m']
+        v_me_std = df_obs['v_obs_m_std']
+
+        if add_std:
+            diff_velu = u_me_std - u_il_std
+            diff_velv = v_me_std - v_il_std
+            dq_du_dot_me = np.abs(np.dot(dq_du_me, diff_velu))
+            dq_dv_dot_me = np.abs(np.dot(dq_dv_me, diff_velv))
+        else:
+            diff_velu = u_me - u_il
+            diff_velv = v_me - v_il
+            dq_du_dot_me = np.dot(dq_du_me, diff_velu)
+            dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
+
+        dot_product_U_me.append(dq_du_dot_me)
+        dot_product_V_me.append(dq_dv_dot_me)
+
+    return dot_product_U_me, dot_product_V_me
+
+
+def dot_product_per_pair_enveo(all_dfs, df_obs):
+    """
+        Compute derivatives dot product, per pair of data sets (enveo or measures)
+        :param all_dfs: dataframe containing measures vel obs sens data
+        :df_obs: dataframe with velocity observations where there are common observational
+        points between enveo and measures.
+        """
+    dot_product_U_me = []
+    dot_product_V_me = []
+
+    for n_sen in np.arange(15):
+        dq_du_me = all_dfs[n_sen]['dObsU_me']
+        dq_dv_me = all_dfs[n_sen]['dObsV_me']
+
+        u_env = df_obs['u_obs_e']
+        v_env = df_obs['v_obs_e']
 
         u_me = df_obs['u_obs_m']
         v_me = df_obs['v_obs_m']
 
-        diff_velu = u_me - u_il
-        diff_velv = v_me - v_il
+        diff_velu = u_me - u_env
+        diff_velv = v_me - v_env
 
         dq_du_dot_me = np.dot(dq_du_me, diff_velu)
         dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
@@ -714,6 +812,7 @@ def dot_product_per_pair(all_dfs, df_obs):
         dot_product_V_me.append(dq_dv_dot_me)
 
     return dot_product_U_me, dot_product_V_me
+
 
 def interp_enveo_to_compatible_grid(dim, dmm, extend):
     """

@@ -814,13 +814,13 @@ def dot_product_per_pair_enveo(all_dfs, df_obs):
     return dot_product_U_me, dot_product_V_me
 
 
-def interp_enveo_to_compatible_grid(dim, dmm, extend):
+def interp_enveo_to_compatible_grid(denv, dmm, extend):
     """
     Interpolate velocity data to measures and itslive grid,
     for velocity comparisons
 
-    :param dv: Enveo velocity data set
-    :param dm: measures velocity data set already interpolated
+    :param denv: Enveo velocity data set
+    :param dmm: measures velocity data set already interpolated
     to a common grid with itslive
     :extend: ase_extend for coordinates
     """
@@ -840,32 +840,35 @@ def interp_enveo_to_compatible_grid(dim, dmm, extend):
     new_x = xmm_s
     new_y = ymm_s
 
-    # Just take one var data
+    ## Sorting Enveo velocities and std components
+    count = denv.land_ice_surface_measurement_count
+    vxem = denv.land_ice_surface_easting_velocity * 365.25
+    vyem = denv.land_ice_surface_northing_velocity * 365.25
+    vzem = denv.land_ice_surface_vertical_velocity * 365.25
+    vvem = denv.land_ice_surface_vertical_velocity * 365.25
+    vvem_std = denv.land_ice_surface_stddev * 365.25
 
-    vxim = dim[0, :, :]
-    vyim = dim[1, :, :]
+    vxem_std = vvem_std ** (1 / 3)
+    vyem_std = vvem_std ** (1 / 3)
+    vzem_std = vvem_std ** (1 / 3)
 
-    nodata = dim.nodatavals[0]
+    vxem_new = vxem.interp(x=new_x, y=new_y)
+    vyem_new = vyem.interp(x=new_x, y=new_y)
 
-    non_valid_vx = (vxim.data == nodata)
-    non_valid_vy = (vyim.data == nodata)
+    vxem_std_new = vxem_std.interp(x=new_x, y=new_y)
+    vyem_std_new = vyem_std.interp(x=new_x, y=new_y)
 
-    vxim.data[non_valid_vx] = np.nan
-    vyim.data[non_valid_vy] = np.nan
-
-
-    vx_new = vxim.interp(x=new_x, y=new_y)
-    vy_new = vyim.interp(x=new_x, y=new_y)
-
-    assert vx_new.data.shape == vxmm_s.data.shape
-    assert vy_new.data.shape == vymm_s.data.shape
+    assert vxem_new.data.shape == vxmm_s.data.shape
+    assert vyem_new.data.shape == vymm_s.data.shape
 
     #  Creating a new data set
-    ds = xr.Dataset({'vx': (['y', 'x'], vx_new.data),
-                     'vy': (['y', 'x'], vy_new.data)
+    ds = xr.Dataset({'vx': (['y', 'x'], vxem_new.data),
+                     'vy': (['y', 'x'], vyem_new.data),
+                     'vx_std': (['y', 'x'], vxem_std_new.data),
+                     'vy_std': (['y', 'x'], vyem_std_new.data)
                      },
-                    coords={'y': (['y'], vx_new.y.values),
-                            'x': (['x'], vx_new.x.values)}
+                    coords={'y': (['y'], vxem_new.y.values),
+                            'x': (['x'], vxem_new.x.values)}
                     )
     return ds
 

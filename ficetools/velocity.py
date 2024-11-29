@@ -655,7 +655,7 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
                         right_on=['xm', 'ym'])
 
     # we will save all dataframes on a dict
-    all_dfs = defaultdict(list)
+    all_dfs = defaultdict(pd.DataFrame)
 
     for n_sen in np.arange(15):
         dict_me = {'xm': xm.ravel(),
@@ -679,7 +679,7 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
                                  right_on=['xm', 'ym'])
 
         # print(df_merge_dqdo.keys())
-        assert df_merge_dqdo.shape == df_merge.shape
+        assert len(df_merge_dqdo) == len(df_merge)
 
         all_dfs[n_sen] = df_merge_dqdo
 
@@ -724,7 +724,7 @@ def merge_measures_and_enveo_vel_obs_sens(dic_env, dic_me, return_df_merge=False
                         right_on=['xm', 'ym'])
 
     # we will save all dataframes on a dict
-    all_dfs = defaultdict(list)
+    all_dfs = defaultdict(pd.DataFrame)
 
     for n_sen in np.arange(15):
         dict_me = {'xm': xm.ravel(),

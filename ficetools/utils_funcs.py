@@ -665,6 +665,20 @@ def get_vel_ob_sens_dict(params):
     with open(full_path, 'rb') as f:
         out = pickle.load(f)
 
+    # Make sure we also add STD of each velocity component to this file
+    file_vel_orig = Path(params.io.input_dir)/params.obs.vel_file
+    assert file_vel_orig.is_file()
+
+    vel_file = inout.read_vel_obs(file_vel_orig, model=None, use_cloud_point=False)
+    assert np.all(out['u_obs']) == np.all(vel_file['u_obs'])
+    assert np.all(out['v_obs']) == np.all(vel_file['v_obs'])
+    assert np.all(out['uv_obs_pts']) == np.all(vel_file['uv_obs_pts'])
+
+    assert len(out['u_obs']) == len(vel_file['u_std'])
+
+    out['u_std'] = vel_file['u_std']
+    out['v_std'] = vel_file['v_std']
+
     return out
 
 def project_dq_dc_to_mesh(array, M, vtx_M, wts_M, mesh_in):

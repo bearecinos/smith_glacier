@@ -633,14 +633,18 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
     d_il = {'xi': xi.ravel(),
             'yi': yi.ravel(),
             'u_obs_i': dic_il['u_obs'],
-            'v_obs_i': dic_il['v_obs']}
+            'v_obs_i': dic_il['v_obs'],
+            'u_obs_i_std': dic_il['u_std'],
+            'v_obs_i_std': dic_il['v_std']}
 
     df_il = pd.DataFrame(data=d_il)
 
     d_me = {'xm': xm.ravel(),
             'ym': ym.ravel(),
             'u_obs_m': dic_me['u_obs'],
-            'v_obs_m': dic_me['v_obs']}
+            'v_obs_m': dic_me['v_obs'],
+            'u_obs_m_std': dic_me['u_std'],
+            'v_obs_m_std': dic_me['v_std']}
 
     df_me = pd.DataFrame(data=d_me)
 
@@ -651,7 +655,7 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
                         right_on=['xm', 'ym'])
 
     # we will save all dataframes on a dict
-    all_dfs = defaultdict(list)
+    all_dfs = defaultdict(pd.DataFrame)
 
     for n_sen in np.arange(15):
         dict_me = {'xm': xm.ravel(),
@@ -675,7 +679,7 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
                                  right_on=['xm', 'ym'])
 
         # print(df_merge_dqdo.keys())
-        assert df_merge_dqdo.shape == df_merge.shape
+        assert len(df_merge_dqdo) == len(df_merge)
 
         all_dfs[n_sen] = df_merge_dqdo
 
@@ -685,7 +689,70 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
         return all_dfs
 
 
-def dot_product_per_pair(all_dfs, df_obs):
+def merge_measures_and_enveo_vel_obs_sens(dic_env, dic_me, return_df_merge=False):
+    """
+    Function to merge each mesasures vel obs sens data
+    to the same amount of velocity points as the itslive data set
+    dig_il: dictionary with vel obs sens data for a simulation with itslive
+    dig_me: dictionary with vel obs sens data for a simulation with measures
+    return_df_merge: default is False if you dont want the Pandas dataframe merged
+    """
+    xm, ym = np.split(dic_me['uv_obs_pts'], 2, axis=1)
+    xe, ye = np.split(dic_env['uv_obs_pts'], 2, axis=1)
+
+    d_env = {'xe': xe.ravel(),
+             'ye': ye.ravel(),
+             'u_obs_e': dic_env['u_obs'],
+             'v_obs_e': dic_env['v_obs'],
+             'u_obs_e_std': dic_env['u_std'],
+             'v_obs_e_std': dic_env['v_std']}
+
+    df_env = pd.DataFrame(data=d_env)
+
+    d_me = {'xm': xm.ravel(),
+            'ym': ym.ravel(),
+            'u_obs_m': dic_me['u_obs'],
+            'v_obs_m': dic_me['v_obs'],
+            'u_obs_m_std': dic_me['u_std'],
+            'v_obs_m_std': dic_me['v_std']}
+
+    df_me = pd.DataFrame(data=d_me)
+
+    df_merge = pd.merge(df_env,
+                        df_me,
+                        how='inner',
+                        left_on=['xe', 'ye'],
+                        right_on=['xm', 'ym'])
+
+    # we will save all dataframes on a dict
+    all_dfs = defaultdict(pd.DataFrame)
+
+    for n_sen in np.arange(15):
+        dict_me = {'xm': xm.ravel(),
+                   'ym': ym.ravel(),
+                   'dObsU_me': dic_me['dObsU'][n_sen],
+                   'dObsV_me': dic_me['dObsV'][n_sen]}
+
+        df_measures = pd.DataFrame(data=dict_me)
+
+        df_merge_dqdo = pd.merge(df_env,
+                                 df_measures,
+                                 how='inner',
+                                 left_on=['xe', 'ye'],
+                                 right_on=['xm', 'ym'])
+
+        # print(df_merge_dqdo.keys())
+        assert len(df_merge_dqdo) == len(df_merge)
+
+        all_dfs[n_sen] = df_merge_dqdo
+
+    if return_df_merge:
+        return all_dfs, df_merge
+    else:
+        return all_dfs
+
+
+def dot_product_per_pair(all_dfs, df_obs, add_std=False):
     """
     Compute derivatives dot product, per pair of data sets (itslive or measures)
     :param all_dfs: dataframe containing itslive and measures vel obs sens data
@@ -699,21 +766,132 @@ def dot_product_per_pair(all_dfs, df_obs):
         dq_dv_me = all_dfs[n_sen]['dObsV_me']
 
         u_il = df_obs['u_obs_i']
+        u_il_std = df_obs['u_obs_i_std']
+
         v_il = df_obs['v_obs_i']
+        v_il_std = df_obs['v_obs_i_std']
 
         u_me = df_obs['u_obs_m']
+        u_me_std = df_obs['u_obs_m_std']
+
         v_me = df_obs['v_obs_m']
+        v_me_std = df_obs['v_obs_m_std']
 
-        diff_velu = u_me - u_il
-        diff_velv = v_me - v_il
-
-        dq_du_dot_me = np.dot(dq_du_me, diff_velu)
-        dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
+        if add_std:
+            diff_velu = u_me_std - u_il_std
+            diff_velv = v_me_std - v_il_std
+            dq_du_dot_me = np.abs(np.dot(dq_du_me, diff_velu))
+            dq_dv_dot_me = np.abs(np.dot(dq_dv_me, diff_velv))
+        else:
+            diff_velu = u_me - u_il
+            diff_velv = v_me - v_il
+            dq_du_dot_me = np.dot(dq_du_me, diff_velu)
+            dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
 
         dot_product_U_me.append(dq_du_dot_me)
         dot_product_V_me.append(dq_dv_dot_me)
 
     return dot_product_U_me, dot_product_V_me
+
+
+def dot_product_per_pair_enveo(all_dfs, df_obs, add_std=False):
+    """
+        Compute derivatives dot product, per pair of data sets (enveo or measures)
+        :param all_dfs: dataframe containing measures vel obs sens data
+        :df_obs: dataframe with velocity observations where there are common observational
+        points between enveo and measures.
+        """
+    dot_product_U_me = []
+    dot_product_V_me = []
+
+    for n_sen in np.arange(15):
+        dq_du_me = all_dfs[n_sen]['dObsU_me']
+        dq_dv_me = all_dfs[n_sen]['dObsV_me']
+
+        u_env = df_obs['u_obs_e']
+        u_env_std = df_obs['u_obs_e_std']
+        v_env = df_obs['v_obs_e']
+        v_env_std = df_obs['v_obs_e_std']
+
+        u_me = df_obs['u_obs_m']
+        u_me_std = df_obs['u_obs_m_std']
+        v_me = df_obs['v_obs_m']
+        v_me_std = df_obs['v_obs_m_std']
+
+        if add_std:
+            diff_velu = u_me_std - u_env_std
+            diff_velv = v_me_std - v_env_std
+            dq_du_dot_me = np.abs(np.dot(dq_du_me, diff_velu))
+            dq_dv_dot_me = np.abs(np.dot(dq_dv_me, diff_velv))
+        else:
+            diff_velu = u_me - u_env
+            diff_velv = v_me - v_env
+            dq_du_dot_me = np.dot(dq_du_me, diff_velu)
+            dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
+
+        dot_product_U_me.append(dq_du_dot_me)
+        dot_product_V_me.append(dq_dv_dot_me)
+
+    return dot_product_U_me, dot_product_V_me
+
+
+def interp_enveo_to_compatible_grid(denv, dmm, extend):
+    """
+    Interpolate velocity data to measures and itslive grid,
+    for velocity comparisons
+
+    :param denv: Enveo velocity data set
+    :param dmm: measures velocity data set already interpolated
+    to a common grid with itslive
+    :extend: ase_extend for coordinates
+    """
+
+    # Get measures arrays
+
+    vxmm = dmm.vx
+    vymm = dmm.vy
+
+    # Crop velocity data to the ase Glacier extend
+    vxmm_s, xmm_s, ymm_s = crop_velocity_data_to_extend(vxmm,
+                                                        extend,
+                                                        return_coords=True)
+
+    vymm_s = crop_velocity_data_to_extend(vymm, extend)
+
+    new_x = xmm_s
+    new_y = ymm_s
+
+    ## Sorting Enveo velocities and std components
+    count = denv.land_ice_surface_measurement_count
+    vxem = denv.land_ice_surface_easting_velocity * 365.25
+    vyem = denv.land_ice_surface_northing_velocity * 365.25
+    vzem = denv.land_ice_surface_vertical_velocity * 365.25
+    vvem = denv.land_ice_surface_vertical_velocity * 365.25
+    vvem_std = denv.land_ice_surface_stddev * 365.25
+
+    vxem_std = vvem_std ** (1 / 3)
+    vyem_std = vvem_std ** (1 / 3)
+    vzem_std = vvem_std ** (1 / 3)
+
+    vxem_new = vxem.interp(x=new_x, y=new_y)
+    vyem_new = vyem.interp(x=new_x, y=new_y)
+
+    vxem_std_new = vxem_std.interp(x=new_x, y=new_y)
+    vyem_std_new = vyem_std.interp(x=new_x, y=new_y)
+
+    assert vxem_new.data.shape == vxmm_s.data.shape
+    assert vyem_new.data.shape == vymm_s.data.shape
+
+    #  Creating a new data set
+    ds = xr.Dataset({'vx': (['y', 'x'], vxem_new.data),
+                     'vy': (['y', 'x'], vyem_new.data),
+                     'vx_std': (['y', 'x'], vxem_std_new.data),
+                     'vy_std': (['y', 'x'], vyem_std_new.data)
+                     },
+                    coords={'y': (['y'], vxem_new.y.values),
+                            'x': (['x'], vxem_new.x.values)}
+                    )
+    return ds
 
 class ncDataset(netCDF4.Dataset):
     """Wrapper around netCDF4 setting auto_mask to False"""

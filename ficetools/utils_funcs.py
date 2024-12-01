@@ -13,6 +13,7 @@ import fnmatch
 import re
 import pandas as pd
 import pickle
+from collections import defaultdict
 from decimal import Decimal
 from functools import reduce
 import operator
@@ -21,7 +22,7 @@ from .backend import MPI, Mesh, XDMFFile, Function, FunctionSpace, \
 from dolfin import KrylovSolver
 from tlm_adjoint.interface import function_new
 import h5py
-from fenics_ice import config, mesh,inout, model, solver
+from fenics_ice import config, mesh, inout, model, solver
 from ufl import finiteelement
 
 # Module logger
@@ -759,3 +760,148 @@ def convert_vel_sens_output_into_functions(out,
         out_copy['dObsV'][n_sen] = project_dq_dc_to_mesh(out['dObsV'][n_sen], M, vtx_M, wts_M, mesh_in)
 
     return out_copy
+
+def get_alpha_and_beta_points(params):
+    """
+    Gets alpha and beta functions for a given experiment and inversion
+    :params fenics ice parameter configuration
+    Returns
+    ------
+    alpha and beta fields already vectorised as numpy arrays.
+    """
+    # Reading mesh
+    mesh_in = mesh.get_mesh(params)
+
+    # Compute the function spaces from the Mesh
+    Q = FunctionSpace(mesh_in, 'Lagrange', 1)
+    M = FunctionSpace(mesh_in, 'DG', 0)
+
+    if not params.mesh.periodic_bc:
+        Qp = Q
+    else:
+        Qp = mesh.get_periodic_space(params, mesh_in, dim=1)
+
+    # Now we read Alpha and Beta fields from each run
+    # The diagnostic path is the same for both runs
+    path_diag = os.path.join(params.io.diagnostics_dir, 'inversion')
+
+    phase_suffix = params.inversion.phase_suffix
+    exp_outdir = Path(path_diag) / phase_suffix
+    file_alpha = "_".join((params.io.run_name + phase_suffix, 'alpha.xml'))
+    file_bglen = "_".join((params.io.run_name + phase_suffix, 'beta.xml'))
+
+    alpha_fp = exp_outdir / file_alpha
+    bglen_fp = exp_outdir / file_bglen
+
+    assert alpha_fp.is_file(), "File not found"
+    assert bglen_fp.is_file(), "File not found"
+
+    # Define function spaces for alpha only and uv_comp
+    alpha_func = Function(Qp, str(alpha_fp))
+    alpha_proj = project(alpha_func, M)
+    alpha = alpha_proj.compute_vertex_values(mesh_in)
+
+    # Beta space
+    beta_func = Function(Qp, str(bglen_fp))
+    beta_proj = project(beta_func, M)
+    beta = beta_proj.compute_vertex_values(mesh_in)
+
+    return alpha, beta
+
+def dot_product_per_parameter_pair(params_me, params_il):
+    """
+    Get forward results of QoI sensitivities to params
+    for a given experiment.
+    :params fenics ice parameter configuration for measures
+    :params fenics ice parameter configuration for itslive
+    Returns
+    ------
+
+    """
+    # Read mesh
+    mesh_in = mesh.get_mesh(params_me)
+
+    # Read output data to plot
+    # Same output dir for both runs
+    out_il = params_il.io.output_dir
+    phase_name = params_il.time.phase_name
+    run_name = params_il.io.run_name
+
+    phase_suffix_il = params_il.time.phase_suffix
+    phase_suffix_me = params_me.time.phase_suffix
+
+    fwd_outdir_il = Path(out_il) / phase_name / phase_suffix_il
+    fwd_outdir_me = Path(out_il) / phase_name / phase_suffix_me
+
+    file_qts_il = "_".join((params_il.io.run_name + phase_suffix_il, 'dQ_ts.h5'))
+    file_qts_me = "_".join((params_me.io.run_name + phase_suffix_me, 'dQ_ts.h5'))
+
+    hdffile_il = fwd_outdir_il / file_qts_il
+    hdffile_me = fwd_outdir_me / file_qts_me
+
+    assert hdffile_il.is_file(), "File not found"
+    assert hdffile_me.is_file(), "File not found"
+
+    el = finiteelement.FiniteElement("Lagrange", mesh_in.ufl_cell(), 1)
+    mixedElem = el * el
+
+    Q_f = FunctionSpace(mesh_in, mixedElem)
+    dQ_f = Function(Q_f)
+
+    # Get the n_sens
+    num_sens = np.arange(0, params_il.time.num_sens)
+    print('Years')
+    print(num_sens)
+
+    # Get sensitivity output for dQ/da and dQ/db
+    # along each num_sen
+    fwd_v_alpha_il = defaultdict(list)
+    fwd_v_beta_il = defaultdict(list)
+    fwd_v_alpha_me = defaultdict(list)
+    fwd_v_beta_me = defaultdict(list)
+
+    results_dot_alpha = []
+    results_dot_beta = []
+
+    # So we know to which num_sen the sensitivity
+    # output belongs
+    nametosum = 'fwd_n_'
+
+    for n in num_sens:
+        # We get the sensitivities for every num_sen
+        # as a vector component
+        # For measures
+        dq_dalpha_me, dq_dbeta_me = compute_vertex_for_dV_components(dQ_f,
+                                                                     mesh_in,
+                                                                     str(hdffile_me),
+                                                                     'dQdalphaXbeta',
+                                                                     n,
+                                                                     mult_mmatrix=False)
+        # We do not need to multiply by the mass matrix!
+        # more info check the compute_vertex_for_dV_component()
+        dq_dalpha_il, dq_dbeta_il = compute_vertex_for_dV_components(dQ_f,
+                                                                     mesh_in,
+                                                                     str(hdffile_il),
+                                                                     'dQdalphaXbeta',
+                                                                     n,
+                                                                     mult_mmatrix=False)
+
+        alpha_v_me, beta_v_me = get_alpha_and_beta_points(params_me)
+        alpha_v_il, beta_v_il = get_alpha_and_beta_points(params_il)
+
+        dot_alpha_me = np.dot(dq_dalpha_me, alpha_v_me - alpha_v_il)
+        dot_beta_me = np.dot(dq_dbeta_me, beta_v_me - beta_v_il)
+
+        print('%.2E' % Decimal(dot_alpha_me))
+        print('%.2E' % Decimal(dot_beta_me))
+
+        fwd_v_alpha_me[f'{nametosum}{n}'].append(dq_dalpha_me)
+        fwd_v_beta_me[f'{nametosum}{n}'].append(dq_dbeta_me)
+
+        fwd_v_alpha_il[f'{nametosum}{n}'].append(dq_dalpha_il)
+        fwd_v_beta_il[f'{nametosum}{n}'].append(dq_dbeta_il)
+
+        results_dot_alpha.append(dot_alpha_me)
+        results_dot_beta.append(dot_beta_me)
+
+    return results_dot_alpha, results_dot_beta

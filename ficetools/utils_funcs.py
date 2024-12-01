@@ -892,8 +892,6 @@ def dot_product_per_parameter_pair(params_me, params_il):
         dot_alpha_me = np.dot(dq_dalpha_me, alpha_v_me - alpha_v_il)
         dot_beta_me = np.dot(dq_dbeta_me, beta_v_me - beta_v_il)
 
-        print('%.2E' % Decimal(dot_alpha_me))
-        print('%.2E' % Decimal(dot_beta_me))
 
         fwd_v_alpha_me[f'{nametosum}{n}'].append(dq_dalpha_me)
         fwd_v_beta_me[f'{nametosum}{n}'].append(dq_dbeta_me)

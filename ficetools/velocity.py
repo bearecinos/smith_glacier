@@ -703,8 +703,9 @@ def merge_measures_and_enveo_vel_obs_sens(dic_env, dic_me, return_df_merge=False
     d_env = {'xe': xe.ravel(),
              'ye': ye.ravel(),
              'u_obs_e': dic_env['u_obs'],
-             'v_obs_e': dic_env['v_obs']
-             }
+             'v_obs_e': dic_env['v_obs'],
+             'u_obs_e_std': dic_env['u_std'],
+             'v_obs_e_std': dic_env['v_std']}
 
     df_env = pd.DataFrame(data=d_env)
 
@@ -732,7 +733,18 @@ def merge_measures_and_enveo_vel_obs_sens(dic_env, dic_me, return_df_merge=False
                    'dObsU_me': dic_me['dObsU'][n_sen],
                    'dObsV_me': dic_me['dObsV'][n_sen]}
 
-        all_dfs[n_sen] = pd.DataFrame(data=dict_me)
+        df_measures = pd.DataFrame(data=dict_me)
+
+        df_merge_dqdo = pd.merge(df_env,
+                                 df_measures,
+                                 how='inner',
+                                 left_on=['xe', 'ye'],
+                                 right_on=['xm', 'ym'])
+
+        # print(df_merge_dqdo.keys())
+        assert len(df_merge_dqdo) == len(df_merge)
+
+        all_dfs[n_sen] = df_merge_dqdo
 
     if return_df_merge:
         return all_dfs, df_merge
@@ -782,7 +794,7 @@ def dot_product_per_pair(all_dfs, df_obs, add_std=False):
     return dot_product_U_me, dot_product_V_me
 
 
-def dot_product_per_pair_enveo(all_dfs, df_obs):
+def dot_product_per_pair_enveo(all_dfs, df_obs, add_std=False):
     """
         Compute derivatives dot product, per pair of data sets (enveo or measures)
         :param all_dfs: dataframe containing measures vel obs sens data
@@ -797,16 +809,25 @@ def dot_product_per_pair_enveo(all_dfs, df_obs):
         dq_dv_me = all_dfs[n_sen]['dObsV_me']
 
         u_env = df_obs['u_obs_e']
+        u_env_std = df_obs['u_obs_e_std']
         v_env = df_obs['v_obs_e']
+        v_env_std = df_obs['v_obs_e_std']
 
         u_me = df_obs['u_obs_m']
+        u_me_std = df_obs['u_obs_m_std']
         v_me = df_obs['v_obs_m']
+        v_me_std = df_obs['v_obs_m_std']
 
-        diff_velu = u_me - u_env
-        diff_velv = v_me - v_env
-
-        dq_du_dot_me = np.dot(dq_du_me, diff_velu)
-        dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
+        if add_std:
+            diff_velu = u_me_std - u_env_std
+            diff_velv = v_me_std - v_env_std
+            dq_du_dot_me = np.abs(np.dot(dq_du_me, diff_velu))
+            dq_dv_dot_me = np.abs(np.dot(dq_dv_me, diff_velv))
+        else:
+            diff_velu = u_me - u_env
+            diff_velv = v_me - v_env
+            dq_du_dot_me = np.dot(dq_du_me, diff_velu)
+            dq_dv_dot_me = np.dot(dq_dv_me, diff_velv)
 
         dot_product_U_me.append(dq_du_dot_me)
         dot_product_V_me.append(dq_dv_dot_me)

@@ -825,13 +825,16 @@ def dot_product_per_parameter_pair(params_me, params_il):
     # Same output dir for both runs
     out_il = params_il.io.output_dir
     phase_name = params_il.time.phase_name
-    run_name = params_il.io.run_name
+    run_name_il = params_il.io.run_name
+
+    out_me = params_me.io.output_dir
+    run_name_me = params_me.io.run_name
 
     phase_suffix_il = params_il.time.phase_suffix
     phase_suffix_me = params_me.time.phase_suffix
 
     fwd_outdir_il = Path(out_il) / phase_name / phase_suffix_il
-    fwd_outdir_me = Path(out_il) / phase_name / phase_suffix_me
+    fwd_outdir_me = Path(out_me) / phase_name / phase_suffix_me
 
     file_qts_il = "_".join((params_il.io.run_name + phase_suffix_il, 'dQ_ts.h5'))
     file_qts_me = "_".join((params_me.io.run_name + phase_suffix_me, 'dQ_ts.h5'))

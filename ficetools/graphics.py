@@ -359,12 +359,14 @@ def get_file_names_for_invsigma_plot(params):
 
     return file_salpha, file_sbeta, file_prior_alpha, file_prior_beta
 
-def get_data_for_sigma_path_from_toml(toml, main_dir_path):
+
+def get_data_for_sigma_path_from_toml(toml, main_dir_path, add_qoi_posterior=True):
     """
     Returns the data to plot the QoI uncertainty path with a given .toml
 
     :param toml: fenics_ice configuration file
     :param main_dir_path: main directory path e.g. /scratch/local/smith_glacier
+    :param add_qoi_posterior: add posterior information for QoI uncertainty evolution
     :return: qoi_dict: a dictionary with all the data needed for the plot.
             x: number of years
             y: QoI trayectory
@@ -386,51 +388,48 @@ def get_data_for_sigma_path_from_toml(toml, main_dir_path):
     exp_outdir_fwd = define_stage_output_paths(params, 'time')
     exp_outdir_errp = define_stage_output_paths(params, 'error_prop')
 
-    c_fnames = get_file_names_for_path_plot(params)
+    # Get file names
+    Q_c_fname, sigma_c_fname, sigma_c_prior_fname = get_file_names_for_path_plot(params)
 
-    Q_c_fname = c_fnames[0]
-    sigma_c_fname = c_fnames[1]
-    sigma_c_prior_fname = c_fnames[2]
+    # Construct file paths
+    file_paths = {
+        'Qfile_c': exp_outdir_fwd / Q_c_fname,
+        'sigmafile_c': exp_outdir_errp / sigma_c_fname,
+        'sigmapriorfile_c': exp_outdir_errp / sigma_c_prior_fname
+    }
 
-    # config three
-    Qfile_c = exp_outdir_fwd / Q_c_fname
-    sigmafile_c = exp_outdir_errp / sigma_c_fname
-    sigmapriorfile_c = exp_outdir_errp / sigma_c_prior_fname
+    # Check if files exist
+    assert file_paths['Qfile_c'].is_file(), f"Missing required file: {file_paths['Qfile_c']}"
 
-    # Check if the file exist
-    assert Qfile_c.is_file()
-    assert sigmafile_c.is_file()
-    assert sigmapriorfile_c.is_file()
+    if add_qoi_posterior:
+        assert file_paths['sigmafile_c'].is_file(), f"Missing required file: {file_paths['sigmafile_c']}"
+        assert file_paths['sigmapriorfile_c'].is_file(), f"Missing required file: {file_paths['sigmapriorfile_c']}"
 
-    with open(Qfile_c, 'rb') as f:
-        out = pickle.load(f)
-    dQ_vals_c = out[0]
-    dQ_t_c = out[1]
+         # Load QoI data
+    with open(file_paths['Qfile_c'], 'rb') as f:
+        dQ_vals_c, dQ_t_c = pickle.load(f)
 
-    with open(sigmafile_c, 'rb') as f:
-        out = pickle.load(f)
-    sigma_vals_c = out[0]
-    sigma_t_c = out[1]
+    qoi_dict = {'x': dQ_t_c, 'y': dQ_vals_c - dQ_vals_c[0]}
 
-    with open(sigmapriorfile_c, 'rb') as f:
-        out = pickle.load(f)
-    sigma_prior_vals_c = out[0]
+    if add_qoi_posterior:
+        with open(file_paths['sigmafile_c'], 'rb') as f:
+            sigma_vals_c, sigma_t_c = pickle.load(f)
 
-    sigma_interp_c = np.interp(dQ_t_c, sigma_t_c, sigma_vals_c)
-    sigma_prior_interp_c = np.interp(dQ_t_c, sigma_t_c, sigma_prior_vals_c)
+        with open(file_paths['sigmapriorfile_c'], 'rb') as f:
+            sigma_prior_vals_c, _ = pickle.load(f)
 
-    x_c = dQ_t_c
+        # Interpolate sigma values
+        sigma_interp_c = np.interp(dQ_t_c, sigma_t_c, sigma_vals_c)
+        sigma_prior_interp_c = np.interp(dQ_t_c, sigma_t_c, sigma_prior_vals_c)
 
-    y_c = dQ_vals_c - dQ_vals_c[0]
-
-    s_c = 2 * sigma_interp_c
-    sp_c = 2 * sigma_prior_interp_c
-
-    qoi_dict = {'x': x_c, 'y': y_c,
-                'sigma_post': s_c, 'sigma_prior': sp_c,
-                'sigma_t':sigma_t_c}
+        qoi_dict.update({
+            'sigma_post': 2 * sigma_interp_c,
+            'sigma_prior': 2 * sigma_prior_interp_c,
+            'sigma_t': sigma_t_c
+        })
 
     return qoi_dict
+
 
 def get_params_posterior_std(toml, main_dir_path):
     """

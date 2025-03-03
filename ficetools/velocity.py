@@ -665,10 +665,17 @@ def merge_measures_and_itslive_vel_obs_sens(dic_il, dic_me, return_df_merge=Fals
 
         df_measures = pd.DataFrame(data=dict_me)
 
+        # Construct the itslive dictionary
         dict_il = {'xi': xi.ravel(),
-                   'yi': yi.ravel(),
-                   'dObsU_il': dic_il['dObsU'][n_sen],
-                   'dObsV_il': dic_il['dObsV'][n_sen]}
+                   'yi': yi.ravel()}
+
+        # Add 'dObsU_il' and dObsV_il only if it exists in dic_il
+        if 'dObsU' and 'dObsV' in dic_il:
+            dict_il['dObsU_il'] = dic_il['dObsU'][n_sen]
+            dict_il['dObsV_il'] = dic_il['dObsV'][n_sen]
+        else:
+            dict_il['dObsU_il'] = np.full_like(xi.ravel(), np.nan)
+            dict_il['dObsV_il'] = np.full_like(xi.ravel(), np.nan)
 
         df_itslive = pd.DataFrame(data=dict_il)
 

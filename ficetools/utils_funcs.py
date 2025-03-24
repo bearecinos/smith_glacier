@@ -928,7 +928,7 @@ def contour_to_lines(contour):
     return lines
 
 
-def re_grid_model_output(x, y, output, resolution=240, mask_xarray=xr.DataArray):
+def re_grid_model_output(x, y, output, resolution=240, mask_xarray=xr.DataArray, return_points=False):
     """
     x: easting coordinates
     y: north coordinate
@@ -958,7 +958,10 @@ def re_grid_model_output(x, y, output, resolution=240, mask_xarray=xr.DataArray)
     # We mask the ocean from bedmachine mask
     masked_output = np.where(mask_bm_2d != 0, output_gridded, np.nan)
 
-    return masked_output
+    if return_points:
+        return masked_output, grid_x, grid_y
+    else:
+        return masked_output
 
 
 def model_grounding_line_to_shapefile(params,

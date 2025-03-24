@@ -15,6 +15,11 @@ import pandas as pd
 import pickle
 from collections import defaultdict
 from decimal import Decimal
+from scipy.interpolate import griddata
+import matplotlib.pyplot as plt
+import geopandas as gpd
+from shapely.geometry import LineString
+import xarray as xr
 from functools import reduce
 import operator
 from .backend import MPI, Mesh, XDMFFile, Function, FunctionSpace, \
@@ -897,13 +902,149 @@ def dot_product_per_parameter_pair(params_me, params_il):
         dot_beta_me = np.dot(dq_dbeta_me, beta_v_me - beta_v_il)
 
 
-        fwd_v_alpha_me[f'{nametosum}{n}'].append(dq_dalpha_me)
-        fwd_v_beta_me[f'{nametosum}{n}'].append(dq_dbeta_me)
+        #fwd_v_alpha_me[f'{nametosum}{n}'].append(dq_dalpha_me)
+        #fwd_v_beta_me[f'{nametosum}{n}'].append(dq_dbeta_me)
 
-        fwd_v_alpha_il[f'{nametosum}{n}'].append(dq_dalpha_il)
-        fwd_v_beta_il[f'{nametosum}{n}'].append(dq_dbeta_il)
+        #fwd_v_alpha_il[f'{nametosum}{n}'].append(dq_dalpha_il)
+        #fwd_v_beta_il[f'{nametosum}{n}'].append(dq_dbeta_il)
 
         results_dot_alpha.append(dot_alpha_me)
         results_dot_beta.append(dot_beta_me)
 
     return results_dot_alpha, results_dot_beta
+
+
+def contour_to_lines(contour):
+    """
+    Turn a sigle contour lines into LineString
+    contour: single contour form a contour matplotlib plt.
+    """
+    lines = []
+    for collection in contour.collections:
+        for path in collection.get_paths():
+            v = path.vertices
+            line = LineString(v)
+            lines.append(line)
+    return lines
+
+
+def re_grid_model_output(x, y, output, resolution=240, mask_xarray=xr.DataArray):
+    """
+    x: easting coordinates
+    y: north coordinate
+    output: model output to re-grid
+    resolution: new grid resolution e.g. 240 m same as ITSLIVE grid
+    mask: a xr.Array mask over the ocean
+
+    Note that this does not account for a mask in the ocean, thus will
+    interpolate values there as well.
+    """
+
+    xi = np.arange(x.min(), x.max(), resolution)
+    yi = np.arange(y.min(), y.max(), resolution)
+
+    grid_x, grid_y = np.meshgrid(xi, yi)
+
+    output_gridded = griddata((x, y), output, (grid_x, grid_y), method='linear')
+
+    xm, ym = np.meshgrid(mask_xarray.x.data, mask_xarray.y.data)
+
+    # Flatten original coordinates and mask values
+    points = np.column_stack((xm.ravel(), ym.ravel()))
+    values = mask_xarray.data.ravel()
+
+    mask_bm_2d = griddata(points, values, (grid_x, grid_y), method='nearest')
+
+    # We mask the ocean from bedmachine mask
+    masked_output = np.where(mask_bm_2d != 0, output_gridded, np.nan)
+
+    return masked_output
+
+
+def model_grounding_line_to_shapefile(params,
+                                      time_step=240):
+    """
+    Convert model grounding line to shapefile
+    params: Fenics_ice params object
+    time_step: year of gronding line to output
+    """
+
+    # Reading the model output
+    outdir = params.io.diagnostics_dir
+    phase_name_fwd = params.time.phase_name
+    phase_suffix = params.time.phase_suffix
+
+    fwd_outdir_me = Path(outdir) / phase_name_fwd / phase_suffix
+
+    file_name = 'H_timestep_' + str(time_step) + '.xml'
+
+    file_H_time = "_".join((params.io.run_name + phase_suffix, file_name))
+    xmlfile_H = fwd_outdir_me / file_H_time
+
+    assert xmlfile_H.is_file(), "File not found"
+
+    # Compute the function spaces from the Mesh
+    mesh_in = mesh.get_mesh(params)
+    input_data = inout.InputData(params)
+    mdl = model.model(mesh_in, input_data, params)
+    M = mdl.M
+
+    H = Function(M, str(xmlfile_H))
+    H_vertex = H.compute_vertex_values(mesh_in)
+
+    # Reading the inversion output
+    phase_name_inversion = params.inversion.phase_name
+    inv_outdir_me = Path(outdir) / phase_name_inversion / phase_suffix
+    bed_file = "_".join((params.io.run_name + phase_suffix, 'bed.xml'))
+
+    bed_file_fullpath = inv_outdir_me / bed_file
+    assert bed_file_fullpath.is_file(), "File not found"
+
+    Q = mdl.Q
+    bed_func = Function(Q, str(bed_file_fullpath))
+    bed_v = bed_func.compute_vertex_values(mesh_in)
+
+    rhoi = 917.0  # Density of ice
+    rhow = 1030.0  # Density of sea water
+
+    H_AF = H_vertex + bed_v * (rhow / rhoi)
+    mask = H_AF > 0.0  # Example value to filter
+    masked_H_AF = np.ma.array(H_AF, mask=mask)
+
+    interm_masked_H_AF = np.where((masked_H_AF.mask == 0) | (masked_H_AF.mask == 1),
+                                  masked_H_AF.mask, 0)
+
+    x = mesh_in.coordinates()[:, 0]
+    y = mesh_in.coordinates()[:, 1]
+
+    xi = np.arange(x.min(), x.max(), 240)
+    yi = np.arange(y.min(), y.max(), 240)
+    grid_x, grid_y = np.meshgrid(xi, yi)
+
+    masked_H_AF_2d = griddata((x, y), interm_masked_H_AF,
+                              (grid_x, grid_y), method='linear')
+
+    contour_1 = plt.contour(grid_x, grid_y,
+                            masked_H_AF_2d, levels=[0, 1], colors='blue')
+
+    # Extract line geometries from each contour
+    lines = contour_to_lines(contour_1)
+
+    # Optionally assign attributes (e.g., source)
+    geoms = lines
+    attrs = ['H'+ str(time_step)] * len(lines)
+
+    # Create GeoDataFrame
+    gdf = gpd.GeoDataFrame({'source': attrs, 'geometry': geoms})
+
+    # Set the correct CRS (same as your grid_x, grid_y — likely EPSG:3031)
+    gdf.set_crs(epsg=3031, inplace=True)
+
+    return gdf
+
+
+
+
+
+
+

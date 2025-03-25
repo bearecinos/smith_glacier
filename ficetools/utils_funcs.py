@@ -1027,8 +1027,10 @@ def model_grounding_line_to_shapefile(params,
     masked_H_AF_2d = griddata((x, y), interm_masked_H_AF,
                               (grid_x, grid_y), method='linear')
 
+    plt.ioff()
     contour_1 = plt.contour(grid_x, grid_y,
                             masked_H_AF_2d, levels=[0, 1], colors='blue')
+    plt.clf()
 
     # Extract line geometries from each contour
     lines = contour_to_lines(contour_1)

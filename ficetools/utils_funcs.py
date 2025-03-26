@@ -1080,7 +1080,7 @@ def interp_model_output_to_centreline(ds, gdf):
     dQ_dM_3 = ds.dQ_dM_3.interp(x=("points", lons), y=("points", lats))
 
     # We return the points close to the ocean first
-    return dQ_dM_14[::-1], dQ_dM_3[::-1]
+    return dQ_dM_14, dQ_dM_3
 
 
 

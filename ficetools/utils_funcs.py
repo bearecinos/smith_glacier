@@ -19,6 +19,7 @@ from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from shapely.geometry import LineString
+from pyproj import Transformer
 import xarray as xr
 from functools import reduce
 import operator
@@ -1046,6 +1047,40 @@ def model_grounding_line_to_shapefile(params,
     gdf.set_crs(epsg=3031, inplace=True)
 
     return gdf
+
+
+def interpolate_line(line: LineString, step: float = 10.0):
+    """
+    Generates a list of evenly spaced points along a LineString geometry,
+    at a fixed interval (e.g., every 1,000 meters).
+    line: LineString (transect from a shapefile geometry)
+    step: how to divide the transect e.g. 10 meters
+    """
+    n_points = int(line.length / step)
+    distances = np.linspace(0, line.length, n_points)
+    return [line.interpolate(d) for d in distances]
+
+
+def interp_model_output_to_centreline(ds, gdf):
+    """
+    ds: xarray.DataArray with the model output
+    gdf: geopandas data frame containing the centreline or
+    transect
+    """
+
+    transect = gdf.geometry.iloc[0]
+
+    # here we do every 1km along the main centreline
+    points = interpolate_line(transect, step=1000)
+
+    lons = np.array([pt.x for pt in points])
+    lats = np.array([pt.y for pt in points])
+
+    dQ_dM_14 = ds.dQ_dM_14.interp(x=("points", lons), y=("points", lats))
+    dQ_dM_3 = ds.dQ_dM_3.interp(x=("points", lons), y=("points", lats))
+
+    # We return the points close to the ocean first
+    return dQ_dM_14[::-1], dQ_dM_3[::-1]
 
 
 

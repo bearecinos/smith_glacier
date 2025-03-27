@@ -1061,26 +1061,52 @@ def interpolate_line(line: LineString, step: float = 10.0):
     return [line.interpolate(d) for d in distances]
 
 
-def interp_model_output_to_centreline(ds, gdf):
+def interp_model_output_to_centreline(ds, gdf, n_sens, step):
     """
     ds: xarray.DataArray with the model output
     gdf: geopandas data frame containing the centreline or
     transect
+    n_sens: array of years to interpolate
+    step: how to divide the centreline e.g. 10 meters
     """
 
     transect = gdf.geometry.iloc[0]
 
     # here we do every 1km along the main centreline
-    points = interpolate_line(transect, step=1000)
+    points = interpolate_line(transect, step=step)
 
     lons = np.array([pt.x for pt in points])
     lats = np.array([pt.y for pt in points])
 
-    dQ_dM_14 = ds.dQ_dM_14.interp(x=("points", lons), y=("points", lats))
-    dQ_dM_3 = ds.dQ_dM_3.interp(x=("points", lons), y=("points", lats))
+    dQ_dM_y0 = ds['dQ_dM_' + str(n_sens[0])].interp(x=("points", lons), y=("points", lats))
+    dQ_dM_y1 = ds['dQ_dM_' + str(n_sens[-1])].interp(x=("points", lons), y=("points", lats))
 
     # We return the points close to the ocean first
-    return dQ_dM_14, dQ_dM_3
+    return dQ_dM_y0, dQ_dM_y1
+
+
+def interp_model_mask_to_centreline(ds_y0, ds_y1, gdf, years, step):
+    """
+    ds: xarray.DataArray with the model output
+    gdf: geopandas data frame containing the centreline or
+    transect
+    years: years of the simulation
+    step: how to divide the centreline e.g. 10 meters
+    """
+
+    transect = gdf.geometry.iloc[0]
+
+    # here we do every 1km along the main centreline
+    points = interpolate_line(transect, step=step)
+
+    lons = np.array([pt.x for pt in points])
+    lats = np.array([pt.y for pt in points])
+
+    mask_y0 = ds_y0['mask_' + str(years[0])].interp(x=("points", lons), y=("points", lats))
+    mask_y1 = ds_y1['mask_' + str(years[-1])].interp(x=("points", lons), y=("points", lats))
+
+    # We return the points close to the ocean first
+    return mask_y0, mask_y1
 
 
 

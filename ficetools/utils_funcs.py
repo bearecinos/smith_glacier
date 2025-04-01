@@ -1082,7 +1082,10 @@ def interp_model_output_to_centreline(ds, gdf, n_sens, step):
     dQ_dM_y1 = ds['dQ_dM_' + str(n_sens[-1])].interp(x=("points", lons), y=("points", lats))
 
     # We return the points close to the ocean first
-    return dQ_dM_y0, dQ_dM_y1
+    dQ_dM_y0_cleaned = dQ_dM_y0.where(~np.isnan(dQ_dM_y0), drop=True)
+    dQ_dM_y1_cleaned = dQ_dM_y1.where(~np.isnan(dQ_dM_y1), drop=True)
+
+    return dQ_dM_y0_cleaned, dQ_dM_y1_cleaned
 
 
 def interp_model_mask_to_centreline(ds_y0, ds_y1, gdf, years, step):
@@ -1105,8 +1108,11 @@ def interp_model_mask_to_centreline(ds_y0, ds_y1, gdf, years, step):
     mask_y0 = ds_y0['mask_' + str(years[0])].interp(x=("points", lons), y=("points", lats))
     mask_y1 = ds_y1['mask_' + str(years[-1])].interp(x=("points", lons), y=("points", lats))
 
+    mask_y0_cleaned = mask_y0.where(~np.isnan(mask_y0), drop=True)
+    mask_y1_cleaned = mask_y1.where(~np.isnan(mask_y1), drop=True)
+
     # We return the points close to the ocean first
-    return mask_y0, mask_y1
+    return mask_y0_cleaned, mask_y1_cleaned
 
 
 
